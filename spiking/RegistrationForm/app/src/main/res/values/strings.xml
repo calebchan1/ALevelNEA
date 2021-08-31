@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">RegistrationForm</string>
+    <string name="register">Register</string>
+    <string name="pick_image">Pick Image</string>
+    <string name="licence">These is our licence agreement: You can share this app anywhere that you want and use it however you want. Just remember to enjoy.</string>
+    <string-array name="countries">
+        <item>Germany</item>
+        <item>England</item>
+        <item>China</item>
+        <item>Japan</item>
+        <item>Iceland</item>
+        <item>France</item>
+        <item>Spain</item>
+    </string-array>
+</resources>
