@@ -6,7 +6,8 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.SharedPreferences;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,11 +19,15 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.opencsv.CSVWriter;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
@@ -38,9 +43,7 @@ public class MainActivity extends AppCompatActivity {
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer =sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         textView = findViewById(R.id.textView);
-        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE}, 1);
-
-
+        checkPermissions();
         if (accelerometer==null){
             Toast.makeText(this, "No accelerometer detected", Toast.LENGTH_SHORT).show();
             finish();
@@ -53,24 +56,26 @@ public class MainActivity extends AppCompatActivity {
                 String s = Float.toString(value);
                 textView.setText(s);
                 //recording each datapoint
-                String record = s + ",";
-                File storage = Environment.getStorageDirectory();
-                File dir = new File(MainActivity.this.getFilesDir(), "mydir");
-                if (!dir.exists()) {
-                    //checking if the directory exists
-                    dir.mkdir();
-                }
-                try{
-                    //committing changes to the file
-                    File accelFile = new File(dir,"accelFile.csv");
-                    FileWriter writer = new FileWriter(accelFile);
-                    writer.append(record);
-                    writer.flush();
-                    writer.close();
-                }
-                catch (Exception e) {
+                String entry = s +"\n";
+                try {
+                    File storage = Environment.getExternalStorageDirectory();
+                    File dir = new File(storage.getAbsolutePath() + "/documents");
+                    File file = new File(dir, "output.csv");
+                    FileOutputStream f = new FileOutputStream(file, true);
+                    try {
+                        f.write(entry.getBytes());
+                        f.flush();
+                        f.close();
+                        Toast.makeText(getBaseContext(), "Data saved", Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
+
             }
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -89,5 +94,16 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         sensorManager.unregisterListener(accelerometerEventListener);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void checkPermissions() {
+        int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
+            return;
+        }
+        Toast.makeText(getBaseContext(), "Permission is already granted", Toast.LENGTH_LONG).show();
+    }
+
 
 }
