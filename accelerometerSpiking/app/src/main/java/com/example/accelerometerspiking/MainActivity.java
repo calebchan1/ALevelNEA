@@ -52,11 +52,15 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public void onSensorChanged(SensorEvent event) {
-                float value = event.values[2];
-                String s = Float.toString(value);
-                textView.setText(s);
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+                String x1 = Float.toString(x);
+                String y1 = Float.toString(y);
+                String z1 = Float.toString(z);
+                textView.setText(x1);
                 //recording each datapoint
-                String entry = s +"\n";
+                String entry = x + ","+ y +","+z+"\n";
                 try {
                     File storage = Environment.getExternalStorageDirectory();
                     File dir = new File(storage.getAbsolutePath() + "/documents");
