@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         //when the user resumes the app
         super.onResume();
-        sensorManager.registerListener(accelerometerEventListener,accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(accelerometerEventListener,accelerometer,SensorManager.SENSOR_DELAY_GAME);
     }
     @Override
     protected void onPause() {
