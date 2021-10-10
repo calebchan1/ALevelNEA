@@ -15,23 +15,18 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.opencsv.CSVWriter;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private Sensor grav;
     private SensorEventListener accelerometerEventListener;
     private TextView textView;
 
@@ -42,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer =sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        grav = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         textView = findViewById(R.id.textView);
         checkPermissions();
         if (accelerometer==null){
@@ -55,10 +51,11 @@ public class MainActivity extends AppCompatActivity {
                 float x = event.values[0];
                 float y = event.values[1];
                 float z = event.values[2];
+                float gx = event.values[];
                 String x1 = Float.toString(x);
                 String y1 = Float.toString(y);
                 String z1 = Float.toString(z);
-                textView.setText(x1);
+                textView.setText(x1 + "," + y1 + "," + z1);
                 //recording each datapoint
                 String entry = x + ","+ y +","+z+"\n";
                 try {
@@ -91,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         //when the user resumes the app
         super.onResume();
-        sensorManager.registerListener(accelerometerEventListener,accelerometer,SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(accelerometerEventListener,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
     }
     @Override
     protected void onPause() {
