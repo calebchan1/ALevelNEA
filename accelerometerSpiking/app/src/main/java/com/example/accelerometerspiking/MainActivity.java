@@ -5,7 +5,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
+import java.lang.Math;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -51,13 +51,13 @@ public class MainActivity extends AppCompatActivity {
                 float x = event.values[0];
                 float y = event.values[1];
                 float z = event.values[2];
-                float gx = event.values[];
                 String x1 = Float.toString(x);
                 String y1 = Float.toString(y);
                 String z1 = Float.toString(z);
-                textView.setText(x1 + "," + y1 + "," + z1);
+                float mag = (float) Math.sqrt(x*x + y*y + z*z);
+                textView.setText(x1 + "," + y1 + "," + z1 + ","+mag);
                 //recording each datapoint
-                String entry = x + ","+ y +","+z+"\n";
+                String entry = x + ","+ y +","+z+","+mag+"\n";
                 try {
                     File storage = Environment.getExternalStorageDirectory();
                     File dir = new File(storage.getAbsolutePath() + "/documents");
