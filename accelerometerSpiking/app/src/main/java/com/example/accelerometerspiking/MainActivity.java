@@ -26,7 +26,6 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private Sensor grav;
     private SensorEventListener accelerometerEventListener;
     private TextView textView;
 
@@ -36,8 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
-        accelerometer =sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        grav = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        accelerometer =sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         textView = findViewById(R.id.textView);
         checkPermissions();
         if (accelerometer==null){
@@ -82,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
         };
+
     }
 
     @Override
