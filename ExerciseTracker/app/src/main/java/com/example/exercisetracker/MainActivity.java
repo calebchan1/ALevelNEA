@@ -6,29 +6,37 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity{
     private BottomNavigationView bottomMenu;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
-        bottomMenu.findViewById(R.id.bottom_navigation);
+        bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.setSelectedItemId(R.id.page_1);
+        Fragment fragment = new ExerciseFragment();;
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
         bottomMenu.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment fragment = null;
+                Fragment fragment = new ExerciseFragment();;
                 switch(item.getItemId()){
-                    case(R.id.page_3):
+                    case(R.id.page_1):
                         fragment = new ExerciseFragment();
+                        break;
+                    case(R.id.page_2):
+                        fragment = new HistoryFragment();
+                        break;
+                    case(R.id.page_3):
+                        fragment = new FriendsFragment();
+                        break;
+                    case (R.id.page_4):
+                        fragment = new SettingsFragment();
                         break;
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
@@ -36,7 +44,9 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+
     }
+
 
 
 }
