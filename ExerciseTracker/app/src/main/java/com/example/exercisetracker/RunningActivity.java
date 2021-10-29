@@ -29,17 +29,23 @@ import java.util.Locale;
 import java.util.Timer;
 
 public class RunningActivity extends AppCompatActivity {
+    //Sensors
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private SensorEventListener accelerometerEventListener;
+    //TextViews
     private TextView timerText;
     private TextView stepText;
     private TextView calorieText;
     private TextView distText;
+    //Buttons
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
+    //Specialised running variables
     private Boolean isRunning;
     private Integer seconds;
+    private Integer steps;
+    private Integer calories;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,7 @@ public class RunningActivity extends AppCompatActivity {
         calorieText = findViewById(R.id.calText);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
         startStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,14 +80,11 @@ public class RunningActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                //changing the timerText every second that handler is delayed
                 int hours = seconds / 3600;
                 int minutes = (seconds % 3600) / 60;
                 int secs = seconds % 60;
-                String time
-                        = String
-                        .format(Locale.getDefault(),
-                                "%d:%02d:%02d", hours,
-                                minutes, secs);
+                String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
                 timerText.setText(time);
                 if (isRunning){
                     seconds ++;
@@ -114,7 +118,7 @@ public class RunningActivity extends AppCompatActivity {
                 float y = event.values[1];
                 float z = event.values[2];
                 float mag = (float) Math.sqrt(x*x + y*y + z*z);
-                stepText.setText("Steps: \n" +mag);
+                stepText.setText("Steps: \n\n" +mag);
             }
 
             @Override
