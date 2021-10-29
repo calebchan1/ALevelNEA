@@ -30,7 +30,6 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener{
             case R.id.runBtn:
                 Intent intent = new Intent(getContext(),RunningActivity.class);
                 startActivity(intent);
-                Toast.makeText(getContext(), "Running Tracking", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.walkBtn:
                 Toast.makeText(getContext(), "Walking Tracking", Toast.LENGTH_SHORT).show();
