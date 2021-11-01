@@ -42,6 +42,7 @@ public class RunningActivity extends AppCompatActivity {
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
     //Specialised running variables
+    private Filter filter;
     private Boolean isRunning;
     private Integer seconds;
     private Integer steps;
@@ -61,20 +62,7 @@ public class RunningActivity extends AppCompatActivity {
         calorieText = findViewById(R.id.calText);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        //handling when start and stop button clicked
-        startStopBtn = findViewById(R.id.startStopBtn);
-        startStopBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isRunning){
-                    isRunning = false;
-                }
-                else{
-                    isRunning = true;
-                }
-            }
-        });
-
+        filter = new Filter((float) 0.6, (float) 10);
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -92,6 +80,22 @@ public class RunningActivity extends AppCompatActivity {
                 handler.postDelayed(this,1000);
             }
         });
+
+        //handling when start and stop button clicked
+        startStopBtn = findViewById(R.id.startStopBtn);
+        startStopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isRunning){
+                    isRunning = false;
+                }
+                else{
+                    isRunning = true;
+                }
+            }
+        });
+
+
 
         finishBtn = findViewById(R.id.finishBtn);
         finishBtn.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +122,12 @@ public class RunningActivity extends AppCompatActivity {
                 float y = event.values[1];
                 float z = event.values[2];
                 float mag = (float) Math.sqrt(x*x + y*y + z*z);
-                stepText.setText("Steps: \n\n" +mag);
+                float temp[];
+                temp = new float[1];
+                temp[0] = mag;
+                filter.filter(temp);
+                float[] data = filter.getFiltered_data();
+                stepText.setText("Steps: \n\n" +data[0]);
             }
 
             @Override
