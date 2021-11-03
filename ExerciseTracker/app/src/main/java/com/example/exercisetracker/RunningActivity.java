@@ -136,6 +136,8 @@ public class RunningActivity extends AppCompatActivity {
                         System.out.println(filtered_data[i].toString());
                     }
                     //insert code here to handle detection of steps
+                    detector.detect(filtered_data);
+                    stepText.setText(detector.getStepCount().toString());
                     //clearing temp for next sequences of values.
                     temp.clear();
                 } else {

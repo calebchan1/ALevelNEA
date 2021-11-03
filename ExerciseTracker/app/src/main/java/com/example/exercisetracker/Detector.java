@@ -3,21 +3,35 @@ package com.example.exercisetracker;
 public class Detector {
 
     private float Threshold;
-    private int stepCount;
+    private Integer stepCount;
+    private Boolean isStep;
 
     public Detector(float Threshold) {
         this.Threshold = Threshold;
+        stepCount = 0;
     }
 
     public void detect(Float[] filtered_data){
-        for (int i=1;i<filtered_data.length;i++){
-            if ((filtered_data[i]>=Threshold)&(filtered_data[i-1]<Threshold)){
-                stepCount++;
+        int counter = 1;
+        while (counter < filtered_data.length){
+            if ((filtered_data[counter-1]==0)&(filtered_data[counter]>0)){
+                isStep=true;
+                while (isStep){
+                    if (filtered_data[counter]<Threshold){
+                        isStep=false;
+                        stepCount++;
+                    }
+                    counter++;
+                }
             }
+            else{
+                counter++;
+            }
+
         }
     }
 
-    public int getStepCount() {
+    public Integer getStepCount() {
         return stepCount;
     }
 

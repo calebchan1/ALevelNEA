@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/drawable/homeButton_background.xml" value="0.3728205128205128" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/font/centurygpthoc.xml" value="0.3927083333333333" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_main.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_running.xml" value="0.3625" />
@@ -14,6 +15,7 @@
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_history.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_settings.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.3625" />
+        <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3728205128205128" />
       </map>
     </option>
   </component>
