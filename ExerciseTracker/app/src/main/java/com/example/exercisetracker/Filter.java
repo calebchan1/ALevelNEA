@@ -1,37 +1,46 @@
 package com.example.exercisetracker;
 
+import java.util.ArrayList;
+
 public class Filter {
-    private float[] filtered_data;
-    private float minThreshold;
-    private float maxThreshold;
+    private Float[] filtered_data;
+    private Float minThreshold;
+    private Float maxThreshold;
 
     public Filter(float minThreshold, float maxThreshold) {
         this.minThreshold = minThreshold;
         this.maxThreshold = maxThreshold;
     }
 
-    public void filter(float[] data){
-        filtered_data = new float[data.length];
-        for (int i=0 ;i<data.length;i++){
-            if (data[i]<minThreshold){
+    public void filter(ArrayList<Float> data){
+        filtered_data = new Float[data.size()];
+        for (int i=0 ;i<data.size();i++){
+            if (data.get(i)<minThreshold){
                 filtered_data[i] = (float) 0;
             }
-            if (data[i]>maxThreshold){
+            if (data.get(i)>maxThreshold){
                 filtered_data[i] = maxThreshold;
             }
-            if ((data[i]>=minThreshold) & (data[i]<=maxThreshold)){
-                filtered_data[i] = data[i];
+            if ((data.get(i)>=minThreshold) & (data.get(i)<=maxThreshold)){
+                filtered_data[i] = data.get(i);
             }
         }
         setFiltered_data(filtered_data);
     }
 
+    public float getMaxThreshold() {
+        return maxThreshold;
+    }
 
-    public float[] getFiltered_data() {
+    public void setMaxThreshold(float maxThreshold) {
+        this.maxThreshold = maxThreshold;
+    }
+
+    public Float[] getFiltered_data() {
         return filtered_data;
     }
 
-    public void setFiltered_data(float[] filtered_data) {
+    public void setFiltered_data(Float[] filtered_data) {
         this.filtered_data = filtered_data;
     }
 

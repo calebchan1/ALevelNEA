@@ -24,7 +24,9 @@ import com.google.android.material.button.MaterialButton;
 
 import org.w3c.dom.Text;
 
+import java.io.Console;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Timer;
 
@@ -43,10 +45,12 @@ public class RunningActivity extends AppCompatActivity {
     private MaterialButton startStopBtn;
     //Specialised running variables
     private Filter filter;
+    private Detector detector;
     private Boolean isRunning;
     private Integer seconds;
     private Integer steps;
     private Integer calories;
+    private Float[] filtered_data;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +67,7 @@ public class RunningActivity extends AppCompatActivity {
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         filter = new Filter((float) 0.6, (float) 10);
+        detector = new Detector((float)0.09);
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -114,6 +119,7 @@ public class RunningActivity extends AppCompatActivity {
         }
 
         //handling accelerometer
+        ArrayList<Float> temp = new ArrayList<>();
         accelerometerEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
@@ -122,12 +128,19 @@ public class RunningActivity extends AppCompatActivity {
                 float y = event.values[1];
                 float z = event.values[2];
                 float mag = (float) Math.sqrt(x*x + y*y + z*z);
-                float temp[];
-                temp = new float[1];
-                temp[0] = mag;
-                filter.filter(temp);
-                float[] data = filter.getFiltered_data();
-                stepText.setText("Steps: \n\n" +data[0]);
+                //for every 5 seconds, filter the data and pass through detector
+                if ((seconds % 5) == 0) {
+                    filter.filter(temp);
+                    filtered_data = filter.getFiltered_data();
+                    for (int i=0;i<filtered_data.length;i++){
+                        System.out.println(filtered_data[i].toString());
+                    }
+                    //insert code here to handle detection of steps
+                    //clearing temp for next sequences of values.
+                    temp.clear();
+                } else {
+                    temp.add(mag);
+                }
             }
 
             @Override
