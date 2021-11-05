@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp"
+        android:fontFamily="@font/gothic"
         android:text="Your Friends"
         android:textAlignment="center"
         android:textColor="@android:color/black"

@@ -14,6 +14,7 @@
         android:gravity="center"
         android:textStyle="bold"
         android:textSize="80dp"
+        android:fontFamily="@font/gothic"
         android:text="Timer Text"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,6 +37,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:id="@+id/stepText"
+            android:fontFamily="@font/gothic"
             android:text="Steps:"
             android:textSize="20dp"
             android:textAlignment="center"
@@ -47,6 +49,7 @@
             android:layout_margin="10dp"
             android:textAlignment="center"
             android:id="@+id/calText"
+            android:fontFamily="@font/gothic"
             android:text="Calories:"
             android:textSize="20dp"/>
 
@@ -56,6 +59,7 @@
             android:layout_margin="10dp"
             android:textAlignment="center"
             android:id="@+id/distText"
+            android:fontFamily="@font/gothic"
             android:text="Distance:"
             android:textSize="20dp"/>
     </LinearLayout>
@@ -73,7 +77,9 @@
         android:id="@+id/startStopBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start/stop"
+        android:fontFamily="@font/gothicbb"
+        android:textAllCaps="false"
+        android:text="Pause/Resume"
         android:textSize="30dp"
         app:cornerRadius="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -85,6 +91,8 @@
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/gothicbb"
+        android:textAllCaps="false"
         android:text="Finish"
         android:id="@+id/finishBtn"
         android:textSize="30dp"

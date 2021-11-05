@@ -8,21 +8,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.button.MaterialButton;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -65,6 +56,32 @@ public class RunningActivity extends AppCompatActivity {
 
         filter = new Filter((float) 0.6, (float) 10);
         detector = new Detector((float)0.09);
+
+        //handling when start and stop button clicked
+        startStopBtn = findViewById(R.id.startStopBtn);
+        startStopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isRunning){
+                    isRunning = false;
+
+                }
+                else{
+                    isRunning = true;
+                }
+            }
+        });
+        finishBtn = findViewById(R.id.finishBtn);
+        finishBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isRunning=false;
+                sensorManager.unregisterListener(listener);
+                //exiting the running activity and sending data back to main program
+                finish();
+            }
+        });
+
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -83,35 +100,9 @@ public class RunningActivity extends AppCompatActivity {
             }
         });
 
-        //handling when start and stop button clicked
-        startStopBtn = findViewById(R.id.startStopBtn);
-        startStopBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isRunning){
-                    isRunning = false;
-                }
-                else{
-                    isRunning = true;
-                }
-            }
-        });
-
-
-
-        finishBtn = findViewById(R.id.finishBtn);
-        finishBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isRunning=false;
-                //exiting the running activity and sending data back to main program
-                finish();
-            }
-        });
-
-
-
-        //handling accelerometer
+        //handling accelerometer and gravimeter
+        checkPermissions();
+        //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
         ArrayList<Float[]> grav = new ArrayList<Float[]>();
         listener = new SensorEventListener() {
@@ -126,7 +117,7 @@ public class RunningActivity extends AppCompatActivity {
                     Float z = event.values[2];
                     Float[] entry = new Float[3];
                     entry[0] = x; entry[1] = y; entry[2] = z;
-                    System.out.println("acceleration:" + entry[0].toString());
+                    System.out.println("acceleration:" + String.format("%f, %f, %f",entry[0],entry[1],entry[2]));
                     accel.add(entry);
 
                     //for every 5 seconds, filter the data and pass through detector
@@ -168,28 +159,29 @@ public class RunningActivity extends AppCompatActivity {
                     Float[] entry = new Float[3];
                     entry[0] = x; entry[1] = y; entry[2] = z;
                     grav.add(entry);
-                    System.out.println("gravity: " + entry[0]);
+                    System.out.println("gravity: " + String.format("%f, %f, %f",entry[0],entry[1],entry[2]));
                 }
-                if ((seconds%5)==0){
+                if (((seconds%5)==0 && (grav.size()>0)) && (accel.size()>0)){
                     //PERFORM DOT PRODUCT
-                    for (int i=0;i<grav.size();i++){
-                        Float[] accelValues = accel.get(i);
-                        Float[] gravValues = grav.get(i);
+                    System.out.println(String.format("gravsize: %d accelsize: %d",grav.size(),accel.size()));
+                    for (int j=0;j<grav.size();j++){
+                        Float[] accelValues = accel.get(j);
+                        Float[] gravValues = grav.get(j);
                         Float result = gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2];
-                        System.out.println("result: "+ result);
+                        System.out.println("Seconds: " +seconds);
+                        System.out.println("result: "+j+" "+result.toString());
                     }
-
+                    grav.clear();
+                    accel.clear();
                 }
             }
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
         };
-        sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),SensorManager.SENSOR_DELAY_GAME);
-        sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),SensorManager.SENSOR_DELAY_NORMAL);
     }
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkPermissions() {

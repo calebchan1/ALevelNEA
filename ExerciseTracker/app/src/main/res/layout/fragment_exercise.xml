@@ -12,8 +12,9 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp"
         android:text="Exercise"
+        android:fontFamily="@font/gothic"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
@@ -33,6 +34,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="500dp"
+        app:layout_constraintVertical_bias="1"
         app:layout_constraintTop_toBottomOf="@id/guideline2"
         app:layout_constraintBottom_toBottomOf="parent">
         <LinearLayout
@@ -45,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/lightBlue"
-                app:cardCornerRadius="10dp">
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -68,6 +70,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
+                            android:fontFamily="@font/gothic"
                             android:gravity="center_horizontal"
                             android:text="Running exercise"
                             android:textAlignment="center"
@@ -80,18 +83,21 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:text="START TRACKING"
+                            android:fontFamily="@font/gothic"
+                            android:text="@string/start_tracking"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/lightBlue"
-                app:cardCornerRadius="10dp">
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -115,6 +121,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
                             android:gravity="center_horizontal"
+                            android:fontFamily="@font/gothic"
                             android:text="Walking"
                             android:textAlignment="center"
                             android:textSize="20sp"
@@ -126,7 +133,8 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:text="START TRACKING"
+                            android:fontFamily="@font/gothic"
+                            android:text="@string/start_tracking"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </LinearLayout>
@@ -136,7 +144,54 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/lightBlue"
-                app:cardCornerRadius="10dp">
+                app:cardCornerRadius="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="125dp"
+                    android:layout_margin="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:src="@drawable/treadmill" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20dp"
+                            android:gravity="center_horizontal"
+                            android:fontFamily="@font/gothic"
+                            android:text="Treadmill"
+                            android:textAlignment="center"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/treadmillBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="20dp"
+                            android:gravity="center_horizontal"
+                            android:fontFamily="@font/gothic"
+                            android:text="@string/start_tracking"
+                            android:textAlignment="center" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                app:cardBackgroundColor="@color/lightBlue"
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -160,6 +215,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
                             android:gravity="center_horizontal"
+                            android:fontFamily="@font/gothic"
                             android:text="Push-Up"
                             android:textAlignment="center"
                             android:textSize="20sp"
@@ -171,7 +227,8 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:text="START TRACKING"
+                            android:fontFamily="@font/gothic"
+                            android:text="@string/start_tracking"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </LinearLayout>
