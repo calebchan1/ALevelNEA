@@ -1,5 +1,13 @@
 package com.example.exercisetracker;
 
+import android.os.Environment;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Detector {
 
     private float Threshold;
@@ -11,24 +19,7 @@ public class Detector {
         stepCount = 0;
     }
 
-    public void detect(Float[] filtered_data){
-        int counter = 1;
-        while (counter < filtered_data.length){
-            if ((filtered_data[counter-1]==0)&(filtered_data[counter]>0)){
-                isStep=true;
-                while (isStep){
-                    if (filtered_data[counter]<Threshold){
-                        isStep=false;
-                        stepCount++;
-                    }
-                    counter++;
-                }
-            }
-            else{
-                counter++;
-            }
-
-        }
+    public void detect(Float[] filtered_data) {
     }
 
     public Integer getStepCount() {

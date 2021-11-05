@@ -1,7 +1,6 @@
 package com.example.exercisetracker;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,11 +8,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,19 +19,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 
-import org.w3c.dom.Text;
-
-import java.io.Console;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Timer;
 
 public class RunningActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private SensorEventListener accelerometerEventListener;
+    private SensorEventListener listener;
     //TextViews
     private TextView timerText;
     private TextView stepText;
@@ -65,7 +62,7 @@ public class RunningActivity extends AppCompatActivity {
         distText = findViewById(R.id.distText);
         calorieText = findViewById(R.id.calText);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+
         filter = new Filter((float) 0.6, (float) 10);
         detector = new Detector((float)0.09);
         //creating handler to run simultaneously to track duration in seconds
@@ -106,50 +103,90 @@ public class RunningActivity extends AppCompatActivity {
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isRunning=false;
                 //exiting the running activity and sending data back to main program
                 finish();
             }
         });
 
-        //handling accelerometer permissions
-        checkPermissions();
-        if (accelerometer==null){
-            Toast.makeText(this, "No accelerometer detected", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+
 
         //handling accelerometer
-        ArrayList<Float> temp = new ArrayList<>();
-        accelerometerEventListener = new SensorEventListener() {
+        ArrayList<Float[]> accel = new ArrayList<Float[]>();
+        ArrayList<Float[]> grav = new ArrayList<Float[]>();
+        listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                DecimalFormat df = new DecimalFormat("#.####");
-                float x = event.values[0];
-                float y = event.values[1];
-                float z = event.values[2];
-                float mag = (float) Math.sqrt(x*x + y*y + z*z);
-                //for every 5 seconds, filter the data and pass through detector
-                if ((seconds % 5) == 0) {
-                    filter.filter(temp);
-                    filtered_data = filter.getFiltered_data();
-                    for (int i=0;i<filtered_data.length;i++){
-                        System.out.println(filtered_data[i].toString());
+                Sensor sensor = event.sensor;
+                if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
+                    //handling the linear acceleration
+                    DecimalFormat df = new DecimalFormat("#.####");
+                    Float x = event.values[0];
+                    Float y = event.values[1];
+                    Float z = event.values[2];
+                    Float[] entry = new Float[3];
+                    entry[0] = x; entry[1] = y; entry[2] = z;
+                    System.out.println("acceleration:" + entry[0].toString());
+                    accel.add(entry);
+
+                    //for every 5 seconds, filter the data and pass through detector
+//                    if ((seconds % 5) == 0) {
+//                        filter.filter(temp);
+//                        filtered_data = filter.getFiltered_data();
+//                        for (int i = 0; i < filtered_data.length; i++) {
+//                            String entry = filtered_data[i].toString() + "\n";
+//                            System.out.print(entry);
+//                            try {
+//                                File storage = Environment.getExternalStorageDirectory();
+//                                File dir = new File(storage.getAbsolutePath() + "/documents");
+//                                File file = new File(dir, "output.csv");
+//                                FileOutputStream f = new FileOutputStream(file, true);
+//                                try {
+//                                    f.write(entry.getBytes());
+//                                    f.flush();
+//                                    f.close();
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            } catch (FileNotFoundException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                        }
+//                        //insert code here to handle detection of steps
+//                        detector.detect(filtered_data);
+//                        //clearing temp for next sequences of values.
+//                        temp.clear();
+//                    } else {
+//                        temp.add(mag);
+//                    }
+                }
+                if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning){
+                    Float x = event.values[0];
+                    Float y = event.values[1];
+                    Float z = event.values[2];
+                    Float[] entry = new Float[3];
+                    entry[0] = x; entry[1] = y; entry[2] = z;
+                    grav.add(entry);
+                    System.out.println("gravity: " + entry[0]);
+                }
+                if ((seconds%5)==0){
+                    //PERFORM DOT PRODUCT
+                    for (int i=0;i<grav.size();i++){
+                        Float[] accelValues = accel.get(i);
+                        Float[] gravValues = grav.get(i);
+                        Float result = gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2];
+                        System.out.println("result: "+ result);
                     }
-                    //insert code here to handle detection of steps
-                    detector.detect(filtered_data);
-                    stepText.setText(detector.getStepCount().toString());
-                    //clearing temp for next sequences of values.
-                    temp.clear();
-                } else {
-                    temp.add(mag);
+
                 }
             }
-
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
         };
-        sensorManager.registerListener(accelerometerEventListener,accelerometer,SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),SensorManager.SENSOR_DELAY_GAME);
     }
 
 
@@ -161,10 +198,6 @@ public class RunningActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
             return;
         }
-        Toast.makeText(getBaseContext(), "Permission is already granted", Toast.LENGTH_LONG).show();
     }
-
-
-
 
 }

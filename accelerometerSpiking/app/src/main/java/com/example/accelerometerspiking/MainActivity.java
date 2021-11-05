@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
-        accelerometer =sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        accelerometer =sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         textView = findViewById(R.id.textView);
         checkPermissions();
         if (accelerometer==null){

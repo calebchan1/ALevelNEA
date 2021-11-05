@@ -25,6 +25,8 @@ public class Filter {
                 filtered_data[i] = data.get(i);
             }
         }
+
+
         setFiltered_data(filtered_data);
     }
 
