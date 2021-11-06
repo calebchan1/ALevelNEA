@@ -8,25 +8,28 @@ public class Filter {
     private Float maxThreshold;
 
     public Filter(float minThreshold, float maxThreshold) {
+        //setting max and min threshold on create
         this.minThreshold = minThreshold;
         this.maxThreshold = maxThreshold;
     }
 
     public void filter(ArrayList<Float> data){
+        //filter the data to remove bumpiness and outliers using thresholds given
         filtered_data = new Float[data.size()];
         for (int i=0 ;i<data.size();i++){
-            if (data.get(i)<minThreshold){
+            if (data.get(i)==0.0){
                 filtered_data[i] = (float) 0;
             }
-            if (data.get(i)>maxThreshold){
+            else if (data.get(i)>maxThreshold){
                 filtered_data[i] = maxThreshold;
             }
-            if ((data.get(i)>=minThreshold) & (data.get(i)<=maxThreshold)){
+            else if (data.get(i)<minThreshold){
+                filtered_data[i] = minThreshold;
+            }
+            else{
                 filtered_data[i] = data.get(i);
             }
         }
-
-
         setFiltered_data(filtered_data);
     }
 

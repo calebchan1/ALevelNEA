@@ -39,6 +39,7 @@ public class RunningActivity extends AppCompatActivity {
     private Integer steps;
     private Integer calories;
     private Float[] filtered_data;
+    private Boolean hasProcessed;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,8 @@ public class RunningActivity extends AppCompatActivity {
         calorieText = findViewById(R.id.calText);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
 
-        filter = new Filter((float) 0.6, (float) 10);
+        //CUSTOM JAVA CLASSES
+        filter = new Filter((float) -5, (float) 5);
         detector = new Detector((float)0.09);
 
         //handling when start and stop button clicked
@@ -87,16 +89,23 @@ public class RunningActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                handler.postDelayed(this,1000);
                 //changing the timerText every second that handler is delayed
+                if (isRunning){
+                    seconds ++;
+                }
                 int hours = seconds / 3600;
                 int minutes = (seconds % 3600) / 60;
                 int secs = seconds % 60;
                 String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
                 timerText.setText(time);
-                if (isRunning){
-                    seconds ++;
+
+                //allowing preprocessing to happen at the instance of a 5 second interval
+                if ((seconds % 5)==0){
+                    hasProcessed = Boolean.FALSE;
                 }
-                handler.postDelayed(this,1000);
+
+
             }
         });
 
@@ -109,18 +118,68 @@ public class RunningActivity extends AppCompatActivity {
             @Override
             public void onSensorChanged(SensorEvent event) {
                 Sensor sensor = event.sensor;
+                //formatting by rounding to 2 decimal places
+                DecimalFormat df = new DecimalFormat("#.##");
                 if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
                     //handling the linear acceleration
-                    DecimalFormat df = new DecimalFormat("#.####");
-                    Float x = event.values[0];
-                    Float y = event.values[1];
-                    Float z = event.values[2];
+                    Float x = Float.parseFloat(df.format(event.values[0]));
+                    Float y = Float.parseFloat(df.format(event.values[1]));
+                    Float z = Float.parseFloat(df.format(event.values[2]));
                     Float[] entry = new Float[3];
                     entry[0] = x; entry[1] = y; entry[2] = z;
                     System.out.println("acceleration:" + String.format("%f, %f, %f",entry[0],entry[1],entry[2]));
                     accel.add(entry);
 
-                    //for every 5 seconds, filter the data and pass through detector
+
+                }
+                if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning){
+                    //handling gravimeter
+                    Float x = Float.parseFloat(df.format(event.values[0]));
+                    Float y = Float.parseFloat(df.format(event.values[1]));
+                    Float z = Float.parseFloat(df.format(event.values[2]));
+                    Float[] entry = new Float[3];
+                    entry[0] = x; entry[1] = y; entry[2] = z;
+                    grav.add(entry);
+                    System.out.println("gravity: " + String.format("%f, %f, %f",entry[0],entry[1],entry[2]));
+                }
+
+                //PROCESSING DATA
+                if (((seconds%5)==0 && (grav.size()>0)) && (accel.size()>0) && (hasProcessed==Boolean.FALSE)){
+                    ArrayList<Float> results = new ArrayList<Float>();
+                    //PRE-PROCESSING DATA
+                    //handling when grav array and accel array are unequal:
+                    while (accel.size()!=grav.size()){
+                        if (accel.size()>grav.size()){
+                            accel.remove(accel.size()-1);
+
+                        }
+                        else{
+                            grav.remove(grav.size()-1);
+                        }
+                    }
+
+                    System.out.println("Seconds: " +seconds);
+                    //PERFORM DOT PRODUCT
+                    System.out.println(String.format("gravsize: %d accelsize: %d",grav.size(),accel.size()));
+                    for (int j=0;j<grav.size();j++){
+                        Float[] accelValues = accel.get(j);
+                        Float[] gravValues = grav.get(j);
+                        Float result = gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2];
+                        results.add(result);
+                        System.out.println("result: "+j+" "+result.toString());
+                    }
+                    grav.clear();
+                    accel.clear();
+                    //hasProcessed to true to prevent small chunks of data being processed
+                    hasProcessed = Boolean.TRUE;
+
+                    //FILTERING DATA
+                    filter.filter(results);
+                    filtered_data = filter.getFiltered_data();
+
+                }
+
+                //for every 5 seconds, filter the data and pass through detector
 //                    if ((seconds % 5) == 0) {
 //                        filter.filter(temp);
 //                        filtered_data = filter.getFiltered_data();
@@ -151,29 +210,8 @@ public class RunningActivity extends AppCompatActivity {
 //                    } else {
 //                        temp.add(mag);
 //                    }
-                }
-                if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning){
-                    Float x = event.values[0];
-                    Float y = event.values[1];
-                    Float z = event.values[2];
-                    Float[] entry = new Float[3];
-                    entry[0] = x; entry[1] = y; entry[2] = z;
-                    grav.add(entry);
-                    System.out.println("gravity: " + String.format("%f, %f, %f",entry[0],entry[1],entry[2]));
-                }
-                if (((seconds%5)==0 && (grav.size()>0)) && (accel.size()>0)){
-                    //PERFORM DOT PRODUCT
-                    System.out.println(String.format("gravsize: %d accelsize: %d",grav.size(),accel.size()));
-                    for (int j=0;j<grav.size();j++){
-                        Float[] accelValues = accel.get(j);
-                        Float[] gravValues = grav.get(j);
-                        Float result = gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2];
-                        System.out.println("Seconds: " +seconds);
-                        System.out.println("result: "+j+" "+result.toString());
-                    }
-                    grav.clear();
-                    accel.clear();
-                }
+
+
             }
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
