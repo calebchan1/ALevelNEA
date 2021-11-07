@@ -12,7 +12,6 @@ public class Detector {
 
     private float Threshold;
     private Integer stepCount;
-    private Boolean isStep;
 
     public Detector(float Threshold) {
         this.Threshold = Threshold;
@@ -20,7 +19,25 @@ public class Detector {
     }
 
     public void detect(Float[] filtered_data) {
+        int i = 0;
+        while (i<filtered_data.length-1){
+            Float data = filtered_data[i];
+            if (data>=Threshold){
+                int duration = 0;
+                while ((filtered_data[i]>Threshold)&&(i!=filtered_data.length-1)){
+                    i++;
+                    duration = duration+1;
+                }
+                if (duration>2){
+                    stepCount++;
+                }
+            }
+            else {
+                i++;
+            }
+        }
     }
+
 
     public Integer getStepCount() {
         return stepCount;

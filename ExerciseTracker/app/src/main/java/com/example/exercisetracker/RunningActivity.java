@@ -8,12 +8,18 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -21,7 +27,6 @@ import java.util.Locale;
 public class RunningActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
-    private Sensor accelerometer;
     private SensorEventListener listener;
     //TextViews
     private TextView timerText;
@@ -56,7 +61,7 @@ public class RunningActivity extends AppCompatActivity {
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
 
         //CUSTOM JAVA CLASSES
-        filter = new Filter((float) -5, (float) 5);
+        filter = new Filter((float) -10, (float) 10);
         detector = new Detector((float)0.09);
 
         //handling when start and stop button clicked
@@ -164,7 +169,7 @@ public class RunningActivity extends AppCompatActivity {
                     for (int j=0;j<grav.size();j++){
                         Float[] accelValues = accel.get(j);
                         Float[] gravValues = grav.get(j);
-                        Float result = gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2];
+                        Float result = Float.parseFloat(df.format(gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2]));
                         results.add(result);
                         System.out.println("result: "+j+" "+result.toString());
                     }
@@ -176,7 +181,30 @@ public class RunningActivity extends AppCompatActivity {
                     //FILTERING DATA
                     filter.filter(results);
                     filtered_data = filter.getFiltered_data();
+                    for (int i =0;i<filtered_data.length;i++){
+                        String entry = filtered_data[i].toString() + "\n";
+                            System.out.print(entry);
+                            try {
+                                File storage = Environment.getExternalStorageDirectory();
+                                File dir = new File(storage.getAbsolutePath() + "/documents");
+                                File file = new File(dir, "output.csv");
+                                FileOutputStream f = new FileOutputStream(file, true);
+                                try {
+                                    f.write(entry.getBytes());
+                                    f.flush();
+                                    f.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                    }
 
+                    //detecting steps
+                    detector.detect(filtered_data);
+                    steps = detector.getStepCount();
+                    stepText.setText(String.format("Steps:\n%d",steps));
                 }
 
                 //for every 5 seconds, filter the data and pass through detector
