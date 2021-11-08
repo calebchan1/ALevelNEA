@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
+        //HANDLING USER CLASS
+        User.setWeight(55F);
+
 
     }
 

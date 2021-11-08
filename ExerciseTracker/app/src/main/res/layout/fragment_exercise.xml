@@ -46,7 +46,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                app:cardBackgroundColor="@color/lightBlue"
+                app:cardBackgroundColor="@color/white"
+                app:strokeColor="@color/verylightblue"
+                app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout
@@ -72,6 +74,7 @@
                             android:layout_marginStart="20dp"
                             android:fontFamily="@font/gothic"
                             android:gravity="center_horizontal"
+                            android:textColor="@color/black"
                             android:text="Running exercise"
                             android:textAlignment="center"
                             android:textSize="20sp"
@@ -96,7 +99,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                app:cardBackgroundColor="@color/lightBlue"
+                app:cardBackgroundColor="@color/white"
+                app:strokeColor="@color/verylightblue"
+                app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout
@@ -122,6 +127,7 @@
                             android:layout_marginStart="20dp"
                             android:gravity="center_horizontal"
                             android:fontFamily="@font/gothic"
+                            android:textColor="@color/black"
                             android:text="Walking"
                             android:textAlignment="center"
                             android:textSize="20sp"
@@ -143,7 +149,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                app:cardBackgroundColor="@color/lightBlue"
+                app:cardBackgroundColor="@color/white"
+                app:strokeColor="@color/verylightblue"
+                app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout
@@ -171,6 +179,7 @@
                             android:fontFamily="@font/gothic"
                             android:text="Treadmill"
                             android:textAlignment="center"
+                            android:textColor="@color/black"
                             android:textSize="20sp"
                             android:textStyle="bold" />
 
@@ -190,7 +199,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                app:cardBackgroundColor="@color/lightBlue"
+                app:cardBackgroundColor="@color/white"
+                app:strokeColor="@color/verylightblue"
+                app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout
@@ -217,6 +228,7 @@
                             android:gravity="center_horizontal"
                             android:fontFamily="@font/gothic"
                             android:text="Push-Up"
+                            android:textColor="@color/black"
                             android:textAlignment="center"
                             android:textSize="20sp"
                             android:textStyle="bold" />

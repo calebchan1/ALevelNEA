@@ -1,6 +1,7 @@
 package com.example.exercisetracker;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -33,10 +34,13 @@ public class RunningActivity extends AppCompatActivity {
     private TextView stepText;
     private TextView calorieText;
     private TextView distText;
+    private TextView paceText;
     //Buttons
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
     //Specialised running variables
+    private float MET = 7.0F;
+    private float distance;
     private Filter filter;
     private Detector detector;
     private Boolean isRunning;
@@ -57,6 +61,7 @@ public class RunningActivity extends AppCompatActivity {
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
+        paceText = findViewById(R.id.paceText);
         calorieText = findViewById(R.id.calText);
         sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
 
@@ -92,6 +97,7 @@ public class RunningActivity extends AppCompatActivity {
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
+            @SuppressLint("DefaultLocale")
             @Override
             public void run() {
                 handler.postDelayed(this,1000);
@@ -104,7 +110,10 @@ public class RunningActivity extends AppCompatActivity {
                 int secs = seconds % 60;
                 String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
                 timerText.setText(time);
-
+                calories = Math.round(MET*User.getWeight()*(seconds.floatValue()/3600));
+                calorieText.setText(String.format("Calories:\n%d",calories));
+                DecimalFormat df = new DecimalFormat("#.##");
+                paceText.setText("Pace:\n"+df.format(distance/seconds.floatValue()));
                 //allowing preprocessing to happen at the instance of a 5 second interval
                 if ((seconds % 5)==0){
                     hasProcessed = Boolean.FALSE;
@@ -114,11 +123,13 @@ public class RunningActivity extends AppCompatActivity {
             }
         });
 
-        //handling accelerometer and gravimeter
+        //handling permissions
         checkPermissions();
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
         ArrayList<Float[]> grav = new ArrayList<Float[]>();
+        ArrayList<Float[]> geo = new ArrayList<Float[]>();
+
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
@@ -147,6 +158,7 @@ public class RunningActivity extends AppCompatActivity {
                     grav.add(entry);
                     System.out.println("gravity: " + String.format("%f, %f, %f",entry[0],entry[1],entry[2]));
                 }
+
 
                 //PROCESSING DATA
                 if (((seconds%5)==0 && (grav.size()>0)) && (accel.size()>0) && (hasProcessed==Boolean.FALSE)){
@@ -212,6 +224,8 @@ public class RunningActivity extends AppCompatActivity {
                     detector.detect(filtered_data);
                     steps = detector.getStepCount();
                     stepText.setText(String.format("Steps:\n%d",steps));
+
+                    distance=0;
                 }
 
             }
@@ -228,8 +242,14 @@ public class RunningActivity extends AppCompatActivity {
         int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-            return;
+            int hasCoarsePermission = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (hasCoarsePermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
+                return;
+            }
         }
+
+
     }
 
 }
