@@ -62,7 +62,7 @@ public class RunningActivity extends AppCompatActivity {
 
         //CUSTOM JAVA CLASSES
         filter = new Filter((float) -10, (float) 10);
-        detector = new Detector((float)0.09);
+        detector = new Detector((float)1.5,2);
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
@@ -170,6 +170,13 @@ public class RunningActivity extends AppCompatActivity {
                         Float[] accelValues = accel.get(j);
                         Float[] gravValues = grav.get(j);
                         Float result = Float.parseFloat(df.format(gravValues[0]*accelValues[0]+gravValues[1]*accelValues[1]+gravValues[2]*accelValues[2]));
+                        if (result<0){
+                            result = (float) Math.sqrt(0-result);
+                            result = 0-result;
+                        }
+                        else{
+                            result = (float) Math.sqrt(result);
+                        }
                         results.add(result);
                         System.out.println("result: "+j+" "+result.toString());
                     }
@@ -206,39 +213,6 @@ public class RunningActivity extends AppCompatActivity {
                     steps = detector.getStepCount();
                     stepText.setText(String.format("Steps:\n%d",steps));
                 }
-
-                //for every 5 seconds, filter the data and pass through detector
-//                    if ((seconds % 5) == 0) {
-//                        filter.filter(temp);
-//                        filtered_data = filter.getFiltered_data();
-//                        for (int i = 0; i < filtered_data.length; i++) {
-//                            String entry = filtered_data[i].toString() + "\n";
-//                            System.out.print(entry);
-//                            try {
-//                                File storage = Environment.getExternalStorageDirectory();
-//                                File dir = new File(storage.getAbsolutePath() + "/documents");
-//                                File file = new File(dir, "output.csv");
-//                                FileOutputStream f = new FileOutputStream(file, true);
-//                                try {
-//                                    f.write(entry.getBytes());
-//                                    f.flush();
-//                                    f.close();
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            } catch (FileNotFoundException e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                        }
-//                        //insert code here to handle detection of steps
-//                        detector.detect(filtered_data);
-//                        //clearing temp for next sequences of values.
-//                        temp.clear();
-//                    } else {
-//                        temp.add(mag);
-//                    }
-
 
             }
             @Override

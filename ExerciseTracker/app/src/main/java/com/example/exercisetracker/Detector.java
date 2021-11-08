@@ -12,9 +12,11 @@ public class Detector {
 
     private float Threshold;
     private Integer stepCount;
+    private Integer stepduration;
 
-    public Detector(float Threshold) {
+    public Detector(float Threshold, Integer stepduration) {
         this.Threshold = Threshold;
+        this.stepduration = stepduration;
         stepCount = 0;
     }
 
@@ -28,7 +30,7 @@ public class Detector {
                     i++;
                     duration = duration+1;
                 }
-                if (duration>2){
+                if (duration>stepduration){
                     stepCount++;
                 }
             }
