@@ -2,19 +2,30 @@ package com.example.exercisetracker;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
@@ -25,10 +36,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity {
+public class RunningActivity extends AppCompatActivity implements LocationListener {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
+    private LocationManager locationManager;
+
     //TextViews
     private TextView timerText;
     private TextView stepText;
@@ -38,6 +51,7 @@ public class RunningActivity extends AppCompatActivity {
     //Buttons
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
+
     //Specialised running variables
     private float MET = 7.0F;
     private float distance;
@@ -49,12 +63,29 @@ public class RunningActivity extends AppCompatActivity {
     private Integer calories;
     private Float[] filtered_data;
     private Boolean hasProcessed;
+    private Route route;
+
+    //Permissions
+    private String[] PERMISSIONS;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_running);
+        //handling permissions
+        PERMISSIONS = new String[] {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET
+        };
+        if(checkPermissions(RunningActivity.this,PERMISSIONS) == Boolean.FALSE) {
+            ActivityCompat.requestPermissions(RunningActivity.this, PERMISSIONS, 1);
+        }
         //instantiating all private variables
         isRunning = true;
         seconds = 0;
@@ -63,11 +94,16 @@ public class RunningActivity extends AppCompatActivity {
         distText = findViewById(R.id.distText);
         paceText = findViewById(R.id.paceText);
         calorieText = findViewById(R.id.calText);
-        sensorManager =(SensorManager)getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //CUSTOM JAVA CLASSES
         filter = new Filter((float) -10, (float) 10);
-        detector = new Detector((float)1.5,2);
+        detector = new Detector((float) 1.5, 2);
+        ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
+        route = new Route(currentRoute);
+
+        //sensor managers
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
@@ -123,8 +159,7 @@ public class RunningActivity extends AppCompatActivity {
             }
         });
 
-        //handling permissions
-        checkPermissions();
+
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
         ArrayList<Float[]> grav = new ArrayList<Float[]>();
@@ -237,19 +272,54 @@ public class RunningActivity extends AppCompatActivity {
         sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void checkPermissions() {
-        int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-            int hasCoarsePermission = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-            if (hasCoarsePermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
-                return;
+    private boolean checkPermissions(Context context, String[] PERMISSIONS) {
+        //CHECKING FOR EXISTING PERMISSIONS
+        if (context!=null && PERMISSIONS!=null){
+            for (String permission: PERMISSIONS){
+                if (ActivityCompat.checkSelfPermission(context,permission)!=PackageManager.PERMISSION_GRANTED){
+                    return false;
+                }
             }
         }
-
-
+        return true;
     }
 
+    //HANDLING GPS TRACKING
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        Double[] entry = {latitude,longitude};
+        System.out.println(String.format("Latitude: %b Longitude:%b",latitude,longitude));
+        route.addRoute(entry);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //handling how app responds to permissions being denied/accepted
+        if (requestCode==1){
+            for (int i=0;i<permissions.length;i++){
+                if (grantResults[i]==PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(this, String.format("%s permission granted",permissions[i]), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    //when permission is denied, running activity stops and alert is shown
+                    Toast.makeText(this, String.format("%s permission not granted",permissions[i]), Toast.LENGTH_SHORT).show();
+//                    isRunning=Boolean.FALSE;
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//                    builder.setMessage("You did not grant all permissions required.");
+//                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            RunningActivity.this.finish();
+//                        }
+//                    });
+//                    AlertDialog dialog = builder.create();
+//                    dialog.show();
+
+                }
+            }
+        }
+    }
 }
