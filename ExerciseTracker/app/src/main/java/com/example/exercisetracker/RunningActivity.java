@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.view.View;
+import android.webkit.PermissionRequest;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,7 +38,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity implements LocationListener {
+public class RunningActivity extends AppCompatActivity implements LocationListener, ActivityCompat.OnRequestPermissionsResultCallback {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -51,6 +53,7 @@ public class RunningActivity extends AppCompatActivity implements LocationListen
     //Buttons
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
+
 
     //Specialised running variables
     private float MET = 7.0F;
@@ -74,6 +77,7 @@ public class RunningActivity extends AppCompatActivity implements LocationListen
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_running);
+
         //handling permissions
         PERMISSIONS = new String[] {
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -84,8 +88,14 @@ public class RunningActivity extends AppCompatActivity implements LocationListen
             Manifest.permission.INTERNET
         };
         if(checkPermissions(RunningActivity.this,PERMISSIONS) == Boolean.FALSE) {
-            ActivityCompat.requestPermissions(RunningActivity.this, PERMISSIONS, 1);
+            requestRunningPermissions(PERMISSIONS);
         }
+        else{
+            startRunning();
+        }
+    }
+
+    private void startRunning(){
         //instantiating all private variables
         isRunning = true;
         seconds = 0;
@@ -237,22 +247,22 @@ public class RunningActivity extends AppCompatActivity implements LocationListen
                     filtered_data = filter.getFiltered_data();
                     for (int i =0;i<filtered_data.length;i++){
                         String entry = filtered_data[i].toString() + "\n";
-                            System.out.print(entry);
+                        System.out.print(entry);
+                        try {
+                            File storage = Environment.getExternalStorageDirectory();
+                            File dir = new File(storage.getAbsolutePath() + "/documents");
+                            File file = new File(dir, "output.csv");
+                            FileOutputStream f = new FileOutputStream(file, true);
                             try {
-                                File storage = Environment.getExternalStorageDirectory();
-                                File dir = new File(storage.getAbsolutePath() + "/documents");
-                                File file = new File(dir, "output.csv");
-                                FileOutputStream f = new FileOutputStream(file, true);
-                                try {
-                                    f.write(entry.getBytes());
-                                    f.flush();
-                                    f.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            } catch (FileNotFoundException e) {
+                                f.write(entry.getBytes());
+                                f.flush();
+                                f.close();
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     //detecting steps
@@ -272,17 +282,6 @@ public class RunningActivity extends AppCompatActivity implements LocationListen
         sensorManager.registerListener(listener,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    private boolean checkPermissions(Context context, String[] PERMISSIONS) {
-        //CHECKING FOR EXISTING PERMISSIONS
-        if (context!=null && PERMISSIONS!=null){
-            for (String permission: PERMISSIONS){
-                if (ActivityCompat.checkSelfPermission(context,permission)!=PackageManager.PERMISSION_GRANTED){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
     //HANDLING GPS TRACKING
     @Override
@@ -294,29 +293,37 @@ public class RunningActivity extends AppCompatActivity implements LocationListen
         route.addRoute(entry);
     }
 
+
+
+    //PERMISSIONS
+    private boolean checkPermissions(Context context, String[] PERMISSIONS) {
+        //CHECKING FOR EXISTING PERMISSIONS
+        if (context!=null && PERMISSIONS!=null){
+            for (String permission: PERMISSIONS){
+                if (ActivityCompat.checkSelfPermission(context,permission)!=PackageManager.PERMISSION_GRANTED){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private void requestRunningPermissions(String[] PERMISSIONS){
+        ActivityCompat.requestPermissions(this,PERMISSIONS,1);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         //handling how app responds to permissions being denied/accepted
-        if (requestCode==1){
+        if (requestCode == 1){
             for (int i=0;i<permissions.length;i++){
                 if (grantResults[i]==PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(this, String.format("%s permission granted",permissions[i]), Toast.LENGTH_SHORT).show();
                 }
                 else{
                     //when permission is denied, running activity stops and alert is shown
-                    Toast.makeText(this, String.format("%s permission not granted",permissions[i]), Toast.LENGTH_SHORT).show();
-//                    isRunning=Boolean.FALSE;
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//                    builder.setMessage("You did not grant all permissions required.");
-//                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            RunningActivity.this.finish();
-//                        }
-//                    });
-//                    AlertDialog dialog = builder.create();
-//                    dialog.show();
+                    Toast.makeText(this, "Permissions denied", Toast.LENGTH_LONG).show();
+                    isRunning = false;
+                    this.finish();
 
                 }
             }

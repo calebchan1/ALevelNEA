@@ -32,6 +32,7 @@
         app:layout_constraintGuide_begin="180dp" />
 
     <ScrollView
+        android:scrollbarThumbVertical="@color/grey"
         android:layout_width="match_parent"
         android:layout_height="500dp"
         app:layout_constraintVertical_bias="1"
@@ -47,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeColor="@color/verylightblue"
+                app:strokeColor="@color/main_colour"
                 app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
@@ -100,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeColor="@color/verylightblue"
+                app:strokeColor="@color/main_colour"
                 app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
@@ -150,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeColor="@color/verylightblue"
+                app:strokeColor="@color/main_colour"
                 app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 
@@ -200,7 +201,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeColor="@color/verylightblue"
+                app:strokeColor="@color/main_colour"
                 app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">
 

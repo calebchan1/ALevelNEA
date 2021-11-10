@@ -72,7 +72,7 @@
             android:fontFamily="@font/gothicbb"
             android:textAllCaps="false"
             android:textSize="20sp"
-            android:backgroundTint="@color/verylightblue"
+            android:backgroundTint="@color/main_colour"
             android:textColor="@color/black"
             app:cornerRadius="10dp"
 
