@@ -1,7 +1,11 @@
 package com.example.exercisetracker;
 
+import static com.example.exercisetracker.BaseApp.CHANNEL_1_ID;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -15,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +30,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationChannelCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.android.material.button.MaterialButton;
 
@@ -51,6 +59,10 @@ public class RunningActivity extends AppCompatActivity  {
     //Buttons
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
+    //notification
+    private NotificationManagerCompat notificationManagerCompat;
+
+
 
 
     //Specialised running variables
@@ -88,6 +100,8 @@ public class RunningActivity extends AppCompatActivity  {
         //instantiating all private variables
         isRunning = true;
         seconds = 0;
+        steps = 0;
+        distance = 0f;
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
@@ -96,11 +110,12 @@ public class RunningActivity extends AppCompatActivity  {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //CUSTOM JAVA CLASSES
-        filter = new Filter((float) -10, (float) 10);
-        detector = new Detector((float) 1.5, 2);
+        filter = new Filter(-10f, 10f);
+        detector = new Detector(1f, 2);
         ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
         route = new Route(currentRoute);
-
+        //NOTIFICATION MANAGER
+        notificationManagerCompat = NotificationManagerCompat.from(this);
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
@@ -155,10 +170,6 @@ public class RunningActivity extends AppCompatActivity  {
         else{
             startRunning();
         }
-
-
-
-
     }
 
     @SuppressLint("MissingPermission")
@@ -179,9 +190,7 @@ public class RunningActivity extends AppCompatActivity  {
 
         };
         //sensor managers
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,100,0,locationListener);
-
-
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,3,locationListener);
 
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -193,14 +202,14 @@ public class RunningActivity extends AppCompatActivity  {
                 if (isRunning) {
                     seconds++;
                     //calculating distances between location updates and updating text views
-                    if (route.getRouteSize()%2==0) {
+                    if (route.getRouteSize()>=2) {
                         DecimalFormat df = new DecimalFormat("#.##");
                         route.calculateDistance();
                         distance = route.getDistance();
-                        distText.setText(String.format("Distance:\n%s", df.format(distance)));
-
+                        distText.setText(String.format("Distance:\n%sm", df.format(distance)));
                         //changing pace text view
-                        paceText.setText("Pace:\n" + df.format(distance / seconds.floatValue()));
+//                        paceText.setText(Html.fromHtml(String.valueOf(distance/seconds.floatValue())+"ms<sup>-1</sup"));
+
                     }
                     //changing timer text view
                     int hours = seconds / 3600;
@@ -213,6 +222,8 @@ public class RunningActivity extends AppCompatActivity  {
                     calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
                     calorieText.setText(String.format("Calories:\n%d", calories));
 
+                    //changing step text view
+                    stepText.setText(String.format("Steps:\n%d", steps));
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
                         hasProcessed = Boolean.FALSE;
@@ -302,31 +313,31 @@ public class RunningActivity extends AppCompatActivity  {
                     //FILTERING DATA
                     filter.filter(results);
                     filtered_data = filter.getFiltered_data();
-                    for (int i = 0; i < filtered_data.length; i++) {
-                        String entry = filtered_data[i].toString() + "\n";
-                        System.out.print(entry);
-                        try {
-                            File storage = Environment.getExternalStorageDirectory();
-                            File dir = new File(storage.getAbsolutePath() + "/documents");
-                            File file = new File(dir, "output.csv");
-                            FileOutputStream f = new FileOutputStream(file, true);
-                            try {
-                                f.write(entry.getBytes());
-                                f.flush();
-                                f.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    //WRITING TO FILE FOR DEBUGGING
+//                    for (int i = 0; i < filtered_data.length; i++) {
+//                        String entry = filtered_data[i].toString() + "\n";
+//                        System.out.print(entry);
+//                        try {
+//                            File storage = Environment.getExternalStorageDirectory();
+//                            File dir = new File(storage.getAbsolutePath() + "/documents");
+//                            File file = new File(dir, "output.csv");
+//                            FileOutputStream f = new FileOutputStream(file, true);
+//                            try {
+//                                f.write(entry.getBytes());
+//                                f.flush();
+//                                f.close();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        } catch (FileNotFoundException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
 
                     //detecting steps
                     detector.detect(filtered_data);
                     steps = detector.getStepCount();
-                    stepText.setText(String.format("Steps:\n%d", steps));
-                    distance = 0;
+
                 }
             }
             @Override
@@ -336,8 +347,6 @@ public class RunningActivity extends AppCompatActivity  {
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
-
-
     //PERMISSIONS
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
         //CHECKING FOR EXISTING PERMISSIONS
@@ -351,5 +360,14 @@ public class RunningActivity extends AppCompatActivity  {
         return true;
     }
 
-
+    //handling live notification bar
+    public void sendOnChannel1(View v){
+        Notification notification = new NotificationCompat.Builder(this,CHANNEL_1_ID)
+                .setSmallIcon(R.id.icon)
+                .setContentTitle("Running Tracking")
+                .setContentText(String.valueOf(steps))
+                .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+                .build();
+        notificationManagerCompat.notify(1,notification);
+    }
 }
