@@ -108,9 +108,11 @@ public class RunningActivity extends AppCompatActivity  {
             @Override
             public void onClick(View v) {
                 if (isRunning) {
+                    startStopBtn.setText("Resume");
                     isRunning = false;
 
                 } else {
+                    startStopBtn.setText("Pause");
                     isRunning = true;
                 }
             }
