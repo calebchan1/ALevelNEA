@@ -87,8 +87,9 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:fontFamily="@font/gothic"
+                            android:fontFamily="@font/gothicbb"
                             android:text="@string/start_tracking"
+                            android:textAllCaps="false"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </LinearLayout>
@@ -140,7 +141,8 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:fontFamily="@font/gothic"
+                            android:fontFamily="@font/gothicbb"
+                            android:textAllCaps="false"
                             android:text="@string/start_tracking"
                             android:textAlignment="center" />
                     </LinearLayout>
@@ -190,8 +192,9 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:fontFamily="@font/gothic"
+                            android:fontFamily="@font/gothicbb"
                             android:text="@string/start_tracking"
+                            android:textAllCaps="false"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </LinearLayout>
@@ -240,8 +243,9 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
-                            android:fontFamily="@font/gothic"
+                            android:fontFamily="@font/gothicbb"
                             android:text="@string/start_tracking"
+                            android:textAllCaps="false"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </LinearLayout>

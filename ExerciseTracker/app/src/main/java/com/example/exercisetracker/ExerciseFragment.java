@@ -1,7 +1,10 @@
 package com.example.exercisetracker;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +12,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-public class ExerciseFragment extends Fragment implements View.OnClickListener{
+public class ExerciseFragment extends Fragment implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback{
+    private String[] PERMISSIONS;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -30,7 +40,7 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.runBtn:
-                Intent intent = new Intent(getContext(),RunningActivity.class);
+                Intent intent = new Intent(getContext(), RunningActivity.class);
                 startActivity(intent);
                 break;
             case R.id.walkBtn:
@@ -38,4 +48,6 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener{
                 break;
         }
     }
+
+
 }

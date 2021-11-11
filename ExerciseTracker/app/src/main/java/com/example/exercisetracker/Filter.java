@@ -18,7 +18,7 @@ public class Filter {
         filtered_data = new Float[data.size()];
         for (int i=0 ;i<data.size();i++){
             if (data.get(i)==0.0){
-                filtered_data[i] = (float) 0;
+                filtered_data[i] = 0f;
             }
             else if (data.get(i)>maxThreshold){
                 filtered_data[i] = maxThreshold;

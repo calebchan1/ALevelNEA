@@ -12,5 +12,7 @@
     <color name="mainBlue">#4563ff</color>
     <color name="red">#F44336</color>
     <color name="yellow">#FFEB3B</color>
-    <color name="main_colour">#FFAEBBFB</color>
+    <color name="main_colour">#FFDCA8</color>
+    <color name="main_colour_variant">#B3FFEED5</color>
+    <color name="main_colour_on_primary">#6C4100</color>
 </resources>

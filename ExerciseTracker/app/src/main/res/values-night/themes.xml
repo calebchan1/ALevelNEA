@@ -2,9 +2,9 @@
     <!-- Base application theme. -->
     <style name="Theme.ExerciseTracker" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#D2DAFF</item>
-        <item name="colorPrimaryVariant">@color/lightBlue</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/main_colour</item>
+        <item name="colorPrimaryVariant">@color/main_colour_variant</item>
+        <item name="colorOnPrimary">@color/main_colour_on_primary</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_200</item>
