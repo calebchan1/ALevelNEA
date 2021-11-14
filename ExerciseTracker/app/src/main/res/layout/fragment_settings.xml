@@ -3,20 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+    android:layout_height="match_parent">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp"
-        android:fontFamily="@font/gothic"
         android:text="Settings"
         android:textAlignment="center"
-        android:textColor="@android:color/black"
         android:textSize="40dp"
-        android:textStyle="bold"
+        android:fontFamily="@font/gothicbb"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -43,12 +40,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/weightField"
             android:hint="Weight (kg)"
-            android:textColorHint="@color/black"
-            app:boxStrokeColor="@color/black"
-            app:hintTextColor="@color/black"
             android:layout_gravity="center_horizontal"
             android:layout_width="300dp"
-            app:boxBackgroundColor="@color/white"
 
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
@@ -56,27 +49,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/gothic"
-                android:inputType="number"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/DOBfield"
+            android:hint="Date Of Birth (dd/mm/yy)"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:id="@+id/dobText"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:inputType="date" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/UpdateButton"
-            android:layout_marginTop="300dp"
             android:layout_width="wrap_content"
+            android:layout_marginTop="200dp"
             android:layout_height="wrap_content"
             android:text="Update My Details"
             android:fontFamily="@font/gothicbb"
             android:textAllCaps="false"
             android:textSize="20sp"
-            android:backgroundTint="@color/main_colour"
-            android:textColor="@color/black"
-            app:cornerRadius="10dp"
+            app:cornerRadius="10dp" />
 
-            />
 
     </LinearLayout>
 

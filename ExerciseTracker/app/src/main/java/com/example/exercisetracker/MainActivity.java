@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity{
     private BottomNavigationView bottomMenu;
     @Override
@@ -46,7 +48,8 @@ public class MainActivity extends AppCompatActivity{
 
         //HANDLING USER CLASS
         User.setWeight(55F);
-
+        Date date = new Date("12/02/04");
+        User.setDateOfBirth(date);
 
     }
 
