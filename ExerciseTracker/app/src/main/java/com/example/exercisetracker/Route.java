@@ -14,7 +14,6 @@ public class Route {
     }
 
     public void calculateDistance(){
-        double localDistance = 0d;
         for (int i=lastRouteIndex;i<route.size()-1;i++){
             //implementing haversine formula to get distance
             Double [] entry1 = route.get(i);
@@ -27,9 +26,8 @@ public class Route {
             double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             lastRouteIndex++;
             //converting to metres, and multiplying by the radius of the Earth
-            localDistance = localDistance + (6370 * c * 1000);
+            distance  += (6370 * c * 1000);
         }
-        distance += localDistance;
     }
 
     public Double getDistance() {

@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.textfield.TextInputEditText;
@@ -24,12 +26,16 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener{
     private TextInputLayout weightField;
     private TextInputLayout DOBField;
-    private MaterialDatePicker datepicker = MaterialDatePicker.Builder.datePicker().build();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,7 +54,13 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         dobText.setText(strdob);
         dobText.setInputType(InputType.TYPE_NULL);
         dobText.setKeyListener(null);
+        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds()));
+        MaterialDatePicker.Builder<Long> datepickerBuilder = MaterialDatePicker.Builder.datePicker();
+        datepickerBuilder.setCalendarConstraints(constraints.build());
+        MaterialDatePicker datepicker = datepickerBuilder.build();
+
         dobText.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP){
@@ -58,7 +70,16 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             }
         });
 
-        datepicker.addOnPositiveButtonClickListener(selection -> dobText.setText(String.valueOf(datepicker.getSelection())));
+        datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
+            @Override
+            public void onPositiveButtonClick(Object selection) {
+                //saving the entered date and formatting date
+                dobText.setText(df.format(datepicker.getSelection()));
+                Date date = new Date((Long) datepicker.getSelection());
+                User.setDateOfBirth(date);
+                datepicker.dismiss();
+            }
+        });
         datepicker.addOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {

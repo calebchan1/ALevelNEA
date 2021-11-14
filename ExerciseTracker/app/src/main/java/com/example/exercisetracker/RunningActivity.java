@@ -64,8 +64,6 @@ public class RunningActivity extends AppCompatActivity  {
     private NotificationManagerCompat notificationManagerCompat;
 
 
-
-
     //Specialised running variables
     private float MET = 7.0F;
     private double distance;
@@ -193,7 +191,7 @@ public class RunningActivity extends AppCompatActivity  {
 
         };
         //sensor managers
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,3,locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,2,locationListener);
 
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -211,7 +209,7 @@ public class RunningActivity extends AppCompatActivity  {
                         distance = route.getDistance();
                         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
                         //changing pace text view
-//                        paceText.setText(Html.fromHtml(String.valueOf(distance/seconds.floatValue())+"ms<sup>-1</sup"));
+                        paceText.setText(Html.fromHtml(String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
 
                     }
                     //changing timer text view
@@ -241,7 +239,6 @@ public class RunningActivity extends AppCompatActivity  {
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
         ArrayList<Float[]> grav = new ArrayList<Float[]>();
-        ArrayList<Float[]> geo = new ArrayList<Float[]>();
 
         listener = new SensorEventListener() {
             @Override
