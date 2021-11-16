@@ -31,9 +31,9 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
         Button runBtn = (Button) view.findViewById(R.id.runBtn);
         Button walkBtn = (Button) view.findViewById(R.id.walkBtn);
         Button treadmillBtn = (Button) view.findViewById(R.id.treadmillBtn);
-        Button pupshUpBtn = (Button) view.findViewById(R.id.pushUpBtn);
+        Button pushUpBtn = (Button) view.findViewById(R.id.pushUpBtn);
         treadmillBtn.setOnClickListener(this);
-        pupshUpBtn.setOnClickListener(this);
+        pushUpBtn.setOnClickListener(this);
         runBtn.setOnClickListener(this);
         walkBtn.setOnClickListener(this);
         return view;
@@ -55,7 +55,9 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
                 startActivity(intent2);
                 break;
             case R.id.pushUpBtn:
-                Toast.makeText(getContext(), "Push-Up Tracking", Toast.LENGTH_SHORT).show();
+                Intent intent3 = new Intent(getContext(), PushUpActivity.class);
+                startActivity(intent3);
+                break;
         }
     }
 
