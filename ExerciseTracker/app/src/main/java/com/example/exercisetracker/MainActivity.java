@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity{
         User.setWeight(55F);
         Date date = new Date("12/02/04");
         User.setDateOfBirth(date);
+        User.setHeight(166);
 
     }
 

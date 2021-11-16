@@ -43,6 +43,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class RunningActivity extends AppCompatActivity  {
@@ -94,6 +96,7 @@ public class RunningActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Date timestarted = Calendar.getInstance().getTime();
         getSupportActionBar().hide();
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
@@ -141,6 +144,13 @@ public class RunningActivity extends AppCompatActivity  {
                 sensorManager.unregisterListener(listener);
                 locationManager.removeUpdates(locationListener);
                 //exiting the running activity and sending data back to main program
+                Activity activity = new Activity(timestarted,seconds,"running");
+                if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE){
+                    Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+                }
                 finish();
             }
         });
@@ -149,7 +159,6 @@ public class RunningActivity extends AppCompatActivity  {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             PERMISSIONS = new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -158,7 +167,6 @@ public class RunningActivity extends AppCompatActivity  {
         else{
             PERMISSIONS = new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
             };
@@ -209,7 +217,7 @@ public class RunningActivity extends AppCompatActivity  {
                         distance = route.getDistance();
                         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
                         //changing pace text view
-                        paceText.setText(Html.fromHtml(String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
+                        paceText.setText(Html.fromHtml("Pace:\n"+String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
 
                     }
                     //changing timer text view

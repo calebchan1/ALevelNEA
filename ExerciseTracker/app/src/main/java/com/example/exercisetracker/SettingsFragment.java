@@ -35,6 +35,7 @@ import java.util.Date;
 public class SettingsFragment extends Fragment implements View.OnClickListener{
     private TextInputLayout weightField;
     private TextInputLayout DOBField;
+    private TextInputLayout heightField;
 
     @Nullable
     @Override
@@ -42,9 +43,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         View view = inflater.inflate(R.layout.fragment_settings,container,false);
         weightField = view.findViewById(R.id.weightField);
         DOBField = view.findViewById(R.id.DOBfield);
+        heightField = view.findViewById(R.id.heightField);
 
         //loading user data presets
         weightField.getEditText().setText(User.getWeight().toString());
+        heightField.getEditText().setText(User.getHeight().toString());
 
         //handling date of birth
         Date dob = User.getDateOfBirth();
@@ -103,11 +106,20 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.UpdateButton:
-                Float weight =Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
-                weightField.getEditText().setCursorVisible(Boolean.FALSE);
-                User.setWeight(weight);
-//                Date dob = (Date) DOBField.getEditText().getText();
-//                User.setDateOfBirth(dob);
+
+                try {
+                    Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
+                    User.setWeight(weight);
+                    Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
+                    User.setHeight(height);
+                    weightField.getEditText().setCursorVisible(Boolean.FALSE);
+                    heightField.getEditText().setCursorVisible(Boolean.FALSE);
+                    Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Save unsuccesful", Toast.LENGTH_SHORT).show();
+                }
         }
     }
 

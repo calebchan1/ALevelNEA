@@ -73,7 +73,7 @@ public class TreadmillActivity extends AppCompatActivity  {
     private Integer calories;
     private Float[] filtered_data;
     private Boolean hasProcessed;
-    private Route route;
+    private Integer height;
 
     //Permissions
     private String[] PERMISSIONS;
@@ -101,6 +101,8 @@ public class TreadmillActivity extends AppCompatActivity  {
         seconds = 0;
         steps = 0;
         distance = 0f;
+        height = User.getHeight();
+
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
@@ -111,8 +113,6 @@ public class TreadmillActivity extends AppCompatActivity  {
         //CUSTOM JAVA CLASSES
         filter = new Filter(-10f, 10f);
         detector = new Detector(1f, 2);
-        ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
-        route = new Route(currentRoute);
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -167,7 +167,6 @@ public class TreadmillActivity extends AppCompatActivity  {
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
-
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -190,6 +189,16 @@ public class TreadmillActivity extends AppCompatActivity  {
 
                     //changing step text view
                     stepText.setText(String.format("Steps:\n%d", steps));
+
+                    //rather than using geolocation and routes, treadmill is in one location
+                    //distance is calculated using the average stride based off their height*0.4 to a good approximation
+                    //calculating distance and changing distance text view
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    distance = height.floatValue() * ((float) Math.floor(steps/2)) * 0.004f; //0.004 as user height stored as cm
+                    distText.setText(String.format("Distance:\n%sm",df.format(distance)));
+
+                    //calculating pace and changing pace text view
+                    paceText.setText(Html.fromHtml("Pace:\n"+String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
                         hasProcessed = Boolean.FALSE;
@@ -278,28 +287,6 @@ public class TreadmillActivity extends AppCompatActivity  {
                     //FILTERING DATA
                     filter.filter(results);
                     filtered_data = filter.getFiltered_data();
-                    //WRITING TO FILE FOR DEBUGGING
-//                    for (int i = 0; i < filtered_data.length; i++) {
-//                        String entry = filtered_data[i].toString() + "\n";
-//                        System.out.print(entry);
-//                        try {
-//                            File storage = Environment.getExternalStorageDirectory();
-//                            File dir = new File(storage.getAbsolutePath() + "/documents");
-//                            File file = new File(dir, "output.csv");
-//                            FileOutputStream f = new FileOutputStream(file, true);
-//                            try {
-//                                f.write(entry.getBytes());
-//                                f.flush();
-//                                f.close();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-
-                    //detecting steps
                     detector.detect(filtered_data);
                     steps = detector.getStepCount();
 
