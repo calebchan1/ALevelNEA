@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Exercise Tracker</string>
     <string name="start_tracking">Start Tracking</string>
+    <!-- MET VALUES -->
+    <string name="met_running">7.0</string>
+    <string name="met_treadmill">8.0</string>
+    <string name="met_pushup">3.8</string>
+    <string name="met_walking">3.5</string>
 </resources>

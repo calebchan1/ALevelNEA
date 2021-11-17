@@ -63,7 +63,7 @@ public class TreadmillActivity extends AppCompatActivity  {
 
 
     //Specialised running variables
-    private float MET = 7.0F;
+    private float MET;
     private double distance;
     private Filter filter;
     private Detector detector;
@@ -77,15 +77,8 @@ public class TreadmillActivity extends AppCompatActivity  {
 
     //Permissions
     private String[] PERMISSIONS;
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                } else {
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                    isRunning = Boolean.FALSE;
-                    this.finish();
-                }
-            });
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+
 
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -102,6 +95,7 @@ public class TreadmillActivity extends AppCompatActivity  {
         steps = 0;
         distance = 0f;
         height = User.getHeight();
+        MET = Float.parseFloat(getString(R.string.met_treadmill));
 
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
@@ -143,6 +137,16 @@ public class TreadmillActivity extends AppCompatActivity  {
         });
 
         //HANDLING PERMISSIONS
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        isRunning = Boolean.TRUE;
+                    } else {
+                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                        isRunning = Boolean.FALSE;
+                        this.finish();
+                    }
+                });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_EXTERNAL_STORAGE,

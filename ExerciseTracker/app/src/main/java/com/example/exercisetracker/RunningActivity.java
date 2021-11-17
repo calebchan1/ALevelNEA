@@ -67,7 +67,7 @@ public class RunningActivity extends AppCompatActivity  {
 
 
     //Specialised running variables
-    private float MET = 7.0F;
+    private float MET;
     private double distance;
     private Filter filter;
     private Detector detector;
@@ -78,18 +78,11 @@ public class RunningActivity extends AppCompatActivity  {
     private Float[] filtered_data;
     private Boolean hasProcessed;
     private Route route;
+    private Date timeStarted;
 
     //Permissions
     private String[] PERMISSIONS;
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                } else {
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                    isRunning = Boolean.FALSE;
-                    this.finish();
-                }
-            });
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -104,7 +97,6 @@ public class RunningActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_running);
 
         //instantiating all private variables
-        Date timestarted = Calendar.getInstance().getTime();
         isRunning = true;
         seconds = 0;
         steps = 0;
@@ -115,6 +107,7 @@ public class RunningActivity extends AppCompatActivity  {
         paceText = findViewById(R.id.paceText);
         calorieText = findViewById(R.id.calText);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        MET = Float.parseFloat(getString(R.string.met_running));
 
         //CUSTOM JAVA CLASSES
         filter = new Filter(-10f, 10f);
@@ -147,7 +140,7 @@ public class RunningActivity extends AppCompatActivity  {
                 sensorManager.unregisterListener(listener);
                 locationManager.removeUpdates(locationListener);
                 //exiting the running activity and sending data back to main program
-                Activity activity = new Activity(timestarted,seconds,"running");
+                Activity activity = new Activity(timeStarted,seconds,"running");
                 if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE){
                     Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 }
@@ -159,6 +152,16 @@ public class RunningActivity extends AppCompatActivity  {
         });
 
         //HANDLING PERMISSIONS
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        isRunning = Boolean.TRUE;
+                    } else {
+                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                        isRunning = Boolean.FALSE;
+                        this.finish();
+                    }
+                });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             PERMISSIONS = new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -186,6 +189,7 @@ public class RunningActivity extends AppCompatActivity  {
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
+        timeStarted = Calendar.getInstance().getTime();
         //handling location changes
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
