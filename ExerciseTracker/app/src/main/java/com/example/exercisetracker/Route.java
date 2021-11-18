@@ -34,13 +34,6 @@ public class Route {
         return distance;
     }
 
-    public Integer getLastRouteIndex() {
-        return lastRouteIndex;
-    }
-    public ArrayList<Double[]> getRoute() {
-        return route;
-    }
-
     public void addRoute(Double[] entry){
         this.route.add(entry);
     }
