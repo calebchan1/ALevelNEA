@@ -3,21 +3,27 @@ package com.example.exercisetracker;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.pose.PoseDetection;
@@ -26,12 +32,17 @@ import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class PushUpActivity extends AppCompatActivity {
+
+
     //Text Views
     private TextView timerText,repText,calText;
     //buttons
     private Button startBtn, finishBtn;
+    //camera preview
+    private PreviewView tv;
 
     //pushup custom variables
     private Boolean isTracking;
@@ -61,13 +72,13 @@ public class PushUpActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
         setContentView(R.layout.activity_pushup);
         //instantiating all variables
-        isTracking = Boolean.TRUE;
         startBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
         timerText = findViewById(R.id.timerText);
         repText = findViewById(R.id.repText);
         calText = findViewById(R.id.calText);
         MET = Float.parseFloat(getString(R.string.met_pushup));
+        tv = findViewById(R.id.tv);
         //handling button clicks
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,37 +103,37 @@ public class PushUpActivity extends AppCompatActivity {
             }
         });
 
-        //handling camera and write permissions
-        requestPermissionLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        isTracking = Boolean.TRUE;
-                    } else {
-                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                        isTracking = Boolean.FALSE;
-                        this.finish();
-                    }
-                });
+//        //handling camera and write permissions
+//        requestPermissionLauncher =
+//                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+//                    if (isGranted) {
+//                    } else {
+//                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+//                        isTracking = Boolean.FALSE;
+//                        this.finish();
+//                    }
+//                });
         PERMISSIONS = new String[]{
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
 
         if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            for (String permission: PERMISSIONS){
-                requestPermissionLauncher.launch(permission);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //dealt with overriding onRequestPermissionsResult method
+                requestPermissions(PERMISSIONS,0);
             }
         }
-        else{
+        else {
             startTracking();
         }
 
     }
     private void startTracking(){
-        cameraProviderFuture = ProcessCameraProvider.getInstance(PushUpActivity.this);
-
+        isTracking = Boolean.TRUE;
         seconds = 0;
         timeStarted = Calendar.getInstance().getTime();
+        startCamera();
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
@@ -161,5 +172,53 @@ public class PushUpActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 0:
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startTracking();
+                }  else {
+                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                    isTracking = Boolean.FALSE;
+                    this.finish();
+                }
+                return;
+        }
+    }
+
+    private void startCamera(){
+        cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        cameraProviderFuture.addListener(() ->{
+                try {
+                    //configuring camera to preview.
+                    ProcessCameraProvider provider = null;
+                    provider = cameraProviderFuture.get();
+                    preview = new Preview.Builder().build();
+                    preview.setSurfaceProvider(tv.getSurfaceProvider());
+                    cameraSelector = new CameraSelector.Builder()
+                            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                            .build();
+                    try {
+                        provider.unbindAll();
+                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,preview);
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+        },ContextCompat.getMainExecutor(this));
+    }
+
+    private void capturePhoto(){
+
     }
 }

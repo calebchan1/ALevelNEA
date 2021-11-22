@@ -42,4 +42,11 @@ public class Route {
         return route.size();
     }
 
+    public Integer getLastRouteIndex() {
+        return lastRouteIndex;
+    }
+    public ArrayList<Double[]> getRoute() {
+        return route;
+    }
+
 }

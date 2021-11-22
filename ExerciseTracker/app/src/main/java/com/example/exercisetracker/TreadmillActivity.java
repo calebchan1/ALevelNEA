@@ -90,7 +90,6 @@ public class TreadmillActivity extends AppCompatActivity  {
         getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
         setContentView(R.layout.activity_treadmill);
         //instantiating all private variables
-        isRunning = true;
         seconds = 0;
         steps = 0;
         distance = 0f;
@@ -137,16 +136,6 @@ public class TreadmillActivity extends AppCompatActivity  {
         });
 
         //HANDLING PERMISSIONS
-        requestPermissionLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        isRunning = Boolean.TRUE;
-                    } else {
-                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                        isRunning = Boolean.FALSE;
-                        this.finish();
-                    }
-                });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -160,9 +149,7 @@ public class TreadmillActivity extends AppCompatActivity  {
             };
         }
         if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            for (String permission: PERMISSIONS){
-                requestPermissionLauncher.launch(permission);
-            }
+            requestPermissions(PERMISSIONS,0);
         }
         else{
             startRunning();
@@ -171,6 +158,7 @@ public class TreadmillActivity extends AppCompatActivity  {
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
+        isRunning = true;
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -314,6 +302,21 @@ public class TreadmillActivity extends AppCompatActivity  {
             }
         }
         return true;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 0:
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRunning();
+                }  else {
+                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                    this.finish();
+                }
+                return;
+        }
     }
 
     //handling live notification bar

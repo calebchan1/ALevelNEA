@@ -82,10 +82,7 @@ public class RunningActivity extends AppCompatActivity  {
 
     //Permissions
     private String[] PERMISSIONS;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    @SuppressLint("MissingPermission")
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,20 +149,11 @@ public class RunningActivity extends AppCompatActivity  {
         });
 
         //HANDLING PERMISSIONS
-        requestPermissionLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        isRunning = Boolean.TRUE;
-                    } else {
-                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                        isRunning = Boolean.FALSE;
-                        this.finish();
-                    }
-                });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             PERMISSIONS = new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
             };
@@ -174,12 +162,14 @@ public class RunningActivity extends AppCompatActivity  {
             PERMISSIONS = new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
             };
         }
         if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            for (String permission: PERMISSIONS){
-                requestPermissionLauncher.launch(permission);
+            //dealt with overriding onRequestPermissionsResult method
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(PERMISSIONS,0);
             }
         }
         else{
@@ -200,13 +190,14 @@ public class RunningActivity extends AppCompatActivity  {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
                     Double[] entry = {latitude, longitude};
+                    System.out.println(entry);
                     route.addRoute(entry);
                 }
             }
 
         };
         //sensor managers
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,2,locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,3,locationListener);
 
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -361,6 +352,7 @@ public class RunningActivity extends AppCompatActivity  {
         };
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
+
     }
     //PERMISSIONS
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
@@ -373,6 +365,21 @@ public class RunningActivity extends AppCompatActivity  {
             }
         }
         return true;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 0:
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRunning();
+                }  else {
+                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                    this.finish();
+                }
+                return;
+        }
     }
 
     //handling live notification bar
