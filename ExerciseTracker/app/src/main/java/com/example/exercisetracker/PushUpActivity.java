@@ -30,8 +30,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
@@ -227,24 +229,31 @@ public class PushUpActivity extends AppCompatActivity{
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
                 int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-                @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
+                Image image = imageProxy.getImage();
                 if (image != null){
                     InputImage inputimage = InputImage.fromMediaImage(image,rotationDegrees);
-                    poseDetector.process(inputimage).addOnFailureListener(new OnFailureListener() {
+
+                    Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
+                        @Override
+                        public void onSuccess(@NonNull Pose pose) {
+                            Toast.makeText(PushUpActivity.this, "Successful Pose Detection", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(PushUpActivity.this, "Failed Pose Detection", Toast.LENGTH_SHORT).show();
                         }
-                    }).addOnSuccessListener(new OnSuccessListener<Pose>() {
+                    }).addOnCompleteListener(new OnCompleteListener<Pose>() {
                         @Override
-                        public void onSuccess(@NonNull Pose pose) {
-                            Toast.makeText(PushUpActivity.this, "Successful Pose Detection", Toast.LENGTH_SHORT).show();
+                        public void onComplete(@NonNull Task<Pose> task) {
+                            imageProxy.close();
                         }
                     });
                 }
                 imageProxy.close();
             }
         });
+
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() ->{
                 try {
