@@ -1,11 +1,14 @@
 package com.example.exercisetracker;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -25,7 +30,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
@@ -33,8 +42,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
-public class PushUpActivity extends AppCompatActivity {
+public class PushUpActivity extends AppCompatActivity{
 
 
     //Text Views
@@ -53,7 +63,6 @@ public class PushUpActivity extends AppCompatActivity {
     //MLK variables
     private PoseDetectorOptions options;
     private PoseDetector poseDetector;
-    private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private Preview preview;
     private CameraSelector cameraSelector;
 
@@ -98,8 +107,7 @@ public class PushUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //when finish button is clicked
-                isTracking = false;
-                finish();
+                finishTracking();
             }
         });
 
@@ -153,6 +161,10 @@ public class PushUpActivity extends AppCompatActivity {
             }
         });
 
+
+        //Preparing the input image
+
+
         //MLK tracking
         options = new PoseDetectorOptions.Builder()
                 .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
@@ -176,23 +188,64 @@ public class PushUpActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        isTracking = Boolean.FALSE;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch(requestCode){
             case 0:
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //checking if all permissions are granted on UI dialog
+                boolean granted = true;
+                for (int result : grantResults) {
+                    if (result == PackageManager.PERMISSION_DENIED) {
+                       granted = false;
+                    }
+                }
+                if (granted){
                     startTracking();
-                }  else {
-                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
-                    isTracking = Boolean.FALSE;
-                    this.finish();
+                }
+                else{
+                    finishTracking();
                 }
                 return;
         }
     }
 
+    private void finishTracking(){
+        isTracking = false;
+        this.finish();
+
+    }
+
     private void startCamera(){
-        cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        ImageAnalysis imageAnalysis =
+                new ImageAnalysis.Builder()
+                        // enable the following line if RGBA output is needed.
+                        //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                        .setTargetResolution(new Size(1280, 720))
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build();
+        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), new ImageAnalysis.Analyzer() {
+            @Override
+            public void analyze(@NonNull ImageProxy imageProxy) {
+                int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+                @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
+                if (image != null){
+                    InputImage inputimage = InputImage.fromMediaImage(image,rotationDegrees);
+                    poseDetector.process(inputimage).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(PushUpActivity.this, "Failed Pose Detection", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Pose>() {
+                        @Override
+                        public void onSuccess(@NonNull Pose pose) {
+                            Toast.makeText(PushUpActivity.this, "Successful Pose Detection", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                imageProxy.close();
+            }
+        });
+        final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() ->{
                 try {
                     //configuring camera to preview.
@@ -205,7 +258,7 @@ public class PushUpActivity extends AppCompatActivity {
                             .build();
                     try {
                         provider.unbindAll();
-                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,preview);
+                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,imageAnalysis,preview);
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -218,7 +271,6 @@ public class PushUpActivity extends AppCompatActivity {
         },ContextCompat.getMainExecutor(this));
     }
 
-    private void capturePhoto(){
 
-    }
+
 }

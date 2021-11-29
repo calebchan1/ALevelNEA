@@ -30,4 +30,6 @@ public class BaseApp extends Application {
             notificationManager.createNotificationChannel(channel1);
         }
     }
+
+
 }

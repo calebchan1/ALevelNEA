@@ -43,6 +43,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class TreadmillActivity extends AppCompatActivity  {
@@ -74,6 +76,7 @@ public class TreadmillActivity extends AppCompatActivity  {
     private Float[] filtered_data;
     private Boolean hasProcessed;
     private Integer height;
+    private Date timeStarted;
 
     //Permissions
     private String[] PERMISSIONS;
@@ -111,6 +114,34 @@ public class TreadmillActivity extends AppCompatActivity  {
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
+        finishBtn = findViewById(R.id.finishBtn);
+
+
+        //HANDLING PERMISSIONS
+        PERMISSIONS = new String[]{
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        };
+
+        if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
+            requestPermissions(PERMISSIONS,0);
+        }
+        else{
+            startRunning();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startRunning() {
+        finishBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isRunning = false;
+                sensorManager.unregisterListener(listener);
+                //exiting the running activity and sending data back to main program
+                finish();
+            }
+        });
         startStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,40 +155,8 @@ public class TreadmillActivity extends AppCompatActivity  {
                 }
             }
         });
-        finishBtn = findViewById(R.id.finishBtn);
-        finishBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isRunning = false;
-                sensorManager.unregisterListener(listener);
-                //exiting the running activity and sending data back to main program
-                finish();
-            }
-        });
 
-        //HANDLING PERMISSIONS
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            PERMISSIONS = new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            };
-        }
-        else{
-            PERMISSIONS = new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            };
-        }
-        if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            requestPermissions(PERMISSIONS,0);
-        }
-        else{
-            startRunning();
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void startRunning() {
+        timeStarted = Calendar.getInstance().getTime();
         isRunning = true;
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -303,21 +302,45 @@ public class TreadmillActivity extends AppCompatActivity  {
         }
         return true;
     }
+
+    private void finishRunning(){
+        isRunning = false;
+        sensorManager.unregisterListener(listener);
+        //exiting the running activity and sending data back to main program
+        Activity activity = new Activity(timeStarted, seconds, "running",calories);
+        if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE) {
+            Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+        }
+        this.finish();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch(requestCode){
             case 0:
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startRunning();
-                }  else {
-                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
-                    this.finish();
+                if (grantResults.length>0) {
+                    //checking if all permissions are granted on UI dialog
+                    boolean granted = true;
+                    for (int result : grantResults) {
+                        if (result == PackageManager.PERMISSION_DENIED) {
+                            granted = false;
+                        }
+                    }
+                    if (granted) {
+                        startRunning();
+                    } else {
+                        Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                        finishRunning();
+                    }
+                    return;
                 }
-                return;
+
         }
     }
+
 
     //handling live notification bar
     public void sendOnChannel1(View v){

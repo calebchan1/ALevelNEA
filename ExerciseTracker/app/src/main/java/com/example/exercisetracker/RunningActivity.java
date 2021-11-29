@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -28,6 +29,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationChannelCompat;
@@ -47,7 +49,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity  {
+public class RunningActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -82,15 +84,15 @@ public class RunningActivity extends AppCompatActivity  {
 
     //Permissions
     private String[] PERMISSIONS;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //visuals
         getSupportActionBar().hide();
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.main_colour));// set status background white
         setContentView(R.layout.activity_running);
 
         //instantiating all private variables
@@ -116,6 +118,33 @@ public class RunningActivity extends AppCompatActivity  {
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
+        finishBtn = findViewById(R.id.finishBtn);
+
+        //HANDLING PERMISSIONS
+        PERMISSIONS = new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
+            //dealt with overriding onRequestPermissionsResult method
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(PERMISSIONS,0);
+            }
+        } else {
+            startRunning();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startRunning() {
+        //click listeners
+        finishBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishRunning();
+            }
+        });
         startStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,56 +158,14 @@ public class RunningActivity extends AppCompatActivity  {
                 }
             }
         });
-        finishBtn = findViewById(R.id.finishBtn);
-        finishBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isRunning = false;
-                sensorManager.unregisterListener(listener);
-                locationManager.removeUpdates(locationListener);
-                //exiting the running activity and sending data back to main program
-                Activity activity = new Activity(timeStarted,seconds,"running");
-                if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE){
-                    Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
-                }
-                finish();
-            }
-        });
 
-        //HANDLING PERMISSIONS
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            PERMISSIONS = new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            //requesting background permission for android q+
+            //Android forces you to request this separately
+            isRunning=false;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},1);
         }
-        else{
-            PERMISSIONS = new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            };
-        }
-        if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            //dealt with overriding onRequestPermissionsResult method
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(PERMISSIONS,0);
-            }
-        }
-        else{
-            startRunning();
-        }
-    }
 
-    @SuppressLint("MissingPermission")
-    private void startRunning() {
         timeStarted = Calendar.getInstance().getTime();
         //handling location changes
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -196,8 +183,7 @@ public class RunningActivity extends AppCompatActivity  {
             }
 
         };
-        //sensor managers
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,3,locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 3, locationListener);
 
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -245,7 +231,6 @@ public class RunningActivity extends AppCompatActivity  {
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
         ArrayList<Float[]> grav = new ArrayList<Float[]>();
-
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
@@ -371,16 +356,56 @@ public class RunningActivity extends AppCompatActivity  {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch(requestCode){
             case 0:
-                if (grantResults.length > 0 &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startRunning();
-                }  else {
-                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
-                    this.finish();
+                if (grantResults.length>0) {
+                    //checking if all permissions are granted on UI dialog
+                    boolean granted = true;
+                    for (int result : grantResults) {
+                        if (result == PackageManager.PERMISSION_DENIED) {
+                            granted = false;
+                        }
+                    }
+                    if (granted) {
+                        startRunning();
+                    } else {
+                        Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                        finishRunning();
+                    }
+                    return;
                 }
-                return;
+
+            case 1:
+                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    isRunning = true;
+                    return;
+                }
+                else{
+                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                    finishRunning();
+                }
         }
+
     }
+
+    private void finishRunning(){
+        isRunning = false;
+        sensorManager.unregisterListener(listener);
+        if (locationManager!=null && timeStarted!=null) {
+            locationManager.removeUpdates(locationListener);
+            //exiting the running activity and sending data back to main program
+            Activity activity = new Activity(timeStarted, seconds, "running",calories);
+            activity.setCalories(calories);
+            activity.setDistance((float) distance);
+            activity.setRoute(route);
+            if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE) {
+                Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+            }
+        }
+        this.finish();
+
+    }
+
 
     //handling live notification bar
     public void sendOnChannel1(View v){

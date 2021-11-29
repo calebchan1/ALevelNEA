@@ -2,6 +2,7 @@ package com.example.exercisetracker;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.os.Environment;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,11 +24,12 @@ public class Activity extends AppCompatActivity {
     private Route route;
     private Float distance;
 
-    public Activity(Date timeStarted, Integer duration, String type) {
+    public Activity(Date timeStarted, Integer duration, String type, Integer calories) {
         //An activity must at it's minimum have the time started, duration and exercise type name
         this.timeStarted = timeStarted;
         this.duration = duration;
         this.type = type;
+        this.calories = calories;
     }
 
     public String getType() {
@@ -68,30 +70,7 @@ public class Activity extends AppCompatActivity {
 
     public Boolean saveActivity(String fileDir){
         //saving activities under a .bin file holding the activity objects
-        ObjectOutputStream oos = null;
-        try {
-            File file = new File(fileDir, "activities.bin");
-            file.createNewFile();
-            FileOutputStream fos = this.openFileOutput("activities.bin", MODE_PRIVATE);
-            oos = new ObjectOutputStream(fos);
-            oos.writeObject(this);
-            oos.close();
-            fos.close();
-            return true;
-        } catch (FileNotFoundException err) {
-            return false;
-        } catch (Exception abcd) {
-            return false;
-        }
-        finally {//makes sure to close the ObjectOutputStream
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        return false;
     }
 
     public static Activity readActivities(String filesDir){
