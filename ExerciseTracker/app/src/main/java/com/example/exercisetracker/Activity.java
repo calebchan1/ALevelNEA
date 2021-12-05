@@ -14,9 +14,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 
-public class Activity extends AppCompatActivity {
+public class Activity{
     private Date timeStarted;
     private Integer duration;
     private String type;
@@ -70,7 +71,17 @@ public class Activity extends AppCompatActivity {
 
     public Boolean saveActivity(String fileDir){
         //saving activities under a .bin file holding the activity objects
-        return false;
+        File outFile = new File(fileDir, "activity.data");
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outFile));
+            oos.writeObject(this);
+            oos.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     public static Activity readActivities(String filesDir){

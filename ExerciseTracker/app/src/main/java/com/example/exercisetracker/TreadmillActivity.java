@@ -47,7 +47,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class TreadmillActivity extends AppCompatActivity  {
+public class TreadmillActivity extends AppCompatActivity{
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;

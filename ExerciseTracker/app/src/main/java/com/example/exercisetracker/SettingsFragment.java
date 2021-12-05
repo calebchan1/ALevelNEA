@@ -1,7 +1,9 @@
 package com.example.exercisetracker;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -35,20 +37,26 @@ import java.util.Date;
 public class SettingsFragment extends Fragment implements View.OnClickListener{
     private TextInputLayout weightField;
     private TextInputLayout DOBField;
+    private TextInputLayout nameField;
     private TextInputLayout heightField;
+    private SharedPreferences sp;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings,container,false);
+        sp = getActivity().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
         weightField = view.findViewById(R.id.weightField);
+        nameField = view.findViewById(R.id.nameField);
         DOBField = view.findViewById(R.id.DOBfield);
         heightField = view.findViewById(R.id.heightField);
+
+
 
         //loading user data presets
         weightField.getEditText().setText(User.getWeight().toString());
         heightField.getEditText().setText(User.getHeight().toString());
-
+        nameField.getEditText().setText(User.getName().toString());
         //handling date of birth
         Date dob = User.getDateOfBirth();
         EditText dobText = DOBField.getEditText();
@@ -112,8 +120,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                     User.setWeight(weight);
                     Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
                     User.setHeight(height);
-                    weightField.getEditText().setCursorVisible(Boolean.FALSE);
-                    heightField.getEditText().setCursorVisible(Boolean.FALSE);
+                    User.saveUserDetails();
                     Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e){

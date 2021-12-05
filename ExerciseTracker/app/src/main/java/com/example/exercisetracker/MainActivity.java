@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -13,11 +16,16 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity{
     private BottomNavigationView bottomMenu;
+    private SharedPreferences sp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
+        Intent intent1 = new Intent(getApplicationContext(), LogInScreen.class);
+        startActivity(intent1);
+
         bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.setSelectedItemId(R.id.page_1);
         Fragment fragment = new ExerciseFragment();;
@@ -47,13 +55,16 @@ public class MainActivity extends AppCompatActivity{
         });
 
         //HANDLING USER CLASS
-        User.setWeight(55F);
+        User.setName("Jordan");
+        User.setWeight(66f);
         Date date = new Date("12/02/04");
         User.setDateOfBirth(date);
         User.setHeight(166);
-
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        User.saveUserDetails();
+        super.onDestroy();
+    }
 }

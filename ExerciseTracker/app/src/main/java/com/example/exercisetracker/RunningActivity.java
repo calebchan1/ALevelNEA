@@ -49,7 +49,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity {
+public class RunningActivity extends AppCompatActivity{
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;

@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.PreviewConfig;
@@ -218,34 +219,31 @@ public class PushUpActivity extends AppCompatActivity{
     }
 
     private void startCamera(){
+        final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
                         // enable the following line if RGBA output is needed.
                         //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                        .setTargetResolution(new Size(1280, 720))
+                        .setTargetResolution(new Size(720, 1280))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
                 int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-                Image image = imageProxy.getImage();
+                @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
                 if (image != null){
                     InputImage inputimage = InputImage.fromMediaImage(image,rotationDegrees);
-
                     Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
                         @Override
                         public void onSuccess(@NonNull Pose pose) {
                             Toast.makeText(PushUpActivity.this, "Successful Pose Detection", Toast.LENGTH_SHORT).show();
+                            imageProxy.close();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(PushUpActivity.this, "Failed Pose Detection", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<Pose>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Pose> task) {
                             imageProxy.close();
                         }
                     });
@@ -254,20 +252,15 @@ public class PushUpActivity extends AppCompatActivity{
             }
         });
 
-        final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() ->{
                 try {
                     //configuring camera to preview.
-                    ProcessCameraProvider provider = null;
-                    provider = cameraProviderFuture.get();
+                    ProcessCameraProvider provider = cameraProviderFuture.get();
                     preview = new Preview.Builder().build();
                     preview.setSurfaceProvider(tv.getSurfaceProvider());
-                    cameraSelector = new CameraSelector.Builder()
-                            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
-                            .build();
                     try {
                         provider.unbindAll();
-                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,imageAnalysis,preview);
+                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,);
                     }
                     catch (Exception e){
                         e.printStackTrace();
