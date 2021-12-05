@@ -9,29 +9,23 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Size;
-import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
-
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -45,7 +39,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 
 public class PushUpActivity extends AppCompatActivity{
 
@@ -125,6 +118,7 @@ public class PushUpActivity extends AppCompatActivity{
 //                    }
 //                });
         PERMISSIONS = new String[]{
+                Manifest.permission.INTERNET,
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
@@ -252,15 +246,19 @@ public class PushUpActivity extends AppCompatActivity{
             }
         });
 
+
         cameraProviderFuture.addListener(() ->{
                 try {
                     //configuring camera to preview.
                     ProcessCameraProvider provider = cameraProviderFuture.get();
                     preview = new Preview.Builder().build();
                     preview.setSurfaceProvider(tv.getSurfaceProvider());
+                    cameraSelector = new CameraSelector.Builder()
+                            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                            .build();
                     try {
                         provider.unbindAll();
-                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,);
+                        provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,preview, imageAnalysis);
                     }
                     catch (Exception e){
                         e.printStackTrace();
