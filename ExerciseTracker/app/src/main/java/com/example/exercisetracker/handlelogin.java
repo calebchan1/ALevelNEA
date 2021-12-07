@@ -12,10 +12,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class handlelogin extends AsyncTask {
     private Context context;
     private int flag;
+
 
     public handlelogin(Context context, int flag){
         this.context = context;
@@ -27,28 +32,15 @@ public class handlelogin extends AsyncTask {
         if (flag == 0){
             // 0 means requesting login details from server
             try{
-                String username = (String) objects[0];
-                String password = (String) objects[1];
-                String link = "http://myphpmysqlweb.hostei.com/login.php?username="+username+"& password="+password;
+                String records = "";
+                Connection connection  = DriverManager.getConnection("jdbc:mysql:MySQL@sql4.freesqldatabase","sql4456768","gyFr8LHqQA");
+                Statement statement = connection.createStatement();
+                ResultSet resultset = statement.executeQuery("SELECT * FROM User");
 
-                URL url = new URL(link);
-                HttpClient client = new DefaultHttpClient();
-                HttpGet request = new HttpGet();
-                request.setURI(new URI(link));
-                HttpResponse response = client.execute(request);
-                BufferedReader in = new BufferedReader(new
-                        InputStreamReader(response.getEntity().getContent()));
-
-                StringBuffer sb = new StringBuffer("");
-                String line="";
-
-                while ((line = in.readLine()) != null) {
-                    sb.append(line);
-                    break;
+                while (resultset.next()){
+                    records += resultset.getString(1)+ " " + resultset.getString(2) + "\n";
                 }
-
-                in.close();
-                return sb.toString();
+                return records;
             }
             catch(Exception e){
                 return new String("Exception: " + e.getMessage());
@@ -60,6 +52,9 @@ public class handlelogin extends AsyncTask {
         return null;
     }
 
+    @Override
+    protected void onPostExecute(Object o) {
 
-
+        super.onPostExecute(o);
+    }
 }

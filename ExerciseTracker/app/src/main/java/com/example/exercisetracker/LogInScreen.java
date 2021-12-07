@@ -36,6 +36,8 @@ public class LogInScreen extends AppCompatActivity {
 //                if (username.equals("username") && password.equals("password")){
 //                    finish();
 //                }
+                handlelogin handle = new handlelogin(LogInScreen.this,0);
+                handle.execute();
                 finish();
             }
         });
