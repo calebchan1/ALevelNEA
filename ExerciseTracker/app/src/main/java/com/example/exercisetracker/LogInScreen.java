@@ -1,6 +1,7 @@
 package com.example.exercisetracker;
 
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -44,8 +45,10 @@ public class LogInScreen extends AppCompatActivity {
                 //user validation here
                 Connection conn = null;
                 try{
+                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                    StrictMode.setThreadPolicy(policy);
                     String records = "";
-                    Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+                    Class.forName("com.mysql.jdbc.Driver").newInstance();
                     String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
                     String user = "sql4456768";
                     String pass = "gyFr8LHqQA";
