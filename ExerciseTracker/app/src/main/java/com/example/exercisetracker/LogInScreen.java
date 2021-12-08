@@ -18,6 +18,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 
 public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
@@ -45,7 +46,14 @@ public class LogInScreen extends AppCompatActivity {
                 //user validation here
                 dbhelper helper = new dbhelper(LogInScreen.this);
                 if (helper.login(username,password)){
-                    Toast.makeText(LogInScreen.this,helper.getResult(),Toast.LENGTH_SHORT);
+                    String[] results = helper.getResult().split(" ");
+                    //saving to static User class
+                    User.setUserID(Integer.valueOf(results[0]));
+                    User.setName(results[1]+ " "+results[2]);
+                    Date date = new Date("12/02/04");
+                    User.setDateOfBirth(date);
+                    User.setWeight(Float.valueOf(results[4]));
+                    User.setHeight(Integer.valueOf(results[5]));
                     finish();
                 }
 

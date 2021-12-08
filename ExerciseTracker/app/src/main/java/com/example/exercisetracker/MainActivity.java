@@ -54,12 +54,6 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        //HANDLING USER CLASS
-        User.setName("Jordan");
-        User.setWeight(66f);
-        Date date = new Date("12/02/04");
-        User.setDateOfBirth(date);
-        User.setHeight(166);
     }
 
     @Override

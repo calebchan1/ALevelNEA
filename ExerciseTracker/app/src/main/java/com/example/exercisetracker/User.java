@@ -8,6 +8,15 @@ import java.io.ObjectOutputStream;
 import java.util.Date;
 
 public class User {
+    public static Integer getUserID() {
+        return UserID;
+    }
+
+    public static void setUserID(Integer userID) {
+        UserID = userID;
+    }
+
+    private static Integer UserID;
     private static String name;
     private static String email;
     private static Float weight;

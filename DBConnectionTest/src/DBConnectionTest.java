@@ -12,11 +12,11 @@ public class DBConnectionTest {
             String pass = "gyFr8LHqQA";
             conn  = DriverManager.getConnection(url,user,pass);
             Statement statement = conn.createStatement();
-            ResultSet resultset = statement.executeQuery("SELECT * FROM User");
+            ResultSet resultset = statement.executeQuery("SELECT UserID, firstname, surname, dateOfBirth, weight, height FROM User WHERE username = 'bill'");
 
             while (resultset.next()){
                 records = "";
-                for (int i = 2;i<=8;i++){
+                for (int i = 1;i<=6;i++){
                     records += resultset.getString(i) + " ";
                 }
 

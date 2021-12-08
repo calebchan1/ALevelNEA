@@ -23,36 +23,44 @@ import java.sql.Statement;
 public class dbhelper {
     private Context context;
     private int flag;
-    private String result;
+    private String result = "";
     private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
     private static final String dbuser = "sql4456768";
     private static final String dbpassword = "gyFr8LHqQA";
 
-    public dbhelper(Context context){
+    public dbhelper(Context context) {
         this.context = context;
-        this.result = "";
     }
 
-    public Boolean login(String username, String password){
+    public Boolean login(String username, String password) {
         //handles login validation process
         Connection conn = null;
-        try{
+        try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn  = DriverManager.getConnection(url,dbhelper.dbuser,dbhelper.dbpassword);
+            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
-            ResultSet resultset = statement.executeQuery("SELECT * FROM User");
-            Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
-            while (resultset.next()){
-                for (int i = 2;i<=8;i++){
-                    //saving SQL query results
-                    this.result += resultset.getString(i) + " ";
+            ResultSet resultset = statement.executeQuery(
+                    "SELECT UserID, firstname, surname, dateOfBirth, weight, height " +
+                            "FROM User " +
+                            String.format("WHERE username = '%s' AND password = '%s'", username, password)
+            );
+
+            if (!resultset.next()){
+                Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            resultset.beforeFirst();
+            while (resultset.next()) {
+                for (int i = 1; i <= 6; i++) {
+                    setResult(getResult()+resultset.getString(i) + " ");
                 }
             }
-            Toast.makeText(this.context, this.result, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
+
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -61,12 +69,11 @@ public class dbhelper {
             e.printStackTrace();
             return false;
         } finally {
-            try{
-                if (conn!=null){
+            try {
+                if (conn != null) {
                     conn.close();
                 }
-            }
-            catch(SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
@@ -74,5 +81,9 @@ public class dbhelper {
 
     public String getResult() {
         return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }
