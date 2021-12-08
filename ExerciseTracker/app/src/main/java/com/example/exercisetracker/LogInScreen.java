@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 
+import com.mysql.jdbc.Driver;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -41,14 +42,15 @@ public class LogInScreen extends AppCompatActivity {
                 String username = usernameField.getEditText().getText().toString();
                 String password = passwordField.getEditText().getText().toString();
                 //user validation here
-//                if (username.equals("username") && password.equals("password")){
-//                    finish();
-//                }
-
+                Connection conn = null;
                 try{
                     String records = "";
-                    Connection connection  = DriverManager.getConnection("jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768","sql4456768","gyFr8LHqQA");
-                    Statement statement = connection.createStatement();
+                    Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+                    String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
+                    String user = "sql4456768";
+                    String pass = "gyFr8LHqQA";
+                    conn  = DriverManager.getConnection(url,user,pass);
+                    Statement statement = conn.createStatement();
                     ResultSet resultset = statement.executeQuery("SELECT * FROM User");
                     Toast.makeText(LogInScreen.this, "Login Successful", Toast.LENGTH_SHORT).show();
                     while (resultset.next()){
@@ -56,9 +58,24 @@ public class LogInScreen extends AppCompatActivity {
                     }
                     finish();
 
-                } catch (SQLException throwables) {
+                } catch (SQLException e) {
                     Toast.makeText(LogInScreen.this, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
-                    throwables.printStackTrace();
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } finally {
+                    try{
+                        if (conn!=null){
+                            conn.close();
+                        }
+                    }
+                    catch(SQLException e){
+                        e.printStackTrace();
+                    }
                 }
             }});
 
