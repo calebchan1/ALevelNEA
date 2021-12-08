@@ -43,43 +43,12 @@ public class LogInScreen extends AppCompatActivity {
                 String username = usernameField.getEditText().getText().toString();
                 String password = passwordField.getEditText().getText().toString();
                 //user validation here
-                Connection conn = null;
-                try{
-                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                    StrictMode.setThreadPolicy(policy);
-                    String records = "";
-                    Class.forName("com.mysql.jdbc.Driver").newInstance();
-                    String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
-                    String user = "sql4456768";
-                    String pass = "gyFr8LHqQA";
-                    conn  = DriverManager.getConnection(url,user,pass);
-                    Statement statement = conn.createStatement();
-                    ResultSet resultset = statement.executeQuery("SELECT * FROM User");
-                    Toast.makeText(LogInScreen.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                    while (resultset.next()){
-                        records += resultset.getString(1)+ " " + resultset.getString(2) + "\n";
-                    }
+                dbhelper helper = new dbhelper(LogInScreen.this);
+                if (helper.login(username,password)){
+                    Toast.makeText(LogInScreen.this,helper.getResult(),Toast.LENGTH_SHORT);
                     finish();
-
-                } catch (SQLException e) {
-                    Toast.makeText(LogInScreen.this, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } finally {
-                    try{
-                        if (conn!=null){
-                            conn.close();
-                        }
-                    }
-                    catch(SQLException e){
-                        e.printStackTrace();
-                    }
                 }
+
             }});
 
 
