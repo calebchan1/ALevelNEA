@@ -20,6 +20,7 @@ import java.sql.Statement;
 public class handlelogin extends AsyncTask {
     private Context context;
     private int flag;
+    private String result;
 
 
     public handlelogin(Context context, int flag){
@@ -33,22 +34,18 @@ public class handlelogin extends AsyncTask {
             // 0 means requesting login details from server
             try{
                 String records = "";
-                Connection connection  = DriverManager.getConnection("jdbc:mysql:MySQL@sql4.freesqldatabase","sql4456768","gyFr8LHqQA");
+                Connection connection  = DriverManager.getConnection("jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768","sql4456768","gyFr8LHqQA");
                 Statement statement = connection.createStatement();
                 ResultSet resultset = statement.executeQuery("SELECT * FROM User");
-
                 while (resultset.next()){
                     records += resultset.getString(1)+ " " + resultset.getString(2) + "\n";
                 }
-                return records;
+                this.result = records;
             }
             catch(Exception e){
-                return new String("Exception: " + e.getMessage());
+                this.result = new String("Exception");
             }
         }
-
-
-
         return null;
     }
 
@@ -56,5 +53,9 @@ public class handlelogin extends AsyncTask {
     protected void onPostExecute(Object o) {
 
         super.onPostExecute(o);
+    }
+
+    public String getResult() {
+        return result;
     }
 }

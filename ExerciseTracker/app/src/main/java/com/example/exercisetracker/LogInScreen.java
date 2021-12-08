@@ -3,11 +3,20 @@ package com.example.exercisetracker;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
+
+import com.mysql.jdbc.Driver;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
@@ -36,11 +45,23 @@ public class LogInScreen extends AppCompatActivity {
 //                if (username.equals("username") && password.equals("password")){
 //                    finish();
 //                }
-                handlelogin handle = new handlelogin(LogInScreen.this,0);
-                handle.execute();
-                finish();
-            }
-        });
+
+                try{
+                    String records = "";
+                    Connection connection  = DriverManager.getConnection("jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768","sql4456768","gyFr8LHqQA");
+                    Statement statement = connection.createStatement();
+                    ResultSet resultset = statement.executeQuery("SELECT * FROM User");
+                    Toast.makeText(LogInScreen.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    while (resultset.next()){
+                        records += resultset.getString(1)+ " " + resultset.getString(2) + "\n";
+                    }
+                    finish();
+
+                } catch (SQLException throwables) {
+                    Toast.makeText(LogInScreen.this, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                    throwables.printStackTrace();
+                }
+            }});
 
 
     }
