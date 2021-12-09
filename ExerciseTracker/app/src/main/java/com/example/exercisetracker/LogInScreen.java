@@ -1,5 +1,6 @@
 package com.example.exercisetracker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
@@ -24,6 +25,7 @@ public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
     private Button loginbtn;
+    private Button createbtn;
 
 
     @Override
@@ -36,6 +38,7 @@ public class LogInScreen extends AppCompatActivity {
         setContentView(R.layout.activity_loginscreen);
         usernameField = findViewById(R.id.usernameField);
         passwordField = findViewById(R.id.passwordField);
+        createbtn = findViewById(R.id.createaccount);
         loginbtn = findViewById(R.id.loginbtn);
 
         loginbtn.setOnClickListener(new View.OnClickListener() {
@@ -58,6 +61,13 @@ public class LogInScreen extends AppCompatActivity {
                 }
 
             }});
+        createbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(getApplicationContext(), RegisterUserActivity.class);
+                startActivity(intent1);
+            }
+        });
 
 
     }

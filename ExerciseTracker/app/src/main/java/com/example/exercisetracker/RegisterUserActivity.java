@@ -2,11 +2,23 @@ package com.example.exercisetracker;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 public class RegisterUserActivity extends AppCompatActivity {
+    private Button createbtn;
+    private TextInputLayout usernameField;
+    private TextInputLayout passwordField;
+    private TextInputLayout forenameField;
+    private TextInputLayout surnameField;
+    private TextInputLayout DOBField;
+    private TextInputLayout weightField;
+    private TextInputLayout heightField;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,5 +28,21 @@ public class RegisterUserActivity extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.main_colour));// set status background white
         setContentView(R.layout.activity_registeruser);
+
+        usernameField = findViewById(R.id.usernameField);
+        passwordField = findViewById(R.id.passwordField);
+        forenameField = findViewById(R.id.firstnameField);
+        surnameField = findViewById(R.id.lastnameField);
+        DOBField = findViewById(R.id.DOBfield);
+        weightField = findViewById(R.id.weightField);
+        heightField = findViewById(R.id.heightField);
+
+        createbtn = findViewById(R.id.createBtn);
+        createbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 }
