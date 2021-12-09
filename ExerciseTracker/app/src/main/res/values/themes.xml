@@ -15,5 +15,6 @@
         <!-- Customize your theme here. -->
         <item name="android:fontFamily">@font/gothic</item>
         <item name="android:textColor">@color/black</item>
+        <item name="android:textCursorDrawable">@color/black</item>
     </style>
 </resources>

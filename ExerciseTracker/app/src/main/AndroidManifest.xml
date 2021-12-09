@@ -47,6 +47,12 @@
             android:name=".PushUpActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name=".RegisterUserActivity"
+
+            android:screenOrientation="portrait">
+
+        </activity>
     </application>
 
 </manifest>
