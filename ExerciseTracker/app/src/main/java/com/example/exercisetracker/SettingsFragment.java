@@ -3,6 +3,7 @@ package com.example.exercisetracker;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -114,7 +115,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.UpdateButton:
-
+                //saving user details to User class and updating database
                 try {
                     Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
                     User.setWeight(weight);
@@ -125,8 +126,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                 }
                 catch (Exception e){
                     e.printStackTrace();
-                    Toast.makeText(getContext(), "Save unsuccesful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Save unsuccessful", Toast.LENGTH_SHORT).show();
                 }
+            case R.id.logoutBtn:
+                //When  the user wants to logout
         }
     }
 

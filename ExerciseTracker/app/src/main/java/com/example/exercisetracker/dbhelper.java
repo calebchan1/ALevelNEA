@@ -50,7 +50,7 @@ public class dbhelper {
             );
 
             if (!resultset.next()){
-                Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.context, "Username or Password incorrect", Toast.LENGTH_SHORT).show();
                 return false;
             }
             resultset.beforeFirst();
@@ -65,7 +65,7 @@ public class dbhelper {
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             //if connection throws exception, login failed and false is returned
-            Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, "Could not connect to server. Have you switched on the device's internet?", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
             return false;
         } finally {

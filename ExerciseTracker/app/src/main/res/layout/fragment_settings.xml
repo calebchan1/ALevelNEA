@@ -30,8 +30,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        app:layout_constraintVertical_bias="1"
+        android:layout_height="450dp"
+        app:layout_constraintVertical_bias="0"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/guideline2"
@@ -99,20 +99,38 @@
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/UpdateButton"
-            android:layout_width="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_height="wrap_content"
-            android:text="Update My Details"
-            android:fontFamily="@font/gothicbb"
-            android:textAllCaps="false"
-            android:textSize="20sp"
-            app:cornerRadius="10dp" />
-
-
     </LinearLayout>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/UpdateButton"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintVertical_bias="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/gothicbb"
+        android:text="Update My Details"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:cornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/logoutBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/logoutBtn"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintVertical_bias="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/gothicbb"
+        android:text="Logout"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:cornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/UpdateButton"
+        app:layout_constraintTop_toTopOf="@+id/guideline2" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

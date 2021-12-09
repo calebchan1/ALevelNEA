@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
-        Intent intent1 = new Intent(getApplicationContext(), LogInScreen.class);
-        startActivity(intent1);
 
         bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.setSelectedItemId(R.id.page_1);

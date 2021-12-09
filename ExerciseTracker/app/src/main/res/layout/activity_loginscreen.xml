@@ -81,6 +81,14 @@
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remember Me"
+            android:buttonTint="@color/main_colour_on_primary"
+            android:id="@+id/rememberBox"
+            />
         <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:id="@+id/loginbtn"
