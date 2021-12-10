@@ -41,7 +41,17 @@ public class RegisterUserActivity extends AppCompatActivity {
         createbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                String username = usernameField.getEditText().getText().toString();
+                String passsword = passwordField.getEditText().getText().toString();
+                String forename = forenameField.getEditText().getText().toString();
+                String surname = surnameField.getEditText().getText().toString();
+                String DOB = DOBField.getEditText().getText().toString();
+                String weight = weightField.getEditText().getText().toString();
+                String height = heightField.getEditText().getText().toString();
+                dbhelper helper = new dbhelper(RegisterUserActivity.this);
+                if (helper.registerUser(username,passsword,forename,surname,DOB,weight,height)){
+                    finish();
+                }
             }
         });
     }

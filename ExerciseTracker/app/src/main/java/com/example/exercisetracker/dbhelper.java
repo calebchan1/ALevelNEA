@@ -32,6 +32,36 @@ public class dbhelper {
         this.context = context;
     }
 
+    public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height){
+        Connection conn = null;
+        try{
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            int resultset = statement.executeUpdate(
+                    "INSERT INTO User(username,password,firstname,surname,dateOfBirth,weight,height) " +
+                            String.format("VALUES ('%s','%s','%s','%s','2004-12-02','%s','%s')",
+                                    username, password,forename,surname,weight,height)
+            );
+            if (resultset==0){
+                Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
+
+            return true;
+        }
+        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+            e.printStackTrace();
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
     public Boolean login(String username, String password) {
         //handles login validation process
         Connection conn = null;
@@ -76,6 +106,36 @@ public class dbhelper {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public boolean saveActivity(String exericse, String currDate, String timestarted, String duration, String calories){
+        Connection conn = null;
+        try{
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            int resultset = statement.executeUpdate(
+                    "INSERT INTO Activity(UserID,Date,timeStarted,duration,calories) " +
+                            String.format("VALUES ('%s','%s','%s','%s','%s')",
+                                    exericse, currDate,timestarted,duration ,calories)
+            );
+            if (resultset==0){
+                Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
+
+            return true;
+        }
+        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+            e.printStackTrace();
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            return false;
         }
     }
 

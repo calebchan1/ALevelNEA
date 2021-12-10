@@ -43,10 +43,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class RunningActivity extends AppCompatActivity{
@@ -165,8 +165,8 @@ public class RunningActivity extends AppCompatActivity{
             isRunning=false;
             requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},1);
         }
-
-        timeStarted = Calendar.getInstance().getTime();
+        long millis=System.currentTimeMillis();
+        timeStarted = new java.sql.Date(millis);
         //handling location changes
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -396,7 +396,8 @@ public class RunningActivity extends AppCompatActivity{
             activity.setCalories(calories);
             activity.setDistance((float) distance);
             activity.setRoute(route);
-            if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE) {
+            dbhelper helper = new dbhelper(RunningActivity.this);
+            if (helper.saveActivity("running",timeStarted.toString(),"123242",seconds.toString(),calories.toString())) {
                 Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

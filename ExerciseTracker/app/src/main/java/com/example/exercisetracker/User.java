@@ -8,6 +8,30 @@ import java.io.ObjectOutputStream;
 import java.util.Date;
 
 public class User {
+    private static Integer UserID;
+    private static String name;
+    private static Float weight;
+    private static java.sql.Date dateOfBirth;
+    private static Integer height;
+    private static String username;
+    private static String password;
+
+    public static String getUsername() {
+        return username;
+    }
+
+    public static void setUsername(String username) {
+        User.username = username;
+    }
+
+    public static String getPassword() {
+        return password;
+    }
+
+    public static void setPassword(String password) {
+        User.password = password;
+    }
+
     public static Integer getUserID() {
         return UserID;
     }
@@ -16,27 +40,12 @@ public class User {
         UserID = userID;
     }
 
-    private static Integer UserID;
-    private static String name;
-    private static String email;
-    private static Float weight;
-    private static Date dateOfBirth;
-    private static Integer height;
-
     public static String getName() {
         return name;
     }
 
     public static void setName(String name) {
         User.name = name;
-    }
-
-    public static String getEmail() {
-        return email;
-    }
-
-    public static void setEmail(String email) {
-        User.email = email;
     }
 
     public static Integer getHeight() {
@@ -55,11 +64,11 @@ public class User {
         User.weight = weight;
     }
 
-    public static Date getDateOfBirth() {
+    public static java.sql.Date getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public static void setDateOfBirth(Date dateOfBirth) {
+    public static void setDateOfBirth(java.sql.Date dateOfBirth) {
         User.dateOfBirth = dateOfBirth;
     }
 

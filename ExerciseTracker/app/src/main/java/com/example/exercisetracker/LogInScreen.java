@@ -56,7 +56,7 @@ public class LogInScreen extends AppCompatActivity {
             User.setName(prefs.getString("name",""));
             User.setWeight(Float.valueOf(prefs.getString("weight","")));
             User.setHeight(Integer.valueOf(prefs.getString("height","")));
-            Date date = new Date("12/02/04");
+            java.sql.Date date = java.sql.Date.valueOf(prefs.getString("DOB",""));
             User.setDateOfBirth(date);
         }
         loginbtn.setOnClickListener(new View.OnClickListener() {
@@ -71,7 +71,7 @@ public class LogInScreen extends AppCompatActivity {
                     //saving to static User class
                     User.setUserID(Integer.valueOf(results[0]));
                     User.setName(results[1]+ " "+results[2]);
-                    Date date = new Date("12/02/04");
+                    java.sql.Date date = java.sql.Date.valueOf(results[3]);
                     User.setDateOfBirth(date);
                     User.setWeight(Float.valueOf(results[4]));
                     User.setHeight(Integer.valueOf(results[5]));
@@ -80,6 +80,7 @@ public class LogInScreen extends AppCompatActivity {
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("id",results[0]);
                     editor.putString("name",(results[1]+ " "+results[2]));
+                    editor.putString("DOB",results[3]);
                     editor.putString("weight",results[4]);
                     editor.putString("height",results[5]);
                     editor.apply();

@@ -61,7 +61,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         //handling date of birth
         Date dob = User.getDateOfBirth();
         EditText dobText = DOBField.getEditText();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String strdob = df.format(dob);
         dobText.setText(strdob);
         dobText.setInputType(InputType.TYPE_NULL);
@@ -87,7 +87,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             public void onPositiveButtonClick(Object selection) {
                 //saving the entered date and formatting date
                 dobText.setText(df.format(datepicker.getSelection()));
-                Date date = new Date((Long) datepicker.getSelection());
+                java.sql.Date date = new java.sql.Date((Long) datepicker.getSelection());
                 User.setDateOfBirth(date);
                 datepicker.dismiss();
             }

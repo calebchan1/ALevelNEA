@@ -308,7 +308,8 @@ public class TreadmillActivity extends AppCompatActivity{
         sensorManager.unregisterListener(listener);
         //exiting the running activity and sending data back to main program
         Activity activity = new Activity(timeStarted, seconds, "running",calories);
-        if (activity.saveActivity(getFilesDir().toString()) == Boolean.TRUE) {
+        dbhelper helper = new dbhelper(TreadmillActivity.this);
+        if (helper.saveActivity("treadmill",timeStarted)) {
             Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

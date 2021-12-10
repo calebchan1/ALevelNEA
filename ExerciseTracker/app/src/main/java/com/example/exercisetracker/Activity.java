@@ -69,42 +69,4 @@ public class Activity{
         this.distance = distance;
     }
 
-    public Boolean saveActivity(String fileDir){
-        //saving activities under a .bin file holding the activity objects
-        File outFile = new File(fileDir, "activity.data");
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outFile));
-            oos.writeObject(this);
-            oos.close();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-    }
-
-    public static Activity readActivities(String filesDir){
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(new FileInputStream(new File(filesDir+"/activities.bin")));
-            Activity temp = (Activity)ois.readObject();
-            ois.close();
-            return temp;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 }
