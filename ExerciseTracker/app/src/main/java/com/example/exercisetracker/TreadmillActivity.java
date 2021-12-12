@@ -42,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -100,6 +101,11 @@ public class TreadmillActivity extends AppCompatActivity{
         height = User.getHeight();
         MET = Float.parseFloat(getString(R.string.met_treadmill));
 
+        long millis=System.currentTimeMillis();
+        Timestamp timestamp = new Timestamp(millis);
+        timeStarted = timestamp.toString().substring(11,16);
+        date = new java.sql.Date(millis);
+
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
@@ -134,9 +140,6 @@ public class TreadmillActivity extends AppCompatActivity{
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
-        long millis=System.currentTimeMillis();
-        date = new java.sql.Date(millis);
-        timeStarted = String.valueOf(millis);
         isRunning = true;
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -312,7 +315,7 @@ public class TreadmillActivity extends AppCompatActivity{
         sensorManager.unregisterListener(listener);
         //exiting the running activity and saving data to database
         dbhelper helper = new dbhelper(TreadmillActivity.this);
-        if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString())) {
+        if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString(), steps.toString(), String.valueOf(distance))) {
             Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

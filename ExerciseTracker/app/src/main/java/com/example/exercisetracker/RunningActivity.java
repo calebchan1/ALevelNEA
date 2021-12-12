@@ -44,6 +44,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -98,7 +99,8 @@ public class RunningActivity extends AppCompatActivity{
 
         //instantiating all private variables
         long millis=System.currentTimeMillis();
-        timeStarted = "22:00:14";
+        Timestamp timestamp = new Timestamp(millis);
+        timeStarted = timestamp.toString().substring(11,16);
         date = new java.sql.Date(millis);
         isRunning = true;
         seconds = 0;
@@ -397,7 +399,7 @@ public class RunningActivity extends AppCompatActivity{
             locationManager.removeUpdates(locationListener);
             //exiting the running activity and saving data to database
             dbhelper helper = new dbhelper(RunningActivity.this);
-            if (helper.saveActivity("running",date.toString(),timeStarted,seconds.toString(),calories.toString())) {
+            if (helper.saveActivity("running",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance))) {
                 Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

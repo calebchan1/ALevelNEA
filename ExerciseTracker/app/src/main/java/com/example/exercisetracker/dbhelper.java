@@ -118,7 +118,7 @@ public class dbhelper {
         }
     }
 
-    public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories){
+    public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance){
         Connection conn = null;
         try{
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -129,18 +129,17 @@ public class dbhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories) " +
-                            String.format("VALUES (%s,%s,'%s','%s','%s','%s');",
+                    "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories,steps,distance) " +
+                            String.format("VALUES (%s,%s,'%s','%s','%s','%s','%s','%s');",
                                     ("(SELECT Exercise.ExerciseID FROM Exercise WHERE Exercise.Name = '"+exercise+"')"),
                                     ("(SELECT User.UserID FROM User WHERE User.username = '"+User.getUsername()+"')"),
-                                    currDate,timestarted,duration ,calories)
+                                    currDate,timestarted,duration ,calories, steps, distance)
             );
             if (resultset==0){
-                Toast.makeText(this.context, "Could not save activity", Toast.LENGTH_SHORT).show();
+                //could not save activity
                 return false;
             }
-            Toast.makeText(this.context, "Activity Saved", Toast.LENGTH_SHORT).show();
-
+            //activity was saved successfully
             return true;
         }
         catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
@@ -151,6 +150,7 @@ public class dbhelper {
         finally {
             try {
                 if (conn != null) {
+                    //closing the connection
                     conn.close();
                 }
             } catch (SQLException e) {
@@ -158,6 +158,53 @@ public class dbhelper {
             }
         }
     }
+
+    public boolean readActivities(){
+        Connection conn = null;
+        //get all activities associated with the user's ID
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            ResultSet resultset = statement.executeQuery(
+                    "SELECT Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance " +
+                            "FROM Exercise, Activity " +
+                            String.format("WHERE Activity.UserID = (SELECT User.UserID FROM User WHERE User.username = '%s') ",User.getUsername()) +
+                            "AND Exercise.ExerciseID = Activity.ActivityID;"
+            );
+
+            if (!resultset.next()){
+                Toast.makeText(this.context, "No Activities Stored", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            resultset.beforeFirst();
+            while (resultset.next()) {
+                for (int i = 1; i <= 7; i++) {
+                    setResult(getResult()+resultset.getString(i) + " ");
+                }
+            }
+            return true;
+
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            //if connection throws exception, login failed and false is returned
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public String getResult() {
         return result;
