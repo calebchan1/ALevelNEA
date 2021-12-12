@@ -80,7 +80,8 @@ public class RunningActivity extends AppCompatActivity{
     private Float[] filtered_data;
     private Boolean hasProcessed;
     private Route route;
-    private Date timeStarted;
+    private String timeStarted;
+    private Date date;
 
     //Permissions
     private String[] PERMISSIONS;
@@ -96,6 +97,9 @@ public class RunningActivity extends AppCompatActivity{
         setContentView(R.layout.activity_running);
 
         //instantiating all private variables
+        long millis=System.currentTimeMillis();
+        timeStarted = "22:00:14";
+        date = new java.sql.Date(millis);
         isRunning = true;
         seconds = 0;
         steps = 0;
@@ -138,6 +142,7 @@ public class RunningActivity extends AppCompatActivity{
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
+
         //click listeners
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,8 +170,7 @@ public class RunningActivity extends AppCompatActivity{
             isRunning=false;
             requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},1);
         }
-        long millis=System.currentTimeMillis();
-        timeStarted = new java.sql.Date(millis);
+
         //handling location changes
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -391,13 +395,9 @@ public class RunningActivity extends AppCompatActivity{
         sensorManager.unregisterListener(listener);
         if (locationManager!=null && timeStarted!=null) {
             locationManager.removeUpdates(locationListener);
-            //exiting the running activity and sending data back to main program
-            Activity activity = new Activity(timeStarted, seconds, "running",calories);
-            activity.setCalories(calories);
-            activity.setDistance((float) distance);
-            activity.setRoute(route);
+            //exiting the running activity and saving data to database
             dbhelper helper = new dbhelper(RunningActivity.this);
-            if (helper.saveActivity("running",timeStarted.toString(),"123242",seconds.toString(),calories.toString())) {
+            if (helper.saveActivity("running",date.toString(),timeStarted,seconds.toString(),calories.toString())) {
                 Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

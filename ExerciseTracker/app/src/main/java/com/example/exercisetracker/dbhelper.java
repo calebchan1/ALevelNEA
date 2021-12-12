@@ -60,6 +60,15 @@ public class dbhelper {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         }
+        finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public Boolean login(String username, String password) {
@@ -95,7 +104,7 @@ public class dbhelper {
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             //if connection throws exception, login failed and false is returned
-            Toast.makeText(this.context, "Could not connect to server. Have you switched on the device's internet?", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
             return false;
         } finally {
@@ -109,26 +118,28 @@ public class dbhelper {
         }
     }
 
-    public boolean saveActivity(String exericse, String currDate, String timestarted, String duration, String calories){
+    public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories){
         Connection conn = null;
         try{
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    "INSERT INTO Activity(UserID,Date,timeStarted,duration,calories) " +
-                            String.format("VALUES ('%s','%s','%s','%s','%s')",
-                                    exericse, currDate,timestarted,duration ,calories)
+                    "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories) " +
+                            String.format("VALUES (%s,%s,'%s','%s','%s','%s');",
+                                    ("(SELECT Exercise.ExerciseID FROM Exercise WHERE Exercise.Name = '"+exercise+"')"),
+                                    ("(SELECT User.UserID FROM User WHERE User.username = '"+User.getUsername()+"')"),
+                                    currDate,timestarted,duration ,calories)
             );
             if (resultset==0){
-                Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.context, "Could not save activity", Toast.LENGTH_SHORT).show();
                 return false;
             }
-            Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, "Activity Saved", Toast.LENGTH_SHORT).show();
 
             return true;
         }
@@ -136,6 +147,15 @@ public class dbhelper {
             e.printStackTrace();
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
+        }
+        finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

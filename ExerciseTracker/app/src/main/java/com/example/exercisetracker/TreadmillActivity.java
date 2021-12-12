@@ -41,10 +41,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class TreadmillActivity extends AppCompatActivity{
@@ -76,7 +76,8 @@ public class TreadmillActivity extends AppCompatActivity{
     private Float[] filtered_data;
     private Boolean hasProcessed;
     private Integer height;
-    private Date timeStarted;
+    private String timeStarted;
+    private Date date;
 
     //Permissions
     private String[] PERMISSIONS;
@@ -133,6 +134,10 @@ public class TreadmillActivity extends AppCompatActivity{
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
+        long millis=System.currentTimeMillis();
+        date = new java.sql.Date(millis);
+        timeStarted = String.valueOf(millis);
+        isRunning = true;
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,8 +161,7 @@ public class TreadmillActivity extends AppCompatActivity{
             }
         });
 
-        timeStarted = Calendar.getInstance().getTime();
-        isRunning = true;
+
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -306,10 +310,9 @@ public class TreadmillActivity extends AppCompatActivity{
     private void finishRunning(){
         isRunning = false;
         sensorManager.unregisterListener(listener);
-        //exiting the running activity and sending data back to main program
-        Activity activity = new Activity(timeStarted, seconds, "running",calories);
+        //exiting the running activity and saving data to database
         dbhelper helper = new dbhelper(TreadmillActivity.this);
-        if (helper.saveActivity("treadmill",timeStarted)) {
+        if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString())) {
             Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

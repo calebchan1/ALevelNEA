@@ -69,6 +69,7 @@ public class LogInScreen extends AppCompatActivity {
                 if (helper.login(username,password)){
                     String[] results = helper.getResult().split(" ");
                     //saving to static User class
+                    User.setUsername(username);
                     User.setUserID(Integer.valueOf(results[0]));
                     User.setName(results[1]+ " "+results[2]);
                     java.sql.Date date = java.sql.Date.valueOf(results[3]);
