@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
-                android:hint="Date Of Birth (dd/mm/yy)">
+                android:hint="Date Of Birth (yyyy-mm-dd)">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"

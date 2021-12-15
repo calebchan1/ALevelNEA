@@ -48,17 +48,17 @@ public class LogInScreen extends AppCompatActivity {
 
 
         //getting saved user details from shared preferences
-        SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
-        String checkbox = prefs.getString("remember","");
-        if (checkbox.equals("true")){
-            prefs = getSharedPreferences("userdetails",MODE_PRIVATE);
-            User.setUserID(Integer.valueOf(prefs.getString("id","")));
-            User.setName(prefs.getString("name",""));
-            User.setWeight(Float.valueOf(prefs.getString("weight","")));
-            User.setHeight(Integer.valueOf(prefs.getString("height","")));
-            java.sql.Date date = java.sql.Date.valueOf(prefs.getString("DOB",""));
-            User.setDateOfBirth(date);
-        }
+//        SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
+//        String checkbox = prefs.getString("remember","");
+//        if (checkbox.equals("true")){
+//            prefs = getSharedPreferences("userdetails",MODE_PRIVATE);
+//            User.setUserID(Integer.valueOf(prefs.getString("id","")));
+//            User.setName(prefs.getString("name",""));
+//            User.setWeight(Float.valueOf(prefs.getString("weight","")));
+//            User.setHeight(Integer.valueOf(prefs.getString("height","")));
+//            java.sql.Date date = java.sql.Date.valueOf(prefs.getString("DOB",""));
+//            User.setDateOfBirth(date);
+//        }
         loginbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,11 +67,12 @@ public class LogInScreen extends AppCompatActivity {
                 //user validation here
                 dbhelper helper = new dbhelper(LogInScreen.this);
                 if (helper.login(username,password)){
-                    String[] results = helper.getResult().split(" ");
+                    String[] results = helper.getResult().get(0).split(" ");
                     //saving to static User class
                     User.setUsername(username);
                     User.setUserID(Integer.valueOf(results[0]));
-                    User.setName(results[1]+ " "+results[2]);
+                    User.setForename(results[1]);
+                    User.setSurname(results[2]);
                     java.sql.Date date = java.sql.Date.valueOf(results[3]);
                     User.setDateOfBirth(date);
                     User.setWeight(Float.valueOf(results[4]));

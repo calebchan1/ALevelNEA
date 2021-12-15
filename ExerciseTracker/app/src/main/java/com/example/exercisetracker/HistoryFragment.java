@@ -10,9 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+
 public class HistoryFragment extends Fragment {
 
-    private String queryResults;
+    private ArrayList<String> queryResults;
 
     @Nullable
     @Override
@@ -21,7 +23,10 @@ public class HistoryFragment extends Fragment {
         if (helper.readActivities()){
             Toast.makeText(getContext(), "Activity History Read", Toast.LENGTH_SHORT).show();
             queryResults = helper.getResult();
-            Toast.makeText(getContext(), queryResults, Toast.LENGTH_SHORT).show();
+            for (String query : queryResults){
+                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
+            }
+
         }
         else{
             Toast.makeText(getContext(), "Activity History not read", Toast.LENGTH_SHORT).show();

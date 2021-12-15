@@ -1,29 +1,21 @@
 package com.example.exercisetracker;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class dbhelper {
     private Context context;
     private int flag;
-    private String result = "";
+    private ArrayList<String> result = new ArrayList<String>();
     private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
     private static final String dbuser = "sql4456768";
     private static final String dbpassword = "gyFr8LHqQA";
@@ -94,9 +86,11 @@ public class dbhelper {
             }
             resultset.beforeFirst();
             while (resultset.next()) {
+                String row = "";
                 for (int i = 1; i <= 6; i++) {
-                    setResult(getResult()+resultset.getString(i) + " ");
+                    row = row +resultset.getString(i) + " ";
                 }
+                addResult(row);
             }
             Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
 
@@ -117,6 +111,48 @@ public class dbhelper {
             }
         }
     }
+    public boolean updateUser(){
+        Connection conn = null;
+        try{
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            int resultset = statement.executeUpdate(
+                    "UPDATE User " +
+                            String.format("SET 'username'='%s', 'password'='%s','firstname'='%s','surname'='%s','dateOfBirth'='%s','weight'='%s','height'='%s' ",
+                                    User.getUsername(),User.getPassword(),User.getForename(),User.getSurname(),
+                                    User.getDateOfBirth().toString(),User.getWeight().toString(),User.getHeight().toString()
+                                    )+
+                            String.format("WHERE User.UserID = '%s'",User.getUserID().toString())
+            );
+            if (resultset==0){
+                //could not save activity
+                return false;
+            }
+            //activity was saved successfully
+            return true;
+        }
+        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+            e.printStackTrace();
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        finally {
+            try {
+                if (conn != null) {
+                    //closing the connection
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance){
         Connection conn = null;
@@ -182,10 +218,15 @@ public class dbhelper {
                 return false;
             }
             resultset.beforeFirst();
+            //dealing with multiple rows
             while (resultset.next()) {
+                String row = "";
                 for (int i = 1; i <= 7; i++) {
-                    setResult(getResult()+resultset.getString(i) + " ");
+                    //adding result to dbhelper
+                    row = row + resultset.getString(i) + " ";
                 }
+                //moving to next row (if there is any)
+                addResult(row);
             }
             return true;
 
@@ -206,11 +247,11 @@ public class dbhelper {
     }
 
 
-    public String getResult() {
+    public ArrayList<String> getResult() {
         return result;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public void addResult(String result) {
+        this.result.add(result);
     }
 }

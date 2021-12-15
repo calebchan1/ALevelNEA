@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,21 +23,17 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener{
     private TextInputLayout weightField;
     private TextInputLayout DOBField;
-    private TextInputLayout nameField;
+    private TextInputLayout forenameField;
+    private TextInputLayout surnameField;
     private TextInputLayout heightField;
     private SharedPreferences sp;
 
@@ -48,16 +43,17 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         View view = inflater.inflate(R.layout.fragment_settings,container,false);
         sp = getActivity().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
         weightField = view.findViewById(R.id.weightField);
-        nameField = view.findViewById(R.id.nameField);
+        forenameField = view.findViewById(R.id.forenameField);
+        surnameField = view.findViewById(R.id.surnameField);
         DOBField = view.findViewById(R.id.DOBfield);
         heightField = view.findViewById(R.id.heightField);
-
 
 
         //loading user data presets
         weightField.getEditText().setText(User.getWeight().toString());
         heightField.getEditText().setText(User.getHeight().toString());
-        nameField.getEditText().setText(User.getName().toString());
+        forenameField.getEditText().setText(User.getForename());
+        surnameField.getEditText().setText(User.getSurname());
         //handling date of birth
         Date dob = User.getDateOfBirth();
         EditText dobText = DOBField.getEditText();
@@ -99,11 +95,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             }
         });
 
-
-
         //handling update button
         Button updateButton = view.findViewById(R.id.UpdateButton);
         updateButton.setOnClickListener(this);
+        Button logoutBtn = view.findViewById(R.id.logoutBtn);
+        logoutBtn.setOnClickListener(this);
 
 
         return view;
@@ -121,8 +117,15 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                     User.setWeight(weight);
                     Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
                     User.setHeight(height);
-                    User.saveUserDetails();
-                    Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+                    String forename = String.valueOf(forenameField.getEditText().getText());
+                    User.setForename(forename);
+                    String surname = String.valueOf(surnameField.getEditText().getText());
+                    User.setSurname(surname);
+
+                    dbhelper helper  = new dbhelper(getContext());
+                    if (helper.updateUser()) {
+                        Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -130,6 +133,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                 }
             case R.id.logoutBtn:
                 //When  the user wants to logout
+                getActivity().finish();
+                User.logout();
+                Intent intent1 = new Intent(getContext(), LogInScreen.class);
+                startActivity(intent1);
         }
     }
 

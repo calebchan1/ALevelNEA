@@ -9,7 +9,8 @@ import java.util.Date;
 
 public class User {
     private static Integer UserID;
-    private static String name;
+    private static String forename;
+    private static String surname;
     private static Float weight;
     private static java.sql.Date dateOfBirth;
     private static Integer height;
@@ -18,6 +19,22 @@ public class User {
 
     public static String getUsername() {
         return username;
+    }
+
+    public static String getForename() {
+        return forename;
+    }
+
+    public static void setForename(String forename) {
+        User.forename = forename;
+    }
+
+    public static String getSurname() {
+        return surname;
+    }
+
+    public static void setSurname(String surname) {
+        User.surname = surname;
     }
 
     public static void setUsername(String username) {
@@ -41,11 +58,7 @@ public class User {
     }
 
     public static String getName() {
-        return name;
-    }
-
-    public static void setName(String name) {
-        User.name = name;
+        return getForename() + " " +getSurname();
     }
 
     public static Integer getHeight() {
@@ -72,9 +85,14 @@ public class User {
         User.dateOfBirth = dateOfBirth;
     }
 
-    public static void saveUserDetails(){
-    }
-
-    public static void readUserDetails(){
+    public static void logout(){
+        setUsername(null);
+        setUserID(null);
+        setHeight(null);
+        setWeight(null);
+        setDateOfBirth(null);
+        setPassword(null);
+        setForename(null);
+        setSurname(null);
     }
 }

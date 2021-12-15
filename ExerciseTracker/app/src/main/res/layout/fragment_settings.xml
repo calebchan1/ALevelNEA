@@ -38,8 +38,8 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/nameField"
-            android:hint="Name:"
+            android:id="@+id/forenameField"
+            android:hint="Forename:"
             android:layout_gravity="center_horizontal"
             android:layout_width="300dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -50,6 +50,21 @@
                 android:textSize="20sp"
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/surnameField"
+            android:hint="Surname:"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/weightField"

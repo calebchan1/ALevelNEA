@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -56,7 +58,14 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        User.saveUserDetails();
+        dbhelper helper = new dbhelper(this);
+
+        if (helper.updateUser()){
+            Toast.makeText(this, "User Details Saved", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this, "User Details Failed To Save", Toast.LENGTH_SHORT).show();
+        }
         super.onDestroy();
     }
 }
