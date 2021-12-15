@@ -2,6 +2,7 @@ package com.example.exercisetracker;
 
 import android.content.Context;
 import android.os.StrictMode;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.sql.Array;
@@ -10,7 +11,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class dbhelper {
     private Context context;
@@ -121,11 +125,14 @@ public class dbhelper {
             conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
+            Date dob = User.getDateOfBirth();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            String strdob = df.format(dob);
             int resultset = statement.executeUpdate(
                     "UPDATE User " +
-                            String.format("SET 'username'='%s', 'password'='%s','firstname'='%s','surname'='%s','dateOfBirth'='%s','weight'='%s','height'='%s' ",
+                            String.format("SET username = '%s',password = '%s',firstname = '%s',surname = '%s',dateOfBirth = '%s',weight = '%s',height = '%s' ",
                                     User.getUsername(),User.getPassword(),User.getForename(),User.getSurname(),
-                                    User.getDateOfBirth().toString(),User.getWeight().toString(),User.getHeight().toString()
+                                    strdob,User.getWeight().toString(),User.getHeight().toString()
                                     )+
                             String.format("WHERE User.UserID = '%s'",User.getUserID().toString())
             );
@@ -210,7 +217,7 @@ public class dbhelper {
                     "SELECT Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance " +
                             "FROM Exercise, Activity " +
                             String.format("WHERE Activity.UserID = (SELECT User.UserID FROM User WHERE User.username = '%s') ",User.getUsername()) +
-                            "AND Exercise.ExerciseID = Activity.ActivityID;"
+                            "AND Exercise.ExerciseID = Activity.ExerciseID;"
             );
 
             if (!resultset.next()){

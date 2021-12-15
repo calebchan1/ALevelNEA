@@ -28,20 +28,57 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="180dp" />
 
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline2"
+        app:layout_constraintVertical_bias="0"
+        >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="450dp"
-        app:layout_constraintVertical_bias="0"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/guideline2"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/settings_usernameField"
+            android:hint="Username:"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="300dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/settings_passwordField"
+            android:hint="Password:"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/forenameField"
             android:hint="Forename:"
             android:layout_gravity="center_horizontal"
             android:layout_width="300dp"
+            android:layout_marginTop="30dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
             <com.google.android.material.textfield.TextInputEditText
@@ -65,10 +102,26 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/DOBfield"
+            android:hint="Date Of Birth (yyyy-mm-dd)"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:id="@+id/dobText"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:inputType="date" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/weightField"
-            android:hint="Weight (kg)"
+            android:hint="Weight/kg (optional)"
             android:layout_gravity="center_horizontal"
             android:layout_width="300dp"
             android:layout_marginTop="30dp"
@@ -83,24 +136,8 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/DOBfield"
-            android:hint="Date Of Birth (dd/mm/yy)"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
-            android:layout_marginTop="30dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_height="wrap_content">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:id="@+id/dobText"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:inputType="date" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/heightField"
-            android:hint="Height (cm)"
+            android:hint="Height/cm (optional)"
             android:layout_gravity="center_horizontal"
             android:layout_width="300dp"
             android:layout_marginTop="30dp"
@@ -115,7 +152,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
-
+    </ScrollView>
     <com.google.android.material.button.MaterialButton
         android:id="@+id/UpdateButton"
         android:layout_marginBottom="20dp"

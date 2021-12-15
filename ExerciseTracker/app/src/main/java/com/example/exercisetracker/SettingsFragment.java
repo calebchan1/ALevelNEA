@@ -30,6 +30,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener{
+    private TextInputLayout usernameField;
+    private TextInputLayout passwordField;
     private TextInputLayout weightField;
     private TextInputLayout DOBField;
     private TextInputLayout forenameField;
@@ -42,6 +44,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings,container,false);
         sp = getActivity().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
+        usernameField = view.findViewById(R.id.settings_usernameField);
+        passwordField = view.findViewById(R.id.settings_passwordField);
         weightField = view.findViewById(R.id.weightField);
         forenameField = view.findViewById(R.id.forenameField);
         surnameField = view.findViewById(R.id.surnameField);
@@ -50,6 +54,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
 
 
         //loading user data presets
+        usernameField.getEditText().setText(User.getUsername());
+        passwordField.getEditText().setText(User.getPassword());
         weightField.getEditText().setText(User.getWeight().toString());
         heightField.getEditText().setText(User.getHeight().toString());
         forenameField.getEditText().setText(User.getForename());
@@ -113,6 +119,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             case R.id.UpdateButton:
                 //saving user details to User class and updating database
                 try {
+                    String username = String.valueOf(usernameField.getEditText().getText());
+                    User.setUsername(username);
+                    String password = String.valueOf(passwordField.getEditText().getText());
+                    User.setPassword(password);
                     Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
                     User.setWeight(weight);
                     Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
@@ -131,12 +141,14 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                     e.printStackTrace();
                     Toast.makeText(getContext(), "Save unsuccessful", Toast.LENGTH_SHORT).show();
                 }
+                break;
             case R.id.logoutBtn:
                 //When  the user wants to logout
                 getActivity().finish();
                 User.logout();
                 Intent intent1 = new Intent(getContext(), LogInScreen.class);
                 startActivity(intent1);
+                break;
         }
     }
 

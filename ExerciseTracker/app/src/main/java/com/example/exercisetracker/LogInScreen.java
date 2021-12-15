@@ -70,6 +70,7 @@ public class LogInScreen extends AppCompatActivity {
                     String[] results = helper.getResult().get(0).split(" ");
                     //saving to static User class
                     User.setUsername(username);
+                    User.setPassword(password);
                     User.setUserID(Integer.valueOf(results[0]));
                     User.setForename(results[1]);
                     User.setSurname(results[2]);

@@ -58,14 +58,6 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        dbhelper helper = new dbhelper(this);
-
-        if (helper.updateUser()){
-            Toast.makeText(this, "User Details Saved", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(this, "User Details Failed To Save", Toast.LENGTH_SHORT).show();
-        }
         super.onDestroy();
     }
 }

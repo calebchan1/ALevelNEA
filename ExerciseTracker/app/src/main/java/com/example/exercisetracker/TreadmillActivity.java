@@ -144,10 +144,8 @@ public class TreadmillActivity extends AppCompatActivity{
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isRunning = false;
-                sensorManager.unregisterListener(listener);
                 //exiting the running activity and sending data back to main program
-                finish();
+                finishRunning();
             }
         });
         startStopBtn.setOnClickListener(new View.OnClickListener() {
