@@ -14,7 +14,6 @@ import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +43,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class PushUpActivity extends AppCompatActivity{
@@ -60,17 +60,12 @@ public class PushUpActivity extends AppCompatActivity{
     private Date timeStarted;
     private Float MET;
 
-    //MLK variables
-    private PoseDetectorOptions options;
     private PoseDetector poseDetector;
     private Preview preview;
     private PreviewView tv;
     private CameraSelector cameraSelector;
 
 
-
-    //permissions
-    private String[] PERMISSIONS;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
@@ -78,8 +73,10 @@ public class PushUpActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
 
         //visuals
-        getSupportActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        Objects.requireNonNull(getSupportActionBar()).hide();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
         getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
         setContentView(R.layout.activity_pushup);
         //instantiating all variables
@@ -112,24 +109,14 @@ public class PushUpActivity extends AppCompatActivity{
                 finishTracking();
             }
         });
-
-//        //handling camera and write permissions
-//        requestPermissionLauncher =
-//                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-//                    if (isGranted) {
-//                    } else {
-//                        Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-//                        isTracking = Boolean.FALSE;
-//                        this.finish();
-//                    }
-//                });
-        PERMISSIONS = new String[]{
+        //permissions
+        String[] PERMISSIONS = new String[]{
                 Manifest.permission.INTERNET,
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
 
-        if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
+        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 //dealt with overriding onRequestPermissionsResult method
                 requestPermissions(PERMISSIONS,0);
@@ -144,7 +131,6 @@ public class PushUpActivity extends AppCompatActivity{
         isTracking = Boolean.TRUE;
         seconds = 0;
         timeStarted = Calendar.getInstance().getTime();
-        startCamera();
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
@@ -164,69 +150,24 @@ public class PushUpActivity extends AppCompatActivity{
             }
         });
 
-
-        //Preparing the input image
-
-
-        //MLK tracking
-        options = new PoseDetectorOptions.Builder()
+        handleCamera();
+        //MLK tracking, instantiating pose detector
+        PoseDetectorOptions options = new PoseDetectorOptions.Builder()
                 .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
                 .build();
         poseDetector = PoseDetection.getClient(options);
-
     }
 
-    //PERMISSIONS
-    private boolean checkPermissions(Context context, String[] PERMISSIONS) {
-        //CHECKING FOR EXISTING PERMISSIONS
-        if (context!=null && PERMISSIONS!=null){
-            for (String permission: PERMISSIONS){
-                if (ActivityCompat.checkSelfPermission(context,permission)!= PackageManager.PERMISSION_GRANTED){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        isTracking = Boolean.FALSE;
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch(requestCode){
-            case 0:
-                //checking if all permissions are granted on UI dialog
-                boolean granted = true;
-                for (int result : grantResults) {
-                    if (result == PackageManager.PERMISSION_DENIED) {
-                       granted = false;
-                    }
-                }
-                if (granted){
-                    startTracking();
-                }
-                else{
-                    finishTracking();
-                }
-                return;
-        }
-    }
-
-    private void finishTracking(){
-        isTracking = false;
-        this.finish();
-
-    }
-
-    private void startCamera(){
+    private void handleCamera(){
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        //getting display size (dependent on device)
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
-                        // enable the following line if RGBA output is needed.
-                        //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                        //instantiating ImageAnalysis, with user's phone display dimensions
                         .setTargetResolution(new Size(size.x, size.y))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
@@ -236,10 +177,12 @@ public class PushUpActivity extends AppCompatActivity{
                 int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
                 @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
                 if (image != null){
+                    //receiving the input image from camera
                     InputImage inputimage = InputImage.fromMediaImage(image,rotationDegrees);
                     Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
                         @Override
                         public void onSuccess(@NonNull Pose pose) {
+                            //when the pose detector successfully can attach to image
                             System.out.println("Successful Pose Detection");
                             List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
                             processLandmarks(allPoseLandmarks);
@@ -247,11 +190,13 @@ public class PushUpActivity extends AppCompatActivity{
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            //when the pose detector cannot attach to image
                             System.out.println("Failed Pose Detection");
                         }
                     }).addOnCompleteListener(new OnCompleteListener<Pose>() {
                         @Override
                         public void onComplete(@NonNull Task<Pose> task) {
+                            //making sure to close the instance of the image to allow the next image to be processed
                             imageProxy.close();
                         }
                     });
@@ -288,6 +233,49 @@ public class PushUpActivity extends AppCompatActivity{
                 System.out.println(landmark.getPosition());
             }
         }
+    }
+
+    // --------PERMISSIONS------------
+    private boolean checkPermissions(Context context, String[] PERMISSIONS) {
+        //CHECKING FOR EXISTING PERMISSIONS
+        if (context!=null && PERMISSIONS!=null){
+            for (String permission: PERMISSIONS){
+                if (ActivityCompat.checkSelfPermission(context,permission)!= PackageManager.PERMISSION_GRANTED){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        isTracking = Boolean.FALSE;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch(requestCode){
+            case 0:
+                //checking if all permissions are granted on UI dialog
+                boolean granted = true;
+                for (int result : grantResults) {
+                    if (result == PackageManager.PERMISSION_DENIED) {
+                        granted = false;
+                    }
+                }
+                if (granted){
+                    startTracking();
+                }
+                else{
+                    finishTracking();
+                }
+                return;
+        }
+    }
+
+
+    private void finishTracking(){
+        isTracking = false;
+        this.finish();
+
     }
 
 }
