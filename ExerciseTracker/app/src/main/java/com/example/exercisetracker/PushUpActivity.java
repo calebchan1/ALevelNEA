@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Size;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,6 +28,8 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -34,9 +38,11 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
+import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -47,8 +53,6 @@ public class PushUpActivity extends AppCompatActivity{
     private TextView timerText,repText,calText;
     //buttons
     private Button startBtn, finishBtn;
-    //camera preview
-    private PreviewView tv;
 
     //pushup custom variables
     private Boolean isTracking;
@@ -60,7 +64,9 @@ public class PushUpActivity extends AppCompatActivity{
     private PoseDetectorOptions options;
     private PoseDetector poseDetector;
     private Preview preview;
+    private PreviewView tv;
     private CameraSelector cameraSelector;
+
 
 
     //permissions
@@ -214,14 +220,17 @@ public class PushUpActivity extends AppCompatActivity{
 
     private void startCamera(){
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
                         // enable the following line if RGBA output is needed.
                         //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                        .setTargetResolution(new Size(720, 1280))
+                        .setTargetResolution(new Size(size.x, size.y))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), new ImageAnalysis.Analyzer() {
+        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(PushUpActivity.this), new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
                 int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
@@ -231,21 +240,24 @@ public class PushUpActivity extends AppCompatActivity{
                     Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
                         @Override
                         public void onSuccess(@NonNull Pose pose) {
-                            Toast.makeText(PushUpActivity.this, "Successful Pose Detection", Toast.LENGTH_SHORT).show();
-                            imageProxy.close();
+                            System.out.println("Successful Pose Detection");
+                            List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
+                            processLandmarks(allPoseLandmarks);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(PushUpActivity.this, "Failed Pose Detection", Toast.LENGTH_SHORT).show();
+                            System.out.println("Failed Pose Detection");
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Pose>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Pose> task) {
                             imageProxy.close();
                         }
                     });
                 }
-                imageProxy.close();
             }
         });
-
 
         cameraProviderFuture.addListener(() ->{
                 try {
@@ -257,20 +269,25 @@ public class PushUpActivity extends AppCompatActivity{
                             .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                             .build();
                     try {
+                        //binding the camera, preview and analyser together
                         provider.unbindAll();
                         provider.bindToLifecycle((LifecycleOwner) this,cameraSelector,preview, imageAnalysis);
                     }
                     catch (Exception e){
                         e.printStackTrace();
                     }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
         },ContextCompat.getMainExecutor(this));
     }
 
-
+    private void processLandmarks(List<PoseLandmark> allLandmarks){
+        for (PoseLandmark landmark: allLandmarks){
+            if (landmark.getLandmarkType() == PoseLandmark.NOSE){
+                System.out.println(landmark.getPosition());
+            }
+        }
+    }
 
 }

@@ -115,7 +115,7 @@ public class TreadmillActivity extends AppCompatActivity{
 
         //CUSTOM JAVA CLASSES
         filter = new Filter(-10f, 10f);
-        detector = new Detector(1f, 2);
+        detector = new Detector(0.5f, 2);
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -266,12 +266,7 @@ public class TreadmillActivity extends AppCompatActivity{
                         Float[] accelValues = accel.get(j);
                         Float[] gravValues = grav.get(j);
                         Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
-                        if (result < 0) {
-                            result = (float) Math.sqrt(0 - result);
-                            result = 0 - result;
-                        } else {
-                            result = (float) Math.sqrt(result);
-                        }
+                        result = result/9.81f;
                         results.add(result);
                         System.out.println("result: " + j + " " + result.toString());
                     }

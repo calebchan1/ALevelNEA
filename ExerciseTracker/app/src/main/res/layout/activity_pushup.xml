@@ -29,8 +29,7 @@
         android:textSize="80sp"
         android:fontFamily="@font/gothicbb"
         android:text="00:00:00"
-        android:background="@color/main_colour_variant"
-        android:textColor="@color/main_colour_on_primary"
+        android:textColor="@color/white"
         android:padding="5dp"
         app:layout_constraintVertical_bias="1"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
@@ -49,8 +48,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Push-Up Tracker"
         android:padding="5dp"
-        android:textColor="@color/main_colour_on_primary"
-        android:background="@color/main_colour_variant"
+        android:textColor="@color/white"
         android:fontFamily="@font/gothic"
         android:textSize="30sp"
         />
@@ -71,8 +69,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/repText"
             android:fontFamily="@font/gothic"
-            android:textColor="@color/main_colour_on_primary"
-            android:background="@color/main_colour_variant"
+            android:textColor="@color/white"
             android:text="Reps:\n0"
             android:textSize="20dp"
             android:textAlignment="center" />
@@ -83,8 +80,7 @@
             android:textAlignment="center"
             android:id="@+id/calText"
             android:fontFamily="@font/gothic"
-            android:textColor="@color/main_colour_on_primary"
-            android:background="@color/main_colour_variant"
+            android:textColor="@color/white"
             android:text="Calories:\n0"
             android:textSize="20dp"/>
     </LinearLayout>
