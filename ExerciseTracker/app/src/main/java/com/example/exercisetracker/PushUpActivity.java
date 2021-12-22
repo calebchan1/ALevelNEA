@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +13,11 @@ import android.os.Handler;
 import android.util.Size;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -65,7 +70,9 @@ public class PushUpActivity extends AppCompatActivity{
     private PreviewView tv;
     private CameraSelector cameraSelector;
 
+    private int statusBarHeight;
 
+    private Graphic graphic;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
@@ -77,7 +84,12 @@ public class PushUpActivity extends AppCompatActivity{
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         }
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
+        Window w = getWindow();
+        w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        Rect rectangle = new Rect();
+        w.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        statusBarHeight = rectangle.top;
+
         setContentView(R.layout.activity_pushup);
         //instantiating all variables
         startBtn = findViewById(R.id.startStopBtn);
@@ -87,6 +99,7 @@ public class PushUpActivity extends AppCompatActivity{
         calText = findViewById(R.id.calText);
         MET = Float.parseFloat(getString(R.string.met_pushup));
         tv = findViewById(R.id.tv);
+
         //handling button clicks
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,13 +162,14 @@ public class PushUpActivity extends AppCompatActivity{
                 }
             }
         });
-
+        graphic = new Graphic();
         handleCamera();
         //MLK tracking, instantiating pose detector
         PoseDetectorOptions options = new PoseDetectorOptions.Builder()
                 .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
                 .build();
         poseDetector = PoseDetection.getClient(options);
+
     }
 
 
@@ -165,10 +179,12 @@ public class PushUpActivity extends AppCompatActivity{
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
+        Size imageSize = new Size(480,640);
+        graphic.setScaleFactor(size,imageSize);
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
                         //instantiating ImageAnalysis, with user's phone display dimensions
-                        .setTargetResolution(new Size(size.x, size.y))
+                        .setTargetResolution(imageSize)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(PushUpActivity.this), new ImageAnalysis.Analyzer() {
@@ -186,6 +202,9 @@ public class PushUpActivity extends AppCompatActivity{
                             System.out.println("Successful Pose Detection");
                             List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
                             processLandmarks(allPoseLandmarks);
+
+                            graphic.drawGraphic(allPoseLandmarks,size);
+
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -229,12 +248,61 @@ public class PushUpActivity extends AppCompatActivity{
 
     private void processLandmarks(List<PoseLandmark> allLandmarks){
         for (PoseLandmark landmark: allLandmarks){
-            if (landmark.getLandmarkType() == PoseLandmark.NOSE){
-                System.out.println(landmark.getPosition());
-            }
         }
     }
 
+
+    private class Graphic{
+        //composition class (cannot draw graphic without the push up activity
+        private final View noseView;
+        private final View reyeView;
+        private final View leyeView;
+        private float scalex;
+        private float scaley;
+        private int yoffset;
+        //n pixels to offset in order to fit scaled up image on view
+
+        private Graphic(){
+            noseView = findViewById(R.id.nose);
+            reyeView = findViewById(R.id.leftEye);
+            leyeView = findViewById(R.id.rightEye);
+        }
+
+        private void setScaleFactor(Point displaySize, Size imageSize){
+            System.out.println(String.format("Display size: %d, %d",displaySize.x,displaySize.y));
+            scalex = (float) (displaySize.x / imageSize.getWidth());
+            scaley = (float) (displaySize.y / imageSize.getHeight());
+            int[] arr = new int[2];
+            tv.getLocationInWindow(arr);
+            yoffset = arr[1];
+        }
+
+        private void drawGraphic(List<PoseLandmark> allLandmarks, Point displaySize){
+            for (PoseLandmark landmark: allLandmarks){
+                switch(landmark.getLandmarkType()){
+                    case PoseLandmark.NOSE:
+                        //inverting x coordinate, as camera is in mirroring position
+                        noseView.setX(displaySize.x-landmark.getPosition().x*scalex);
+                        noseView.setY(landmark.getPosition().y*scaley+yoffset);
+                        System.out.println("x: "+ landmark.getPosition().x + " y: "+ landmark.getPosition().y);
+                        System.out.println("y offset:" + yoffset);
+                        break;
+                    case PoseLandmark.LEFT_EYE:
+                        //inverting x coordinate, as camera is in mirroring position
+                        reyeView.setX(displaySize.x-landmark.getPosition().x*scalex);
+                        reyeView.setY(landmark.getPosition().y*scaley+yoffset);
+                        break;
+                    case PoseLandmark.RIGHT_EYE:
+                        //inverting x coordinate, as camera is in mirroring position
+                        leyeView.setX(displaySize.x-landmark.getPosition().x*scalex);
+                        leyeView.setY(landmark.getPosition().y*scaley+yoffset);
+                        break;
+                }
+
+            }
+        }
+
+    }
     // --------PERMISSIONS------------
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
         //CHECKING FOR EXISTING PERMISSIONS

@@ -17,7 +17,7 @@
         android:textColor="@color/main_colour_on_primary"
         android:fontFamily="@font/gothic"
         android:textSize="30sp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="60dp"
         />
 
     <TextView

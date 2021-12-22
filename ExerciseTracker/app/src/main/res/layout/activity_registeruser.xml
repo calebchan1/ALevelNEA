@@ -18,6 +18,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/gothicbb"
         android:text="Create An Account"
+        android:layout_marginTop="30dp"
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
