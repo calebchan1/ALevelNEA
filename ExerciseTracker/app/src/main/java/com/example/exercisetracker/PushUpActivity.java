@@ -179,12 +179,12 @@ public class PushUpActivity extends AppCompatActivity{
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        Size imageSize = new Size(480,640);
-        graphic.setScaleFactor(size,imageSize);
+        Size imageSize = new Size(size.x,680);
+//        graphic.setScaleFactor(size,imageSize);
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
                         //instantiating ImageAnalysis, with user's phone display dimensions
-                        .setTargetResolution(imageSize)
+                        .setTargetResolution(new Size(size.x, size.y))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(PushUpActivity.this), new ImageAnalysis.Analyzer() {
@@ -257,6 +257,8 @@ public class PushUpActivity extends AppCompatActivity{
         private final View noseView;
         private final View reyeView;
         private final View leyeView;
+        private final View lelbowView;
+        private final View relbowView;
         private float scalex;
         private float scaley;
         private int yoffset;
@@ -266,36 +268,49 @@ public class PushUpActivity extends AppCompatActivity{
             noseView = findViewById(R.id.nose);
             reyeView = findViewById(R.id.leftEye);
             leyeView = findViewById(R.id.rightEye);
+            lelbowView = findViewById(R.id.lelbow);
+            relbowView = findViewById(R.id.relbow);
+            yoffset = 200;
         }
 
-        private void setScaleFactor(Point displaySize, Size imageSize){
-            System.out.println(String.format("Display size: %d, %d",displaySize.x,displaySize.y));
-            scalex = (float) (displaySize.x / imageSize.getWidth());
-            scaley = (float) (displaySize.y / imageSize.getHeight());
-            int[] arr = new int[2];
-            tv.getLocationInWindow(arr);
-            yoffset = arr[1];
-        }
+//        private void setScaleFactor(Point displaySize, Size imageSize){
+//            System.out.println(String.format("Display size: %d, %d",displaySize.x,displaySize.y));
+//            scalex = (float) (displaySize.x / imageSize.getWidth());
+//            scaley = (float) (displaySize.y / imageSize.getHeight());
+//            int[] arr = new int[2];
+//            tv.getLocationInWindow(arr);
+//            yoffset = arr[1];
+//        }
 
         private void drawGraphic(List<PoseLandmark> allLandmarks, Point displaySize){
             for (PoseLandmark landmark: allLandmarks){
                 switch(landmark.getLandmarkType()){
-                    case PoseLandmark.NOSE:
+                    case PoseLandmark.LEFT_SHOULDER:
                         //inverting x coordinate, as camera is in mirroring position
-                        noseView.setX(displaySize.x-landmark.getPosition().x*scalex);
-                        noseView.setY(landmark.getPosition().y*scaley+yoffset);
+                        noseView.setX(displaySize.x-landmark.getPosition().x);
+                        noseView.setY(landmark.getPosition().y+ yoffset);
                         System.out.println("x: "+ landmark.getPosition().x + " y: "+ landmark.getPosition().y);
                         System.out.println("y offset:" + yoffset);
                         break;
-                    case PoseLandmark.LEFT_EYE:
+                    case PoseLandmark.RIGHT_SHOULDER:
                         //inverting x coordinate, as camera is in mirroring position
-                        reyeView.setX(displaySize.x-landmark.getPosition().x*scalex);
-                        reyeView.setY(landmark.getPosition().y*scaley+yoffset);
+                        reyeView.setX(displaySize.x-landmark.getPosition().x);
+                        reyeView.setY(landmark.getPosition().y+yoffset);
                         break;
-                    case PoseLandmark.RIGHT_EYE:
+                    case PoseLandmark.NOSE:
                         //inverting x coordinate, as camera is in mirroring position
-                        leyeView.setX(displaySize.x-landmark.getPosition().x*scalex);
-                        leyeView.setY(landmark.getPosition().y*scaley+yoffset);
+                        leyeView.setX(displaySize.x-landmark.getPosition().x);
+                        leyeView.setY(landmark.getPosition().y+yoffset);
+                        break;
+                    case PoseLandmark.LEFT_ELBOW:
+                        //inverting x coordinate, as camera is in mirroring position
+                        lelbowView.setX(displaySize.x-landmark.getPosition().x);
+                        lelbowView.setY(landmark.getPosition().y+yoffset);
+                        break;
+                    case PoseLandmark.RIGHT_ELBOW:
+                        //inverting x coordinate, as camera is in mirroring position
+                        relbowView.setX(displaySize.x-landmark.getPosition().x);
+                        relbowView.setY(landmark.getPosition().y+yoffset);
                         break;
                 }
 

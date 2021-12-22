@@ -20,10 +20,10 @@
         android:layout_height="match_parent">
 
         <androidx.camera.view.PreviewView
-            android:layout_gravity="start"
-            android:layout_width="480dp"
-            android:layout_height="640dp"
-            android:id="@+id/tv" />
+            android:id="@+id/tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start" />
 
         <View
             android:id="@+id/nose"
@@ -39,6 +39,18 @@
             />
         <View
             android:id="@+id/leftEye"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/rectangle"
+            />
+        <View
+            android:id="@+id/lelbow"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/rectangle"
+            />
+        <View
+            android:id="@+id/relbow"
             android:layout_width="5dp"
             android:layout_height="5dp"
             android:background="@drawable/rectangle"
