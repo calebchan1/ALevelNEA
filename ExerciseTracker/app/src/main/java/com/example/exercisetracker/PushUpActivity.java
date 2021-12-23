@@ -82,7 +82,7 @@ public class PushUpActivity extends AppCompatActivity{
         //visuals
         Objects.requireNonNull(getSupportActionBar()).hide();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);//  set status text dark
         }
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
@@ -262,6 +262,7 @@ public class PushUpActivity extends AppCompatActivity{
         private float scalex;
         private float scaley;
         private int yoffset;
+        private int xoffset;
         //n pixels to offset in order to fit scaled up image on view
 
         private Graphic(){
@@ -270,7 +271,8 @@ public class PushUpActivity extends AppCompatActivity{
             leyeView = findViewById(R.id.rightEye);
             lelbowView = findViewById(R.id.lelbow);
             relbowView = findViewById(R.id.relbow);
-            yoffset = 200;
+            yoffset = 170;
+            xoffset = -30;
         }
 
 //        private void setScaleFactor(Point displaySize, Size imageSize){
@@ -287,24 +289,24 @@ public class PushUpActivity extends AppCompatActivity{
                 switch(landmark.getLandmarkType()){
                     case PoseLandmark.LEFT_SHOULDER:
                         //inverting x coordinate, as camera is in mirroring position
-                        noseView.setX(displaySize.x-landmark.getPosition().x);
+                        noseView.setX(displaySize.x-landmark.getPosition().x +xoffset);
                         noseView.setY(landmark.getPosition().y+ yoffset);
                         System.out.println("x: "+ landmark.getPosition().x + " y: "+ landmark.getPosition().y);
                         System.out.println("y offset:" + yoffset);
                         break;
                     case PoseLandmark.RIGHT_SHOULDER:
                         //inverting x coordinate, as camera is in mirroring position
-                        reyeView.setX(displaySize.x-landmark.getPosition().x);
+                        reyeView.setX(displaySize.x-landmark.getPosition().x+xoffset);
                         reyeView.setY(landmark.getPosition().y+yoffset);
                         break;
                     case PoseLandmark.NOSE:
                         //inverting x coordinate, as camera is in mirroring position
-                        leyeView.setX(displaySize.x-landmark.getPosition().x);
+                        leyeView.setX(displaySize.x-landmark.getPosition().x+xoffset);
                         leyeView.setY(landmark.getPosition().y+yoffset);
                         break;
                     case PoseLandmark.LEFT_ELBOW:
                         //inverting x coordinate, as camera is in mirroring position
-                        lelbowView.setX(displaySize.x-landmark.getPosition().x);
+                        lelbowView.setX(displaySize.x-landmark.getPosition().x+xoffset);
                         lelbowView.setY(landmark.getPosition().y+yoffset);
                         break;
                     case PoseLandmark.RIGHT_ELBOW:
