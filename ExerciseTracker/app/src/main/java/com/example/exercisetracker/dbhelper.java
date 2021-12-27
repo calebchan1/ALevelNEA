@@ -20,7 +20,7 @@ public class dbhelper {
     private Context context;
     private int flag;
     private ArrayList<String> result = new ArrayList<String>();
-    private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
+        private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
     private static final String dbuser = "sql4456768";
     private static final String dbpassword = "gyFr8LHqQA";
 
@@ -214,10 +214,11 @@ public class dbhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
-                    "SELECT Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance " +
+                    "SELECT Activity.ActivityID, Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance " +
                             "FROM Exercise, Activity " +
                             String.format("WHERE Activity.UserID = (SELECT User.UserID FROM User WHERE User.username = '%s') ",User.getUsername()) +
-                            "AND Exercise.ExerciseID = Activity.ExerciseID;"
+                            "AND Exercise.ExerciseID = Activity.ExerciseID " +
+                            "ORDER BY Activity.Date DESC;"
             );
 
             if (!resultset.next()){
@@ -235,6 +236,8 @@ public class dbhelper {
                 //moving to next row (if there is any)
                 addResult(row);
             }
+            //activities read in form:
+            //"exercise name", "date", "time", "duration", "calories","steps","distance"
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -245,6 +248,43 @@ public class dbhelper {
         } finally {
             try {
                 if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean deleteActivity(int ActivityID){
+        Connection conn = null;
+        try{
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            int resultset = statement.executeUpdate(
+                    ""
+            );
+            if (resultset==0){
+                //could not delete activity
+                return false;
+            }
+            //activity was deleted successfully
+            return true;
+        }
+        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+            e.printStackTrace();
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        finally {
+            try {
+                if (conn != null) {
+                    //closing the connection
                     conn.close();
                 }
             } catch (SQLException e) {

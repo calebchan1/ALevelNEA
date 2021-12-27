@@ -28,15 +28,15 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="180dp" />
 
-    <ListView
-        android:id="@+id/activityList"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        app:layout_constraintVertical_bias="1"
-        app:layout_constraintTop_toBottomOf="@id/guideline2"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/HistoryRV"
+        app:layout_constraintTop_toTopOf="@id/guideline2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintVertical_bias="1"
+        android:layout_width="match_parent"
+        android:layout_height="550dp" />
+
+
 
 
 

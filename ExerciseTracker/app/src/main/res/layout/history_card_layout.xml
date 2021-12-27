@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    app:cardBackgroundColor="@color/white"
+    app:strokeWidth="3dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="8dp"
+    app:cardMaxElevation="10dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--ImageVIew to display exercise Image-->
+        <ImageView
+            android:id="@+id/ExeciseImg"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:contentDescription="@string/app_name"
+            android:padding="5dp"
+            android:src="@drawable/runningman" />
+
+        <!--Text View to display Exercise Name-->
+        <TextView
+            android:id="@+id/ExerciseName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@id/ExeciseImg"
+            android:text="Exercise Name"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!--Text VIew to display Exercise Details-->
+        <!--Image used in present in drawable folder-->
+        <TextView
+            android:id="@+id/ExerciseDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ExerciseName"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/ExeciseImg"
+            android:drawablePadding="2dp"
+            android:text="Description" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ExerciseDeleteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignBottom="@id/ExeciseImg"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/ExeciseImg"
+            android:fontFamily="@font/gothicbb"
+            android:text="Delete" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ExerciseDetailsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_alignBottom="@id/ExeciseImg"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toEndOf="@id/ExerciseDeleteBtn"
+            android:fontFamily="@font/gothicbb"
+            android:text="DETAILS" />
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>
