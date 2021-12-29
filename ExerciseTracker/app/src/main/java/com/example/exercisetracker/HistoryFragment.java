@@ -32,7 +32,6 @@ public class HistoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         dbhelper helper = new dbhelper(getContext());
         if (helper.readActivities()){
-            Toast.makeText(getContext(), "Activity History Read", Toast.LENGTH_SHORT).show();
             queryResults = helper.getResult();
             historyRV = view.findViewById(R.id.HistoryRV);
             courseModelArrayList = new ArrayList<>();
@@ -41,7 +40,7 @@ public class HistoryFragment extends Fragment {
             }
 
             // we are initializing our adapter class and passing our arraylist to it.
-            ExerciseAdapter courseAdapter = new ExerciseAdapter(getContext(), courseModelArrayList);
+            ActivityAdapter courseAdapter = new ActivityAdapter(getContext(), courseModelArrayList);
 
             // below line is for setting a layout manager for our recycler view.
             // here we are creating vertical list so we will provide orientation as vertical
@@ -74,15 +73,19 @@ public class HistoryFragment extends Fragment {
         switch (name) {
             case "running":
                 img = R.drawable.runningman;
+                name = "Running";
                 break;
             case "treadmill":
                 img = R.drawable.treadmill;
+                name = "Treadmill";
                 break;
             case "walking":
                 img = R.drawable.walkingimg;
+                name = "Walking";
                 break;
             case "pushup":
                 img = R.drawable.pushupimg;
+                name = "Push Up";
                 break;
         }
         if (img!=-1){return new Activity(name,description,img,id);}
@@ -92,23 +95,20 @@ public class HistoryFragment extends Fragment {
 
     }
 
-
-
     //handling dynamic card production using recycler views
-    public static class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Viewholder> {
+    public static class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Viewholder> {
 
         private Context context;
         private ArrayList<Activity> ActivityArr;
 
-        // Constructor
-        public ExerciseAdapter(Context context, ArrayList<Activity> courseModelArrayList) {
+        public ActivityAdapter(Context context, ArrayList<Activity> courseModelArrayList) {
             this.context = context;
             this.ActivityArr = courseModelArrayList;
         }
 
         @NonNull
         @Override
-        public ExerciseAdapter.Viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public ActivityAdapter.Viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // to inflate the layout for each item of recycler view.
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_card_layout, parent, false);
             return new Viewholder(view);
@@ -124,8 +124,18 @@ public class HistoryFragment extends Fragment {
             holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //handling when delete button is pressed
-                    Toast.makeText(context.getApplicationContext(), "Activity Deleted", Toast.LENGTH_SHORT).show();
+                    //handling when delete button is pressed (deleting activity record on database)
+                    dbhelper helper = new dbhelper(context.getApplicationContext());
+                    if (helper.deleteActivity(activity.getId())) {
+                        Toast.makeText(context.getApplicationContext(), "Activity Deleted", Toast.LENGTH_SHORT).show();
+                        ActivityArr.remove(activity);
+                        notifyItemRemoved(holder.getAdapterPosition());
+                        notifyItemRangeChanged(holder.getAdapterPosition(),getItemCount());
+
+                    }
+                    else{
+                        Toast.makeText(context.getApplicationContext(), "Delete Failed", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             holder.moreDetailsBtn.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +146,6 @@ public class HistoryFragment extends Fragment {
                 }
             });
         }
-
 
         @Override
         public int getItemCount() {
@@ -153,6 +162,7 @@ public class HistoryFragment extends Fragment {
 
             public Viewholder(@NonNull View itemView) {
                 super(itemView);
+                //binding views to instance of Viewholder
                 exerciseIV = itemView.findViewById(R.id.ExeciseImg);
                 exerciseNameTV = itemView.findViewById(R.id.ExerciseName);
                 exerciseDescTV = itemView.findViewById(R.id.ExerciseDesc);

@@ -3,6 +3,7 @@ package com.example.exercisetracker;
 import java.util.ArrayList;
 
 public class Route {
+    private int ActivityID;
     private ArrayList<Double[]> route;
     private Double distance;
     private Integer lastRouteIndex;

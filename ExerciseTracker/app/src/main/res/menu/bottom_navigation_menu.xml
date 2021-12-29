@@ -14,7 +14,7 @@
         android:id="@+id/page_3"
         android:enabled="true"
         android:icon="@drawable/ic_friends"
-        android:title="Friends"/>
+        android:title="Leaderboard"/>
     <item
         android:id="@+id/page_4"
         android:enabled="true"

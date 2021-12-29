@@ -82,12 +82,14 @@ public class PushUpActivity extends AppCompatActivity{
         //visuals
         Objects.requireNonNull(getSupportActionBar()).hide();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);//  set status text dark
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         }
         Window w = getWindow();
+        w.setNavigationBarColor(getResources().getColor(R.color.main_colour));
+        w.setStatusBarColor(getResources().getColor(R.color.main_colour));
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         Rect rectangle = new Rect();
-        w.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        getWindow().getDecorView().getWindowVisibleDisplayFrame(rectangle);
         statusBarHeight = rectangle.top;
 
         setContentView(R.layout.activity_pushup);

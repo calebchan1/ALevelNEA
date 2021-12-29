@@ -1,5 +1,6 @@
 package com.example.exercisetracker;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -29,10 +30,8 @@ public class MainActivity extends AppCompatActivity{
         //visuals
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
+
         bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.setSelectedItemId(R.id.page_1);
         Fragment fragment = new ExerciseFragment();;

@@ -95,18 +95,18 @@ public class RunningActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         //visuals
         getSupportActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
-        setContentView(R.layout.activity_running);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         }
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
+        setContentView(R.layout.activity_running);
 
         //instantiating all private variables
         long millis=System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
         timeStarted = timestamp.toString().substring(11,16);
-        date = new java.sql.Date(millis);
+        date = new Date(millis);
         isRunning = true;
         seconds = 0;
         steps = 0;
@@ -398,12 +398,20 @@ public class RunningActivity extends AppCompatActivity{
         if (locationManager!=null && timeStarted!=null) {
             locationManager.removeUpdates(locationListener);
             //exiting the running activity and saving data to database
-            dbhelper helper = new dbhelper(RunningActivity.this);
-            if (helper.saveActivity("running",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance))) {
-                Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+            //will only save activities which last longer than 60s
+            if (seconds>60){
+                dbhelper helper = new dbhelper(RunningActivity.this);
+                if (helper.saveActivity("running",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
+                    Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+                }
             }
+            else{
+                //saves space and resources on database
+                Toast.makeText(RunningActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
+            }
+
         }
         this.finish();
 

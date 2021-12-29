@@ -2,10 +2,8 @@ package com.example.exercisetracker;
 
 import android.content.Context;
 import android.os.StrictMode;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -17,20 +15,20 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class dbhelper {
+    private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
+    private static final String dbuser = "sql4456768";
+    private static final String dbpassword = "gyFr8LHqQA";
     private Context context;
     private int flag;
     private ArrayList<String> result = new ArrayList<String>();
-        private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
-    private static final String dbuser = "sql4456768";
-    private static final String dbpassword = "gyFr8LHqQA";
 
     public dbhelper(Context context) {
         this.context = context;
     }
 
-    public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height){
+    public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
-        try{
+        try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -41,22 +39,20 @@ public class dbhelper {
             int resultset = statement.executeUpdate(
                     "INSERT INTO User(username,password,firstname,surname,dateOfBirth,weight,height) " +
                             String.format("VALUES ('%s','%s','%s','%s','2004-12-02','%s','%s')",
-                                    username, password,forename,surname,weight,height)
+                                    username, password, forename, surname, weight, height)
             );
-            if (resultset==0){
+            if (resultset == 0) {
                 Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
                 return false;
             }
             Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
 
             return true;
-        }
-        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
-        }
-        finally {
+        } finally {
             try {
                 if (conn != null) {
                     conn.close();
@@ -84,7 +80,7 @@ public class dbhelper {
                             String.format("WHERE username = '%s' AND password = '%s'", username, password)
             );
 
-            if (!resultset.next()){
+            if (!resultset.next()) {
                 Toast.makeText(this.context, "Username or Password incorrect", Toast.LENGTH_SHORT).show();
                 return false;
             }
@@ -92,7 +88,7 @@ public class dbhelper {
             while (resultset.next()) {
                 String row = "";
                 for (int i = 1; i <= 6; i++) {
-                    row = row +resultset.getString(i) + " ";
+                    row = row + resultset.getString(i) + " ";
                 }
                 addResult(row);
             }
@@ -115,9 +111,10 @@ public class dbhelper {
             }
         }
     }
-    public boolean updateUser(){
+
+    public boolean updateUser() {
         Connection conn = null;
-        try{
+        try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -131,24 +128,22 @@ public class dbhelper {
             int resultset = statement.executeUpdate(
                     "UPDATE User " +
                             String.format("SET username = '%s',password = '%s',firstname = '%s',surname = '%s',dateOfBirth = '%s',weight = '%s',height = '%s' ",
-                                    User.getUsername(),User.getPassword(),User.getForename(),User.getSurname(),
-                                    strdob,User.getWeight().toString(),User.getHeight().toString()
-                                    )+
-                            String.format("WHERE User.UserID = '%s'",User.getUserID().toString())
+                                    User.getUsername(), User.getPassword(), User.getForename(), User.getSurname(),
+                                    strdob, User.getWeight().toString(), User.getHeight().toString()
+                            ) +
+                            String.format("WHERE User.UserID = '%s'", User.getUserID().toString())
             );
-            if (resultset==0){
+            if (resultset == 0) {
                 //could not save activity
                 return false;
             }
             //activity was saved successfully
             return true;
-        }
-        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
-        }
-        finally {
+        } finally {
             try {
                 if (conn != null) {
                     //closing the connection
@@ -161,36 +156,50 @@ public class dbhelper {
     }
 
 
-    public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance){
+    public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance, String reps) {
         Connection conn = null;
-        try{
+        try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
             conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
             Statement statement = conn.createStatement();
+            int resultset = 0;
             //executing SQL statement
-            int resultset = statement.executeUpdate(
-                    "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories,steps,distance) " +
-                            String.format("VALUES (%s,%s,'%s','%s','%s','%s','%s','%s');",
-                                    ("(SELECT Exercise.ExerciseID FROM Exercise WHERE Exercise.Name = '"+exercise+"')"),
-                                    ("(SELECT User.UserID FROM User WHERE User.username = '"+User.getUsername()+"')"),
-                                    currDate,timestarted,duration ,calories, steps, distance)
-            );
-            if (resultset==0){
+            if (reps==null) {
+                //activity is either walking, running or treadmill
+                resultset = statement.executeUpdate(
+                        "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories,steps,distance) " +
+                                String.format("VALUES (%s,%s,'%s','%s','%s','%s','%s','%s');",
+                                        ("(SELECT Exercise.ExerciseID FROM Exercise WHERE Exercise.Name = '" + exercise + "')"),
+                                        ("(SELECT User.UserID FROM User WHERE User.username = '" + User.getUsername() + "')"),
+                                        currDate, timestarted, duration, calories, steps, distance)
+                );
+
+            }
+            else{
+                //activity is either walking, running or treadmill
+                resultset = statement.executeUpdate(
+                        "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories,reps) " +
+                                String.format("VALUES (%s,%s,'%s','%s','%s','%s','%s');",
+                                        ("(SELECT Exercise.ExerciseID FROM Exercise WHERE Exercise.Name = '" + exercise + "')"),
+                                        ("(SELECT User.UserID FROM User WHERE User.username = '" + User.getUsername() + "')"),
+                                        currDate, timestarted, duration, calories, reps)
+                );
+            }
+            if (resultset == 0) {
                 //could not save activity
                 return false;
             }
+
             //activity was saved successfully
             return true;
-        }
-        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
-        }
-        finally {
+        } finally {
             try {
                 if (conn != null) {
                     //closing the connection
@@ -202,7 +211,7 @@ public class dbhelper {
         }
     }
 
-    public boolean readActivities(){
+    public boolean readActivities() {
         Connection conn = null;
         //get all activities associated with the user's ID
         try {
@@ -216,12 +225,12 @@ public class dbhelper {
             ResultSet resultset = statement.executeQuery(
                     "SELECT Activity.ActivityID, Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance " +
                             "FROM Exercise, Activity " +
-                            String.format("WHERE Activity.UserID = (SELECT User.UserID FROM User WHERE User.username = '%s') ",User.getUsername()) +
+                            String.format("WHERE Activity.UserID = (SELECT User.UserID FROM User WHERE User.username = '%s') ", User.getUsername()) +
                             "AND Exercise.ExerciseID = Activity.ExerciseID " +
                             "ORDER BY Activity.Date DESC;"
             );
 
-            if (!resultset.next()){
+            if (!resultset.next()) {
                 Toast.makeText(this.context, "No Activities Stored", Toast.LENGTH_SHORT).show();
                 return false;
             }
@@ -229,7 +238,7 @@ public class dbhelper {
             //dealing with multiple rows
             while (resultset.next()) {
                 String row = "";
-                for (int i = 1; i <= 7; i++) {
+                for (int i = 1; i <= 8; i++) {
                     //adding result to dbhelper
                     row = row + resultset.getString(i) + " ";
                 }
@@ -256,9 +265,9 @@ public class dbhelper {
         }
     }
 
-    public boolean deleteActivity(int ActivityID){
+    public boolean deleteActivity(int ActivityID) {
         Connection conn = null;
-        try{
+        try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -267,21 +276,19 @@ public class dbhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    ""
+                    String.format("DELETE FROM Activity WHERE ActivityID = '%d'", ActivityID)
             );
-            if (resultset==0){
+            if (resultset == 0) {
                 //could not delete activity
                 return false;
             }
             //activity was deleted successfully
             return true;
-        }
-        catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e){
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
-        }
-        finally {
+        } finally {
             try {
                 if (conn != null) {
                     //closing the connection

@@ -31,8 +31,8 @@
     <ScrollView
         android:scrollbarThumbVertical="@color/grey"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        app:layout_constraintVertical_bias="1"
+        android:layout_height="550dp"
+        app:layout_constraintVertical_bias="0"
         app:layout_constraintTop_toBottomOf="@id/guideline2"
         app:layout_constraintBottom_toBottomOf="parent">
         <LinearLayout
@@ -46,7 +46,7 @@
                 app:cardPreventCornerOverlap="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                app:cardUseCompatPadding="true"
                 app:strokeColor="@color/main_colour"
                 app:strokeWidth="3dp"
                 app:cardCornerRadius="20dp">

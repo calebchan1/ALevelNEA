@@ -2,30 +2,16 @@ package com.example.exercisetracker;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
-
-import com.mysql.jdbc.Driver;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Date;
 
 public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
@@ -40,12 +26,11 @@ public class LogInScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //visuals
         getSupportActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
+
         setContentView(R.layout.activity_loginscreen);
+
         usernameField = findViewById(R.id.usernameField);
         passwordField = findViewById(R.id.passwordField);
         createbtn = findViewById(R.id.createaccount);
@@ -72,7 +57,7 @@ public class LogInScreen extends AppCompatActivity {
                 String password = passwordField.getEditText().getText().toString();
                 //user validation here
                 dbhelper helper = new dbhelper(LogInScreen.this);
-                if (helper.login(username,password)){
+                if (helper.login(username, password)) {
                     String[] results = helper.getResult().get(0).split(" ");
                     //saving to static User class
                     User.setUsername(username);
@@ -85,20 +70,21 @@ public class LogInScreen extends AppCompatActivity {
                     User.setWeight(Float.valueOf(results[4]));
                     User.setHeight(Integer.valueOf(results[5]));
                     //saving to SharedPreferences
-                    SharedPreferences prefs = getSharedPreferences("userdetails",MODE_PRIVATE);
+                    SharedPreferences prefs = getSharedPreferences("userdetails", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("id",results[0]);
-                    editor.putString("name",(results[1]+ " "+results[2]));
-                    editor.putString("DOB",results[3]);
-                    editor.putString("weight",results[4]);
-                    editor.putString("height",results[5]);
+                    editor.putString("id", results[0]);
+                    editor.putString("name", (results[1] + " " + results[2]));
+                    editor.putString("DOB", results[3]);
+                    editor.putString("weight", results[4]);
+                    editor.putString("height", results[5]);
                     editor.apply();
                     finish();
                     Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent1);
                 }
 
-            }});
+            }
+        });
         createbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,23 +98,20 @@ public class LogInScreen extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //using Android's SharedPreferences to store whether or not the user has requested
                 //to stay logged in, even after closing the app
-                if (buttonView.isChecked()){
-                    SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
+                if (buttonView.isChecked()) {
+                    SharedPreferences prefs = getSharedPreferences("checkbox", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("remember","true");
+                    editor.putString("remember", "true");
                     editor.apply();
                     Toast.makeText(LogInScreen.this, "Checked", Toast.LENGTH_SHORT).show();
-                }
-                else if(!buttonView.isChecked()){
-                    SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
+                } else if (!buttonView.isChecked()) {
+                    SharedPreferences prefs = getSharedPreferences("checkbox", MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("remember","false");
+                    editor.putString("remember", "false");
                     editor.apply();
                     Toast.makeText(LogInScreen.this, "Unchecked", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-
     }
 }

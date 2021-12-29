@@ -182,13 +182,29 @@
         android:text="REGISTER"
         android:textColor="@color/main_colour"
         android:textSize="30sp"
+        android:layout_marginRight="180dp"
         app:cornerRadius="20dp"
         app:layout_constraintTop_toBottomOf="@id/scrollview"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-
         />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newUser_cancelBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/main_colour_on_primary"
+        android:fontFamily="@font/gothicbb"
+        android:text="Cancel"
+        android:textColor="@color/main_colour"
+        android:textSize="30sp"
+        app:cornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/createBtn"
+        app:layout_constraintTop_toBottomOf="@id/scrollview" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

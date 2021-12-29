@@ -91,8 +91,12 @@ public class TreadmillActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
-        getWindow().setStatusBarColor(ContextCompat.getColor(this,R.color.main_colour));// set status background white
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
+        }
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
+
         setContentView(R.layout.activity_treadmill);
         //instantiating all private variables
         seconds = 0;
@@ -307,11 +311,17 @@ public class TreadmillActivity extends AppCompatActivity{
         isRunning = false;
         sensorManager.unregisterListener(listener);
         //exiting the running activity and saving data to database
-        dbhelper helper = new dbhelper(TreadmillActivity.this);
-        if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString(), steps.toString(), String.valueOf(distance))) {
-            Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+        if (seconds>60){
+            dbhelper helper = new dbhelper(TreadmillActivity.this);
+            if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
+                Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else{
+            //saves space and resources on database
+            Toast.makeText(TreadmillActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
         }
         this.finish();
     }

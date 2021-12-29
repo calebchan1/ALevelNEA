@@ -1,19 +1,17 @@
 package com.example.exercisetracker;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Objects;
+
 public class RegisterUserActivity extends AppCompatActivity {
-    private Button createbtn;
+
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
     private TextInputLayout forenameField;
@@ -28,11 +26,9 @@ public class RegisterUserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //visuals
         getSupportActionBar().hide();
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window w = getWindow();
-            w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
+
         setContentView(R.layout.activity_registeruser);
 
         usernameField = findViewById(R.id.usernameField);
@@ -43,19 +39,27 @@ public class RegisterUserActivity extends AppCompatActivity {
         weightField = findViewById(R.id.weightField);
         heightField = findViewById(R.id.heightField);
 
-        createbtn = findViewById(R.id.createBtn);
+        Button cancelbtn = findViewById(R.id.newUser_cancelBtn);
+        cancelbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RegisterUserActivity.this.finish();
+            }
+        });
+
+        Button createbtn = findViewById(R.id.createBtn);
         createbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameField.getEditText().getText().toString();
-                String passsword = passwordField.getEditText().getText().toString();
-                String forename = forenameField.getEditText().getText().toString();
-                String surname = surnameField.getEditText().getText().toString();
-                String DOB = DOBField.getEditText().getText().toString();
+                String username = Objects.requireNonNull(usernameField.getEditText()).getText().toString();
+                String passsword = Objects.requireNonNull(passwordField.getEditText()).getText().toString();
+                String forename = Objects.requireNonNull(forenameField.getEditText()).getText().toString();
+                String surname = Objects.requireNonNull(surnameField.getEditText()).getText().toString();
+                String DOB = Objects.requireNonNull(DOBField.getEditText()).getText().toString();
                 String weight = weightField.getEditText().getText().toString();
                 String height = heightField.getEditText().getText().toString();
                 dbhelper helper = new dbhelper(RegisterUserActivity.this);
-                if (helper.registerUser(username,passsword,forename,surname,DOB,weight,height)){
+                if (helper.registerUser(username, passsword, forename, surname, DOB, weight, height)) {
                     finish();
                 }
             }
