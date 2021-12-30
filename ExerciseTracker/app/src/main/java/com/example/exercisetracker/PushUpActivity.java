@@ -4,12 +4,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.util.Size;
 import android.view.Display;
 import android.view.View;
@@ -19,6 +21,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,11 +48,14 @@ import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
+
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class PushUpActivity extends AppCompatActivity{
@@ -61,16 +68,21 @@ public class PushUpActivity extends AppCompatActivity{
 
     //pushup custom variables
     private Boolean isTracking;
+    private java.sql.Date date;
     private Integer seconds;
-    private Date timeStarted;
+    private String timeStarted;
     private Float MET;
+    private Integer reps;
+    private Integer calories;
 
     private PoseDetector poseDetector;
     private Preview preview;
     private PreviewView tv;
     private CameraSelector cameraSelector;
 
-    private int statusBarHeight;
+    //audio
+    private TextToSpeech tts;
+    private int currquote;
 
     private Graphic graphic;
     private ActivityResultLauncher<String> requestPermissionLauncher;
@@ -81,16 +93,13 @@ public class PushUpActivity extends AppCompatActivity{
 
         //visuals
         Objects.requireNonNull(getSupportActionBar()).hide();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
-        }
         Window w = getWindow();
         w.setNavigationBarColor(getResources().getColor(R.color.main_colour));
         w.setStatusBarColor(getResources().getColor(R.color.main_colour));
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         Rect rectangle = new Rect();
         getWindow().getDecorView().getWindowVisibleDisplayFrame(rectangle);
-        statusBarHeight = rectangle.top;
+        int statusBarHeight = rectangle.top;
 
         setContentView(R.layout.activity_pushup);
         //instantiating all variables
@@ -101,6 +110,24 @@ public class PushUpActivity extends AppCompatActivity{
         calText = findViewById(R.id.calText);
         MET = Float.parseFloat(getString(R.string.met_pushup));
         tv = findViewById(R.id.tv);
+
+        //getting current date and time
+        long millis=System.currentTimeMillis();
+        Timestamp timestamp = new Timestamp(millis);
+        timeStarted = timestamp.toString().substring(11,16);
+        date = new java.sql.Date(millis);
+
+        //text to speech instantiation
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                // if No error is found then only it will run
+                if(i!=TextToSpeech.ERROR){
+                    // To Choose language of speech
+                    tts.setLanguage(Locale.UK);
+                }
+            }
+        });
 
         //handling button clicks
         startBtn.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +172,15 @@ public class PushUpActivity extends AppCompatActivity{
     private void startTracking(){
         isTracking = Boolean.TRUE;
         seconds = 0;
-        timeStarted = Calendar.getInstance().getTime();
+        calories = 0;
+        reps = 0;
+
+        //starting with random quote
+        Resources res = getResources();
+        String[] quotes = res.getStringArray(R.array.quotes);
+        Random r = new Random();
+        currquote = r.nextInt(quotes.length);
+
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
@@ -159,8 +194,19 @@ public class PushUpActivity extends AppCompatActivity{
                     int secs = seconds % 60;
                     String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
                     timerText.setText(time);
-
-
+                    calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
+                    calText.setText("Calories:\n" + calories.toString());
+                    repText.setText("Reps:\n" + reps.toString());
+                }
+                if (seconds%60 ==0){
+                    //every 60 seconds a quote is spoken to help motivate the user
+                    if (currquote>quotes.length){
+                        //moving to front of quote array
+                        currquote = 0;
+                    }
+                    //speaking quote, and moving to next quote
+                    tts.speak(quotes[currquote],TextToSpeech.QUEUE_FLUSH,null);
+                    currquote++;
                 }
             }
         });
@@ -287,6 +333,8 @@ public class PushUpActivity extends AppCompatActivity{
 //        }
 
         private void drawGraphic(List<PoseLandmark> allLandmarks, Point displaySize){
+            //drawing points on the preview, corresponding to where ML Kit has detected the positions
+            //of the body parts
             for (PoseLandmark landmark: allLandmarks){
                 switch(landmark.getLandmarkType()){
                     case PoseLandmark.LEFT_SHOULDER:
@@ -334,7 +382,6 @@ public class PushUpActivity extends AppCompatActivity{
         }
         return true;
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         isTracking = Boolean.FALSE;
@@ -361,6 +408,23 @@ public class PushUpActivity extends AppCompatActivity{
 
     private void finishTracking(){
         isTracking = false;
+
+        //audio text to speech to congratulate user
+        tts.speak(String.format("Congratulations, you burnt %d calories and did %d reps. See you next time!",calories,reps), TextToSpeech.QUEUE_FLUSH,null);
+
+        if (seconds>60){
+            //saving activity results to database, as long as activity lasted for more than a minute
+            dbhelper helper = new dbhelper(PushUpActivity.this);
+            if (helper.saveActivity("pushup",date.toString(),timeStarted,seconds.toString(),calories.toString(),null, null,reps.toString())) {
+                Toast.makeText(PushUpActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(PushUpActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else{
+            //saves space and resources on database
+            Toast.makeText(PushUpActivity.this, "Activity Not Saved (Too Short)", Toast.LENGTH_SHORT).show();
+        }
         this.finish();
 
     }

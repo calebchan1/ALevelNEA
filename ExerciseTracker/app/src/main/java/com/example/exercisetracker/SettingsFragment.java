@@ -60,9 +60,12 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         heightField.getEditText().setText(User.getHeight().toString());
         forenameField.getEditText().setText(User.getForename());
         surnameField.getEditText().setText(User.getSurname());
+
         //handling date of birth
         Date dob = User.getDateOfBirth();
         EditText dobText = DOBField.getEditText();
+
+        //date of birth, date picker
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String strdob = df.format(dob);
         dobText.setText(strdob);
@@ -73,6 +76,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         datepickerBuilder.setCalendarConstraints(constraints.build());
         MaterialDatePicker datepicker = datepickerBuilder.build();
 
+        //when date of birth is touched
         dobText.setOnTouchListener(new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
@@ -101,12 +105,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             }
         });
 
-        //handling update button
+        //handling update and logout buttons
         Button updateButton = view.findViewById(R.id.UpdateButton);
         updateButton.setOnClickListener(this);
         Button logoutBtn = view.findViewById(R.id.logoutBtn);
         logoutBtn.setOnClickListener(this);
-
 
         return view;
     }

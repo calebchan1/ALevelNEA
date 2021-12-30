@@ -6,4 +6,19 @@
     <string name="met_treadmill">8.0</string>
     <string name="met_pushup">3.8</string>
     <string name="met_walking">3.5</string>
+
+    <string-array name="quotes">
+        <!-- Motivational Quotes -->
+        <!--https://www.goodhousekeeping.com/health/fitness/g35310050/workout-quotes/?slide=7-->
+        <item>If you don’t find the time, if you don’t do the work, you don’t get the results.</item>
+        <item >You’re only one workout away from a good mood.</item>
+        <item >If something stands between you and your success, move it. Never be denied.</item>
+        <item>It’s going to be a journey. It’s not a sprint to get in shape.</item>
+        <item>Today I will do what others won’t, so tomorrow I can accomplish what others can’t.</item>
+        <item>The hard days are the best because that’s when champions are made, so if you push through, you can push through anything.</item>
+        <item>The pain you feel today is the strength you feel tomorrow.</item>
+        <item>Motivation is what gets you started. Habit is what keeps you going.</item>
+        <item>The difference between the impossible and the possible lies in a person’s determination</item>
+        <item>We can push ourselves further. We always have more to give.</item>
+    </string-array>
 </resources>

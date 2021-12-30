@@ -21,37 +21,35 @@ import java.util.Arrays;
 
 public class HistoryFragment extends Fragment {
 
-    private RecyclerView historyRV;
-    private ArrayList<String> queryResults;
-    // Arraylist for storing data
-    private ArrayList<Activity> courseModelArrayList;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         dbhelper helper = new dbhelper(getContext());
         if (helper.readActivities()){
-            queryResults = helper.getResult();
-            historyRV = view.findViewById(R.id.HistoryRV);
-            courseModelArrayList = new ArrayList<>();
+            //if activities was read successfully from database
+            ArrayList<String> queryResults = helper.getResult();
+            RecyclerView historyRV = view.findViewById(R.id.HistoryRV);
+
+
+            //RecyclerView allows us to dynamically produce card views as a list
+            // Arraylist for storing data
+            ArrayList<Activity> activityArr = new ArrayList<>();
             for (String query : queryResults){
-                courseModelArrayList.add(handleQuery(query));
+                activityArr.add(handleQuery(query));
             }
-
             // we are initializing our adapter class and passing our arraylist to it.
-            ActivityAdapter courseAdapter = new ActivityAdapter(getContext(), courseModelArrayList);
-
-            // below line is for setting a layout manager for our recycler view.
-            // here we are creating vertical list so we will provide orientation as vertical
+            ActivityAdapter courseAdapter = new ActivityAdapter(getContext(), activityArr);
+            //setting a layout manager for our recycler view.
+            // creating vertical list
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-
-            // in below two lines we are setting layoutmanager and adapter to our recycler view.
+            // setting layout manager and adapter to our recycler view.
             historyRV.setLayoutManager(linearLayoutManager);
             historyRV.setAdapter(courseAdapter);
 
         }
         else{
+            //activity was not read successfully, recycler view not created
             Toast.makeText(getContext(), "Activity History not read", Toast.LENGTH_SHORT).show();
         }
 
@@ -98,8 +96,8 @@ public class HistoryFragment extends Fragment {
     //handling dynamic card production using recycler views
     public static class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Viewholder> {
 
-        private Context context;
-        private ArrayList<Activity> ActivityArr;
+        private final Context context;
+        private final ArrayList<Activity> ActivityArr;
 
         public ActivityAdapter(Context context, ArrayList<Activity> courseModelArrayList) {
             this.context = context;
@@ -109,14 +107,14 @@ public class HistoryFragment extends Fragment {
         @NonNull
         @Override
         public ActivityAdapter.Viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // to inflate the layout for each item of recycler view.
+            //inflate the layout for each item of recycler view.
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_card_layout, parent, false);
             return new Viewholder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull Viewholder holder, int position) {
-            // to set data to textview and imageview of each card layout
+            //set data to textview and imageview of each card layout
             Activity activity = ActivityArr.get(position);
             holder.exerciseNameTV.setText(activity.getName());
             holder.exerciseDescTV.setText(activity.getDesc());
@@ -149,16 +147,16 @@ public class HistoryFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            // this method is used for showing number of card items in recycler view.
             return ActivityArr.size();
         }
 
         // View holder class for initializing of views such as TextView and Imageview.
         public static class Viewholder extends RecyclerView.ViewHolder {
-            private ImageView exerciseIV;
-            private TextView exerciseNameTV, exerciseDescTV;
-            private Button deleteBtn;
-            private Button moreDetailsBtn;
+            private final ImageView exerciseIV;
+            private final TextView exerciseNameTV;
+            private final TextView exerciseDescTV;
+            private final Button deleteBtn;
+            private final Button moreDetailsBtn;
 
             public Viewholder(@NonNull View itemView) {
                 super(itemView);

@@ -31,25 +31,26 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="460dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/UpdateButton"
         app:layout_constraintTop_toTopOf="@id/guideline2"
-        app:layout_constraintVertical_bias="1"
+        app:layout_constraintVertical_bias="0"
         >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="460dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/guideline2"
-        app:layout_constraintBottom_toBottomOf="parent">
+        >
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/settings_usernameField"
             android:hint="Username:"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
             <com.google.android.material.textfield.TextInputEditText
@@ -62,7 +63,7 @@
             android:id="@+id/settings_passwordField"
             android:hint="Password:"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_marginTop="30dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
@@ -77,7 +78,7 @@
             android:id="@+id/forenameField"
             android:hint="Forename:"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_marginTop="30dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
@@ -91,7 +92,7 @@
             android:id="@+id/surnameField"
             android:hint="Surname:"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_marginTop="30dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
@@ -106,7 +107,7 @@
             android:id="@+id/DOBfield"
             android:hint="Date Of Birth (yyyy-mm-dd)"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_marginTop="30dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
@@ -123,7 +124,7 @@
             android:id="@+id/weightField"
             android:hint="Weight/kg (optional)"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_marginTop="30dp"
 
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -139,7 +140,7 @@
             android:id="@+id/heightField"
             android:hint="Height/cm (optional)"
             android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_marginTop="30dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">

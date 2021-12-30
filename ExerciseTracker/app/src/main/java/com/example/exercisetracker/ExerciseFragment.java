@@ -41,15 +41,16 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
                 startActivity(intent1);
                 break;
             case R.id.walkBtn:
-                Toast.makeText(getContext(), "Walking Tracking", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.treadmillBtn:
-                Intent intent2 = new Intent(getContext(), TreadmillActivity.class);
+                Intent intent2 = new Intent(getContext(), WalkingActivity.class);
                 startActivity(intent2);
                 break;
-            case R.id.pushUpBtn:
-                Intent intent3 = new Intent(getContext(), PushUpActivity.class);
+            case R.id.treadmillBtn:
+                Intent intent3 = new Intent(getContext(), TreadmillActivity.class);
                 startActivity(intent3);
+                break;
+            case R.id.pushUpBtn:
+                Intent intent4 = new Intent(getContext(), PushUpActivity.class);
+                startActivity(intent4);
                 break;
         }
     }

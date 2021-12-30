@@ -11,6 +11,7 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="70dp"
         android:text="Activity History"
+        app:layout_constraintVertical_weight="0"
         android:fontFamily="@font/gothicbb"
         android:textAlignment="center"
         android:textSize="40dp"
@@ -24,7 +25,7 @@
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="180dp" />
 
@@ -32,9 +33,9 @@
         android:id="@+id/HistoryRV"
         app:layout_constraintTop_toTopOf="@id/guideline2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="1"
+        app:layout_constraintVertical_bias="0"
         android:layout_width="match_parent"
-        android:layout_height="550dp" />
+        android:layout_height="wrap_content" />
 
 
 
