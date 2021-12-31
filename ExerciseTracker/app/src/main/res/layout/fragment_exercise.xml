@@ -84,7 +84,6 @@
                             android:layout_margin="20dp"
                             android:gravity="center_horizontal"
                             android:fontFamily="@font/gothicbb"
-                            android:onClick="sendOnChannel1"
                             android:text="@string/start_tracking"
                             android:textAllCaps="false"
                             android:textAlignment="center" />

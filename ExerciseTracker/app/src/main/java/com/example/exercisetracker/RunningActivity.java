@@ -5,9 +5,7 @@ import static com.example.exercisetracker.BaseApp.CHANNEL_1_ID;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -18,41 +16,28 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.Html;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity{
+public class RunningActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -69,7 +54,7 @@ public class RunningActivity extends AppCompatActivity{
     private MaterialButton startStopBtn;
     //notification
     private NotificationManagerCompat notificationManagerCompat;
-
+    private Notification notification;
 
     //Specialised running variables
     private float MET;
@@ -103,9 +88,9 @@ public class RunningActivity extends AppCompatActivity{
         setContentView(R.layout.activity_running);
 
         //instantiating all private variables
-        long millis=System.currentTimeMillis();
+        long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
-        timeStarted = timestamp.toString().substring(11,16);
+        timeStarted = timestamp.toString().substring(11, 16);
         date = new Date(millis);
         isRunning = true;
         seconds = 0;
@@ -140,7 +125,7 @@ public class RunningActivity extends AppCompatActivity{
         if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
             //dealt with overriding onRequestPermissionsResult method
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(PERMISSIONS,0);
+                requestPermissions(PERMISSIONS, 0);
             }
         } else {
             startRunning();
@@ -171,11 +156,11 @@ public class RunningActivity extends AppCompatActivity{
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //requesting background permission for android q+
             //Android forces you to request this separately
-            isRunning=false;
-            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},1);
+            isRunning = false;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
         }
 
         //handling location changes
@@ -204,15 +189,17 @@ public class RunningActivity extends AppCompatActivity{
             public void run() {
                 handler.postDelayed(this, 1000);
                 if (isRunning) {
+
+
                     seconds++;
                     //calculating distances between location updates and updating text views
-                    if (route.getRouteSize()>=2) {
+                    if (route.getRouteSize() >= 2) {
                         DecimalFormat df = new DecimalFormat("#.##");
                         route.calculateDistance();
                         distance = route.getDistance();
                         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
                         //changing pace text view
-                        paceText.setText(Html.fromHtml("Pace:\n"+String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
+                        paceText.setText(Html.fromHtml("Pace:\n" + String.valueOf(df.format(distance / seconds.floatValue())) + "ms<sup>-1</sup"));
 
                     }
                     //changing timer text view
@@ -232,6 +219,9 @@ public class RunningActivity extends AppCompatActivity{
                     if ((seconds % 5) == 0) {
                         hasProcessed = Boolean.FALSE;
                     }
+
+                    //updating notification every second
+                    sendOnChannel1();
 
                 }
 
@@ -298,7 +288,7 @@ public class RunningActivity extends AppCompatActivity{
                         Float[] accelValues = accel.get(j);
                         Float[] gravValues = grav.get(j);
                         Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
-                        result = result/9.81f;
+                        result = result / 9.81f;
                         results.add(result);
                         System.out.println("result: " + j + " " + result.toString());
                     }
@@ -337,6 +327,7 @@ public class RunningActivity extends AppCompatActivity{
 
                 }
             }
+
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
@@ -345,24 +336,26 @@ public class RunningActivity extends AppCompatActivity{
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
 
     }
+
     //PERMISSIONS
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
         //CHECKING FOR EXISTING PERMISSIONS
-        if (context!=null && PERMISSIONS!=null){
-            for (String permission: PERMISSIONS){
-                if (ActivityCompat.checkSelfPermission(context,permission)!= PackageManager.PERMISSION_GRANTED){
+        if (context != null && PERMISSIONS != null) {
+            for (String permission : PERMISSIONS) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false;
                 }
             }
         }
         return true;
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch(requestCode){
+        switch (requestCode) {
             case 0:
-                if (grantResults.length>0) {
+                if (grantResults.length > 0) {
                     //checking if all permissions are granted on UI dialog
                     boolean granted = true;
                     for (int result : grantResults) {
@@ -380,11 +373,10 @@ public class RunningActivity extends AppCompatActivity{
                 }
 
             case 1:
-                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     isRunning = true;
                     return;
-                }
-                else{
+                } else {
                     Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
                     finishRunning();
                 }
@@ -392,40 +384,43 @@ public class RunningActivity extends AppCompatActivity{
 
     }
 
-    private void finishRunning(){
+    private void finishRunning() {
         isRunning = false;
         sensorManager.unregisterListener(listener);
-        if (locationManager!=null && timeStarted!=null) {
+        if (locationManager != null && timeStarted != null) {
             locationManager.removeUpdates(locationListener);
             //exiting the running activity and saving data to database
             //will only save activities which last longer than 60s
-            if (seconds>60){
+            if (seconds > 60) {
                 dbhelper helper = new dbhelper(RunningActivity.this);
-                if (helper.saveActivity("running",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
+                if (helper.saveActivity("running", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                     Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
                 }
-            }
-            else{
+            } else {
                 //saves space and resources on database
                 Toast.makeText(RunningActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
             }
 
         }
+        //destroying notification
+        notificationManagerCompat.cancel(1);
         this.finish();
 
     }
 
 
     //handling live notification bar
-    public void sendOnChannel1(View v){
-        Notification notification = new NotificationCompat.Builder(this,CHANNEL_1_ID)
-                .setSmallIcon(R.id.icon)
+    public void sendOnChannel1() {
+        //
+        notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+                .setSmallIcon(R.mipmap.appicon)
                 .setContentTitle("Running Tracking")
-                .setContentText(String.valueOf(steps))
+                .setContentText(String.format("Steps: %d Distance: %s Calories: %d", steps, distText.getText(), calories))
                 .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+                .setVibrate(null)
                 .build();
-        notificationManagerCompat.notify(1,notification);
+        notificationManagerCompat.notify(1, notification);
     }
 }

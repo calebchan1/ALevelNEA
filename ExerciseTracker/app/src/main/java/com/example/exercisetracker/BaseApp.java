@@ -9,8 +9,7 @@ import android.os.Build;
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class BaseApp extends Application {
-    public static  final String CHANNEL_1_ID = "channel1";
-    public static final String CHANNNEL_2_ID = "channel2";
+    public static  final String CHANNEL_1_ID = "Workouts";
 
     @Override
     public void onCreate() {
@@ -22,8 +21,8 @@ public class BaseApp extends Application {
     public void createNotificationChannels(){
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             NotificationChannel channel1 = new NotificationChannel(
-                    CHANNEL_1_ID,"Channel 1",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    CHANNEL_1_ID,"Workouts",
+                    NotificationManager.IMPORTANCE_HIGH
             );
             channel1.setDescription("This is channel 1");
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
