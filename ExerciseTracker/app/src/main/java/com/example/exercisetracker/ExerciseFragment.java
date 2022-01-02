@@ -5,6 +5,7 @@ import static com.example.exercisetracker.BaseApp.CHANNEL_1_ID;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 public class ExerciseFragment extends Fragment implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback{
@@ -47,6 +49,7 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
                 //starting activity
                 Intent intent1 = new Intent(getContext(), RunningActivity.class);
                 startActivity(intent1);
+
                 break;
             case R.id.walkBtn:
                 //starting activity

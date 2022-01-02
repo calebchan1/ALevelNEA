@@ -32,13 +32,13 @@
             android:background="@drawable/rectangle"
             />
         <View
-            android:id="@+id/rightEye"
+            android:id="@+id/right_shoulder"
             android:layout_width="5dp"
             android:layout_height="5dp"
             android:background="@drawable/rectangle"
             />
         <View
-            android:id="@+id/leftEye"
+            android:id="@+id/left_shoulder"
             android:layout_width="5dp"
             android:layout_height="5dp"
             android:background="@drawable/rectangle"

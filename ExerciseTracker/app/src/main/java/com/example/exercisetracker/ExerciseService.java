@@ -38,14 +38,14 @@ public class ExerciseService extends Service {
         Log.e(TAG,"onStartCommand()");
 
         Notification notification = createNotification1(this);
-
+        startForeground(1,notification);
 
         //do heavy work on a background thread
         //stopSelf();
         return START_STICKY;
 
     }
-    static public Intent newIntent(Context context) {
+    public static Intent newIntent(Context context) {
         return new Intent(context, ExerciseService.class);
     }
     public Notification createNotification1(Context context) {
@@ -54,11 +54,9 @@ public class ExerciseService extends Service {
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
-                //.setSmallIcon(R.drawable.ic_android_black)
-                //.setContentTitle("CustomService is running")
-                //.setContentText("Touch for more information or to stop the app")
-                //.setContentIntent(showAppPermissionSettings()) //onContentTapped
-                //.setDeleteIntent(null) //onSwipedAway
+                .setOnlyAlertOnce(true)
+                .setSmallIcon(R.mipmap.appicon)
+                .setContentTitle("Test")
                 .build();
     }
 

@@ -60,6 +60,7 @@
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
         </activity>
+        <service android:name=".ExerciseService"/>
     </application>
 
 </manifest>

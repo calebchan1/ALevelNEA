@@ -6,6 +6,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -109,8 +110,6 @@ public class RunningActivity extends AppCompatActivity {
         detector = new Detector(0.5f, 2);
         ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
         route = new Route(currentRoute);
-        //NOTIFICATION MANAGER
-        notificationManagerCompat = NotificationManagerCompat.from(this);
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
@@ -134,6 +133,8 @@ public class RunningActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
+        //NOTIFICATION MANAGER
+        notificationManagerCompat = NotificationManagerCompat.from(this);
 
         //click listeners
         finishBtn.setOnClickListener(new View.OnClickListener() {
@@ -419,7 +420,7 @@ public class RunningActivity extends AppCompatActivity {
                 .setContentTitle("Running Tracking")
                 .setContentText(String.format("Steps: %d Distance: %s Calories: %d", steps, distText.getText(), calories))
                 .setCategory(NotificationCompat.CATEGORY_WORKOUT)
-                .setVibrate(null)
+                .setOnlyAlertOnce(true)
                 .build();
         notificationManagerCompat.notify(1, notification);
     }

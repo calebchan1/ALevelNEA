@@ -4,9 +4,12 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Build;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class BaseApp extends Application {
     public static  final String CHANNEL_1_ID = "Workouts";
@@ -29,6 +32,5 @@ public class BaseApp extends Application {
             notificationManager.createNotificationChannel(channel1);
         }
     }
-
 
 }

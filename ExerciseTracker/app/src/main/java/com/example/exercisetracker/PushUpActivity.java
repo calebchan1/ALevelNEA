@@ -1,7 +1,10 @@
 package com.example.exercisetracker;
 
+import static com.example.exercisetracker.BaseApp.CHANNEL_1_ID;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -15,11 +18,9 @@ import android.speech.tts.TextToSpeech;
 import android.util.Size;
 import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,8 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -50,10 +53,10 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -83,6 +86,11 @@ public class PushUpActivity extends AppCompatActivity{
     //audio
     private TextToSpeech tts;
     private int currquote;
+
+    //notification
+    private NotificationManagerCompat notificationManagerCompat;
+    private Notification notification;
+
 
     private Graphic graphic;
     private ActivityResultLauncher<String> requestPermissionLauncher;
@@ -175,7 +183,10 @@ public class PushUpActivity extends AppCompatActivity{
         calories = 0;
         reps = 0;
 
-        //starting with random quote
+        //NOTIFICATION MANAGER
+        notificationManagerCompat = NotificationManagerCompat.from(this);
+
+        //starting with random quote for text to speech
         Resources res = getResources();
         String[] quotes = res.getStringArray(R.array.quotes);
         Random r = new Random();
@@ -186,6 +197,8 @@ public class PushUpActivity extends AppCompatActivity{
             @Override
             public void run() {
                 handler.postDelayed(this,1000);
+                //updating live notification every second
+                sendOnChannel1();
                 if (isTracking == Boolean.TRUE){
                     seconds++;
                     //updating timer view
@@ -235,6 +248,7 @@ public class PushUpActivity extends AppCompatActivity{
                         .setTargetResolution(new Size(size.x, size.y))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
+        //setting the configuration for the image analysis
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(PushUpActivity.this), new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
@@ -247,10 +261,11 @@ public class PushUpActivity extends AppCompatActivity{
                         @Override
                         public void onSuccess(@NonNull Pose pose) {
                             //when the pose detector successfully can attach to image
+                            //Receiving and processing landmarks from Google's ML kit software
                             System.out.println("Successful Pose Detection");
                             List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
                             processLandmarks(allPoseLandmarks);
-
+                            //drawing on the landmarks onto the user's screen
                             graphic.drawGraphic(allPoseLandmarks,size);
 
                         }
@@ -271,6 +286,7 @@ public class PushUpActivity extends AppCompatActivity{
             }
         });
 
+        //attaching the image analysis object to the camera
         cameraProviderFuture.addListener(() ->{
                 try {
                     //configuring camera to preview.
@@ -295,18 +311,19 @@ public class PushUpActivity extends AppCompatActivity{
     }
 
     private void processLandmarks(List<PoseLandmark> allLandmarks){
+        //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
         for (PoseLandmark landmark: allLandmarks){
         }
     }
 
 
+
+    //<---------Graphics---------->
     private class Graphic{
         //composition class (cannot draw graphic without the push up activity
-        private final View noseView;
-        private final View reyeView;
-        private final View leyeView;
-        private final View lelbowView;
-        private final View relbowView;
+
+        //hash map, associating landmark name to graphic View
+        private final Map<String, View> graphicViewsMap;
         private float scalex;
         private float scaley;
         private int yoffset;
@@ -314,11 +331,13 @@ public class PushUpActivity extends AppCompatActivity{
         //n pixels to offset in order to fit scaled up image on view
 
         private Graphic(){
-            noseView = findViewById(R.id.nose);
-            reyeView = findViewById(R.id.leftEye);
-            leyeView = findViewById(R.id.rightEye);
-            lelbowView = findViewById(R.id.lelbow);
-            relbowView = findViewById(R.id.relbow);
+            //HASH MAP to store all views corresponding to landmarks
+            graphicViewsMap = new HashMap<String, View>();
+            graphicViewsMap.put("nose", (View) findViewById(R.id.nose));
+            graphicViewsMap.put("left_shoulder", (View) findViewById(R.id.left_shoulder));
+            graphicViewsMap.put("right_shoulder", (View) findViewById(R.id.right_shoulder));
+            graphicViewsMap.put("left_elbow", (View) findViewById(R.id.lelbow));
+            graphicViewsMap.put("right_elbow", (View) findViewById(R.id.relbow));
             yoffset = 170;
             xoffset = -30;
         }
@@ -333,37 +352,56 @@ public class PushUpActivity extends AppCompatActivity{
 //        }
 
         private void drawGraphic(List<PoseLandmark> allLandmarks, Point displaySize){
+            if (allLandmarks.isEmpty()){
+                //if no landmarks are detected, remove points from graphic
+                for (View view : graphicViewsMap.values()) {
+                    view.setVisibility(View.GONE);
+                }
+
+            }
             //drawing points on the preview, corresponding to where ML Kit has detected the positions
             //of the body parts
             for (PoseLandmark landmark: allLandmarks){
                 switch(landmark.getLandmarkType()){
                     case PoseLandmark.LEFT_SHOULDER:
                         //inverting x coordinate, as camera is in mirroring position
-                        noseView.setX(displaySize.x-landmark.getPosition().x +xoffset);
-                        noseView.setY(landmark.getPosition().y+ yoffset);
+                        View left_shoulder = graphicViewsMap.get("left_shoulder");
+                        left_shoulder.setVisibility(View.VISIBLE);
+                        left_shoulder.setX(displaySize.x-landmark.getPosition().x +xoffset);
+                        left_shoulder.setY(landmark.getPosition().y+ yoffset);
                         System.out.println("x: "+ landmark.getPosition().x + " y: "+ landmark.getPosition().y);
                         System.out.println("y offset:" + yoffset);
                         break;
                     case PoseLandmark.RIGHT_SHOULDER:
                         //inverting x coordinate, as camera is in mirroring position
-                        reyeView.setX(displaySize.x-landmark.getPosition().x+xoffset);
-                        reyeView.setY(landmark.getPosition().y+yoffset);
+                        View right_shoulder = graphicViewsMap.get("right_shoulder");
+                        right_shoulder.setVisibility(View.VISIBLE);
+                        right_shoulder.setX(displaySize.x-landmark.getPosition().x +xoffset);
+                        right_shoulder.setY(landmark.getPosition().y+ yoffset);
                         break;
                     case PoseLandmark.NOSE:
                         //inverting x coordinate, as camera is in mirroring position
-                        leyeView.setX(displaySize.x-landmark.getPosition().x+xoffset);
-                        leyeView.setY(landmark.getPosition().y+yoffset);
+                        View nose = graphicViewsMap.get("nose");
+                        nose.setVisibility(View.VISIBLE);
+                        nose.setX(displaySize.x-landmark.getPosition().x +xoffset);
+                        nose.setY(landmark.getPosition().y+ yoffset);
                         break;
                     case PoseLandmark.LEFT_ELBOW:
                         //inverting x coordinate, as camera is in mirroring position
-                        lelbowView.setX(displaySize.x-landmark.getPosition().x+xoffset);
-                        lelbowView.setY(landmark.getPosition().y+yoffset);
+                        View left_elbow = graphicViewsMap.get("left_elbow");
+                        left_elbow.setVisibility(View.VISIBLE);
+                        left_elbow.setX(displaySize.x-landmark.getPosition().x +xoffset);
+                        left_elbow.setY(landmark.getPosition().y+ yoffset);
                         break;
                     case PoseLandmark.RIGHT_ELBOW:
                         //inverting x coordinate, as camera is in mirroring position
-                        relbowView.setX(displaySize.x-landmark.getPosition().x);
-                        relbowView.setY(landmark.getPosition().y+yoffset);
+                        View right_elbow = graphicViewsMap.get("right_elbow");
+                        right_elbow.setVisibility(View.VISIBLE);
+                        right_elbow.setX(displaySize.x-landmark.getPosition().x +xoffset);
+                        right_elbow.setY(landmark.getPosition().y+ yoffset);
                         break;
+
+
                 }
 
             }
@@ -406,9 +444,10 @@ public class PushUpActivity extends AppCompatActivity{
     }
 
 
-    private void finishTracking(){
-        isTracking = false;
 
+    private void finishTracking(){
+        //handles the safe closing of the activity, and presenting any information to the user
+        isTracking = false;
         //audio text to speech to congratulate user
         tts.speak(String.format("Congratulations, you burnt %d calories and did %d reps. See you next time!",calories,reps), TextToSpeech.QUEUE_FLUSH,null);
 
@@ -425,8 +464,23 @@ public class PushUpActivity extends AppCompatActivity{
             //saves space and resources on database
             Toast.makeText(PushUpActivity.this, "Activity Not Saved (Too Short)", Toast.LENGTH_SHORT).show();
         }
+        //destroying notification
+        notificationManagerCompat.cancel(1);
         this.finish();
-
     }
 
+
+    //handling live notification bar
+    public void sendOnChannel1() {
+        //creating notification
+            notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+                    .setSmallIcon(R.mipmap.appicon)
+                    .setContentTitle("Push-Up Tracking")
+                    //adding details into description
+                    .setContentText(String.format("Reps: %d Calories: %d", reps, calories))
+                    .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+                    .setOnlyAlertOnce(true)
+                    .build();
+            notificationManagerCompat.notify(1, notification);
+    }
 }
