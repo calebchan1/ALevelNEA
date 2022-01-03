@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.other;
 
 import android.app.Application;
 import android.app.Notification;

@@ -1,24 +1,20 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.activities;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
 
+import com.example.exercisetracker.R;
+import com.example.exercisetracker.fragments.ExerciseFragment;
+import com.example.exercisetracker.fragments.HistoryFragment;
+import com.example.exercisetracker.fragments.LeaderboardFragment;
+import com.example.exercisetracker.fragments.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity{
     private BottomNavigationView bottomMenu;
@@ -49,7 +45,7 @@ public class MainActivity extends AppCompatActivity{
                         fragment = new HistoryFragment();
                         break;
                     case(R.id.page_3):
-                        fragment = new FriendsFragment();
+                        fragment = new LeaderboardFragment();
                         break;
                     case (R.id.page_4):
                         fragment = new SettingsFragment();

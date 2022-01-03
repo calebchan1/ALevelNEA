@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.other;
 
 import com.google.mlkit.vision.pose.PoseLandmark;
 

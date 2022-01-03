@@ -1,6 +1,6 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.activities;
 
-import static com.example.exercisetracker.BaseApp.CHANNEL_1_ID;
+import static com.example.exercisetracker.other.BaseApp.CHANNEL_1_ID;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -40,6 +40,9 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.example.exercisetracker.R;
+import com.example.exercisetracker.other.User;
+import com.example.exercisetracker.other.dbhelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

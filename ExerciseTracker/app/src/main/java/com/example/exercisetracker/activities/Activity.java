@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.activities;
 
 import java.sql.Date;
 

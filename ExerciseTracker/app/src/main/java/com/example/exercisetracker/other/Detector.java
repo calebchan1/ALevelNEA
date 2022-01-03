@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.other;
 
 import android.os.Environment;
 import android.widget.Toast;

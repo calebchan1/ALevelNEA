@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +11,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.exercisetracker.R;
+import com.example.exercisetracker.other.User;
+import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class LogInScreen extends AppCompatActivity {

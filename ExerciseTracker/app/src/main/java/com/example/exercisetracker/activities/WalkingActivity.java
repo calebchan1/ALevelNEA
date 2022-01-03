@@ -1,11 +1,10 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.activities;
 
-import static com.example.exercisetracker.BaseApp.CHANNEL_1_ID;
+import static com.example.exercisetracker.other.BaseApp.CHANNEL_1_ID;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -17,42 +16,39 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 
+import com.example.exercisetracker.other.Detector;
+import com.example.exercisetracker.other.Filter;
+import com.example.exercisetracker.R;
+import com.example.exercisetracker.other.Route;
+import com.example.exercisetracker.other.User;
+import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.button.MaterialButton;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
 
-public class TreadmillActivity extends AppCompatActivity{
+public class WalkingActivity extends AppCompatActivity{
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     //TextViews
     private TextView timerText;
     private TextView stepText;
@@ -66,124 +62,130 @@ public class TreadmillActivity extends AppCompatActivity{
     private NotificationManagerCompat notificationManagerCompat;
 
 
-    //Specialised running variables
+    //Specialised walking variables
     private float MET;
     private double distance;
     private Filter filter;
     private Detector detector;
-    private Boolean isRunning;
+    private Boolean isWalking;
     private Integer seconds;
     private Integer steps;
     private Integer calories;
     private Float[] filtered_data;
     private Boolean hasProcessed;
-    private Integer height;
+    private Route route;
     private String timeStarted;
     private Date date;
-
-    //audio
-    private TextToSpeech tts;
 
     //Permissions
     private String[] PERMISSIONS;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
-
-    @SuppressLint("MissingPermission")
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //visuals
         getSupportActionBar().hide();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         }
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
+        setContentView(R.layout.activity_walking);
 
-        setContentView(R.layout.activity_treadmill);
         //instantiating all private variables
-        seconds = 0;
-        steps = 0;
-        distance = 0f;
-        height = User.getHeight();
-        MET = Float.parseFloat(getString(R.string.met_treadmill));
-
         long millis=System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
         timeStarted = timestamp.toString().substring(11,16);
-        date = new java.sql.Date(millis);
-
+        date = new Date(millis);
+        isWalking = true;
+        seconds = 0;
+        steps = 0;
+        distance = 0f;
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
         paceText = findViewById(R.id.paceText);
         calorieText = findViewById(R.id.calText);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        MET = Float.parseFloat(getString(R.string.met_walking));
 
         //CUSTOM JAVA CLASSES
         filter = new Filter(-10f, 10f);
         detector = new Detector(0.5f, 2);
+        ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
+        route = new Route(currentRoute);
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
-
-        //text to speech instantiation
-        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-                // if No error is found then only it will run
-                if(i!=TextToSpeech.ERROR){
-                    // To Choose language of speech
-                    tts.setLanguage(Locale.UK);
-                }
-            }
-        });
 
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
 
-
         //HANDLING PERMISSIONS
         PERMISSIONS = new String[]{
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        };
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-        if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            requestPermissions(PERMISSIONS,0);
-        }
-        else{
-            startRunning();
+        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
+            //dealt with overriding onRequestPermissionsResult method
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(PERMISSIONS,0);
+            }
+        } else {
+            startWalking();
         }
     }
 
     @SuppressLint("MissingPermission")
-    private void startRunning() {
-        isRunning = true;
+    private void startWalking() {
 
-
+        //click listeners
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //exiting the running activity and sending data back to main program
-                finishRunning();
+                finishWalking();
             }
         });
         startStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isRunning) {
+                if (isWalking) {
                     startStopBtn.setText("Resume");
-                    isRunning = false;
+                    isWalking = false;
 
                 } else {
                     startStopBtn.setText("Pause");
-                    isRunning = true;
+                    isWalking = true;
                 }
             }
         });
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            //requesting background permission for android q+
+            //Android forces you to request this separately
+            isWalking =false;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},1);
+        }
+
+        //handling location changes
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                if (isWalking) {
+                    //location in form of latitude and longitude
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    Double[] entry = {latitude, longitude};
+                    System.out.println(entry);
+                    route.addRoute(entry);
+                }
+            }
+
+        };
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 3, locationListener);
 
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -192,8 +194,18 @@ public class TreadmillActivity extends AppCompatActivity{
             @Override
             public void run() {
                 handler.postDelayed(this, 1000);
-                if (isRunning) {
+                if (isWalking) {
                     seconds++;
+                    //calculating distances between location updates and updating text views
+                    if (route.getRouteSize()>=2) {
+                        DecimalFormat df = new DecimalFormat("#.##");
+                        route.calculateDistance();
+                        distance = route.getDistance();
+                        distText.setText(String.format("Distance:\n%sm", df.format(distance)));
+                        //changing pace text view
+                        paceText.setText(Html.fromHtml("Pace:\n"+String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
+
+                    }
                     //changing timer text view
                     int hours = seconds / 3600;
                     int minutes = (seconds % 3600) / 60;
@@ -207,16 +219,6 @@ public class TreadmillActivity extends AppCompatActivity{
 
                     //changing step text view
                     stepText.setText(String.format("Steps:\n%d", steps));
-
-                    //rather than using geolocation and routes, treadmill is in one location
-                    //distance is calculated using the average stride based off their height*0.4 to a good approximation
-                    //calculating distance and changing distance text view
-                    DecimalFormat df = new DecimalFormat("#.##");
-                    distance = height.floatValue() * ((float) Math.floor(steps/2)) * 0.004f; //0.004 as user height stored as cm
-                    distText.setText(String.format("Distance:\n%sm",df.format(distance)));
-
-                    //calculating pace and changing pace text view
-                    paceText.setText(Html.fromHtml("Pace:\n"+String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
                         hasProcessed = Boolean.FALSE;
@@ -231,7 +233,6 @@ public class TreadmillActivity extends AppCompatActivity{
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
         ArrayList<Float[]> grav = new ArrayList<Float[]>();
-
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
@@ -239,7 +240,7 @@ public class TreadmillActivity extends AppCompatActivity{
                 Sensor sensor = event.sensor;
                 //formatting by rounding to 2 decimal places
                 DecimalFormat df = new DecimalFormat("#.##");
-                if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
+                if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isWalking) {
                     //handling the linear acceleration
                     Float x = Float.parseFloat(df.format(event.values[0]));
                     Float y = Float.parseFloat(df.format(event.values[1]));
@@ -253,7 +254,7 @@ public class TreadmillActivity extends AppCompatActivity{
 
 
                 }
-                if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
+                if (sensor.getType() == Sensor.TYPE_GRAVITY & isWalking) {
                     //handling gravimeter
                     Float x = Float.parseFloat(df.format(event.values[0]));
                     Float y = Float.parseFloat(df.format(event.values[1]));
@@ -300,6 +301,8 @@ public class TreadmillActivity extends AppCompatActivity{
                     //FILTERING DATA
                     filter.filter(results);
                     filtered_data = filter.getFiltered_data();
+
+                    //detecting steps
                     detector.detect(filtered_data);
                     steps = detector.getStepCount();
 
@@ -311,6 +314,7 @@ public class TreadmillActivity extends AppCompatActivity{
         };
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
+
     }
     //PERMISSIONS
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
@@ -324,30 +328,6 @@ public class TreadmillActivity extends AppCompatActivity{
         }
         return true;
     }
-
-    private void finishRunning(){
-        isRunning = false;
-        sensorManager.unregisterListener(listener);
-
-        //audio text to speech to congratulate user
-        tts.speak(String.format("Congratulations, you burnt %d calories. See you next time!",calories),TextToSpeech.QUEUE_FLUSH,null);
-
-        //exiting the running activity and saving data to database
-        if (seconds>60){
-            dbhelper helper = new dbhelper(TreadmillActivity.this);
-            if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
-                Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else{
-            //saves space and resources on database
-            Toast.makeText(TreadmillActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
-        }
-        this.finish();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -362,15 +342,50 @@ public class TreadmillActivity extends AppCompatActivity{
                         }
                     }
                     if (granted) {
-                        startRunning();
+                        startWalking();
                     } else {
                         Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
-                        finishRunning();
+                        finishWalking();
                     }
                     return;
                 }
 
+            case 1:
+                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    isWalking = true;
+                    return;
+                }
+                else{
+                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                    finishWalking();
+                }
         }
+
+    }
+
+    private void finishWalking(){
+        isWalking = false;
+        sensorManager.unregisterListener(listener);
+        if (locationManager!=null && timeStarted!=null) {
+            locationManager.removeUpdates(locationListener);
+            //exiting the walking activity and saving data to database
+            //will only save activities which last longer than 60s
+            if (seconds>60){
+                dbhelper helper = new dbhelper(WalkingActivity.this);
+                if (helper.saveActivity("walking",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
+                    Toast.makeText(WalkingActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(WalkingActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+                }
+            }
+            else{
+                //saves space and resources on database
+                Toast.makeText(WalkingActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+        this.finish();
+
     }
 
 
@@ -378,7 +393,7 @@ public class TreadmillActivity extends AppCompatActivity{
     public void sendOnChannel1(View v){
         Notification notification = new NotificationCompat.Builder(this,CHANNEL_1_ID)
                 .setSmallIcon(R.id.icon)
-                .setContentTitle("Treadmill Tracking")
+                .setContentTitle("Walking Tracking")
                 .setContentText(String.valueOf(steps))
                 .setCategory(NotificationCompat.CATEGORY_WORKOUT)
                 .build();

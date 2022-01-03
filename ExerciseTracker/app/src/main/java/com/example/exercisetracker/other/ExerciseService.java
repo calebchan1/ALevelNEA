@@ -1,9 +1,7 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.other;
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -11,6 +9,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
+import com.example.exercisetracker.R;
 
 public class ExerciseService extends Service {
     private static final int NOTIF_ID = 1;

@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.activities;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.exercisetracker.R;
+import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;

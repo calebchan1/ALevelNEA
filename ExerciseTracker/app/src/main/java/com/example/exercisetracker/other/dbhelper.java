@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.other;
 
 import android.content.Context;
 import android.os.StrictMode;
@@ -292,6 +292,58 @@ public class dbhelper {
             try {
                 if (conn != null) {
                     //closing the connection
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean getAllActivities(){
+        Connection conn = null;
+        //get request to database for all activities done for public leaderboard
+        //includes userID, and first name corresponding to each activity
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            ResultSet resultset = statement.executeQuery(
+                    "SELECT User.firstname, Activity.calories " +
+                            "FROM Activity, User " +
+                            "WHERE Activity.UserID = User.UserID " +
+                            "ORDER BY Activity.Date DESC;"
+            );
+
+            if (!resultset.next()) {
+                Toast.makeText(this.context, "No Activities Stored", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            resultset.beforeFirst();
+            //dealing with multiple rows
+            while (resultset.next()) {
+                String row = "";
+                for (int i = 1; i <= 2; i++) {
+                    //adding result to dbhelper
+                    row = row + resultset.getString(i) + " ";
+                }
+                //moving to next row (if there is any)
+                addResult(row);
+            }
+            return true;
+
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            //if connection throws exception, login failed and false is returned
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
                     conn.close();
                 }
             } catch (SQLException e) {

@@ -1,4 +1,4 @@
-package com.example.exercisetracker;
+package com.example.exercisetracker.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,6 +19,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.exercisetracker.activities.LogInScreen;
+import com.example.exercisetracker.R;
+import com.example.exercisetracker.other.User;
+import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
