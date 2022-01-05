@@ -16,27 +16,31 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.Detector;
 import com.example.exercisetracker.other.Filter;
-import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
@@ -60,7 +64,6 @@ public class RunningActivity extends AppCompatActivity {
     private MaterialButton startStopBtn;
     //notification
     private NotificationManagerCompat notificationManagerCompat;
-    private Notification notification;
 
     //Specialised running variables
     private float MET;
@@ -76,10 +79,6 @@ public class RunningActivity extends AppCompatActivity {
     private Route route;
     private String timeStarted;
     private Date date;
-
-    //Permissions
-    private String[] PERMISSIONS;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +112,7 @@ public class RunningActivity extends AppCompatActivity {
         //CUSTOM JAVA CLASSES
         filter = new Filter(-10f, 10f);
         detector = new Detector(0.5f, 2);
-        ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
+        ArrayList<Double[]> currentRoute = new ArrayList<>();
         route = new Route(currentRoute);
 
         //handling when start and stop button clicked
@@ -121,7 +120,8 @@ public class RunningActivity extends AppCompatActivity {
         finishBtn = findViewById(R.id.finishBtn);
 
         //HANDLING PERMISSIONS
-        PERMISSIONS = new String[]{
+        //Permissions
+        String[] PERMISSIONS = new String[]{
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -195,37 +195,18 @@ public class RunningActivity extends AppCompatActivity {
             public void run() {
                 handler.postDelayed(this, 1000);
                 if (isRunning) {
-
-
                     seconds++;
                     //calculating distances between location updates and updating text views
+                    DecimalFormat df = new DecimalFormat("#.##");
                     if (route.getRouteSize() >= 2) {
-                        DecimalFormat df = new DecimalFormat("#.##");
                         route.calculateDistance();
                         distance = route.getDistance();
-                        distText.setText(String.format("Distance:\n%sm", df.format(distance)));
-                        //changing pace text view
-                        paceText.setText(Html.fromHtml("Pace:\n" + String.valueOf(df.format(distance / seconds.floatValue())) + "ms<sup>-1</sup"));
-
                     }
-                    //changing timer text view
-                    int hours = seconds / 3600;
-                    int minutes = (seconds % 3600) / 60;
-                    int secs = seconds % 60;
-                    String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
-                    timerText.setText(time);
-
-                    //changing calorie text view
-                    calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-                    calorieText.setText(String.format("Calories:\n%d", calories));
-
-                    //changing step text view
-                    stepText.setText(String.format("Steps:\n%d", steps));
+                    updateViews(df);
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
                         hasProcessed = Boolean.FALSE;
                     }
-
                     //updating notification every second
                     sendOnChannel1();
 
@@ -247,27 +228,13 @@ public class RunningActivity extends AppCompatActivity {
                 DecimalFormat df = new DecimalFormat("#.##");
                 if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
                     //handling the linear acceleration
-                    Float x = Float.parseFloat(df.format(event.values[0]));
-                    Float y = Float.parseFloat(df.format(event.values[1]));
-                    Float z = Float.parseFloat(df.format(event.values[2]));
-                    Float[] entry = new Float[3];
-                    entry[0] = x;
-                    entry[1] = y;
-                    entry[2] = z;
+                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
                     System.out.println("acceleration:" + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
                     accel.add(entry);
-
-
                 }
                 if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
                     //handling gravimeter
-                    Float x = Float.parseFloat(df.format(event.values[0]));
-                    Float y = Float.parseFloat(df.format(event.values[1]));
-                    Float z = Float.parseFloat(df.format(event.values[2]));
-                    Float[] entry = new Float[3];
-                    entry[0] = x;
-                    entry[1] = y;
-                    entry[2] = z;
+                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
                     grav.add(entry);
                     System.out.println("gravity: " + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
                 }
@@ -306,26 +273,6 @@ public class RunningActivity extends AppCompatActivity {
                     //FILTERING DATA
                     filter.filter(results);
                     filtered_data = filter.getFiltered_data();
-                    //WRITING TO FILE FOR DEBUGGING
-//                    for (int i = 0; i < filtered_data.length; i++) {
-//                        String entry = filtered_data[i].toString() + "\n";
-//                        System.out.print(entry);
-//                        try {
-//                            File storage = Environment.getExternalStorageDirectory();
-//                            File dir = new File(storage.getAbsolutePath() + "/documents");
-//                            File file = new File(dir, "output.csv");
-//                            FileOutputStream f = new FileOutputStream(file, true);
-//                            try {
-//                                f.write(entry.getBytes());
-//                                f.flush();
-//                                f.close();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
 
                     //detecting steps
                     detector.detect(filtered_data);
@@ -341,6 +288,57 @@ public class RunningActivity extends AppCompatActivity {
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
 
+    }
+
+    private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z, DecimalFormat df) {
+        Float x = Float.parseFloat(df.format(raw_x));
+        Float y = Float.parseFloat(df.format(raw_y));
+        Float z = Float.parseFloat(df.format(raw_z));
+        Float[] entry = new Float[3];
+        entry[0] = x;
+        entry[1] = y;
+        entry[2] = z;
+        return entry;
+    }
+
+    //saving to csv file for debugging
+    private void saveToStorage(Float[] filtered_data) {
+        for (int i = 0; i < filtered_data.length; i++) {
+            String entry = filtered_data[i].toString() + "\n";
+            System.out.print(entry);
+            try {
+                File storage = Environment.getExternalStorageDirectory();
+                File dir = new File(storage.getAbsolutePath() + "/documents");
+                File file = new File(dir, "output.csv");
+                FileOutputStream f = new FileOutputStream(file, true);
+                try {
+                    f.write(entry.getBytes());
+                    f.flush();
+                    f.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void updateViews(DecimalFormat df) {
+        //changing timer text view
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int secs = seconds % 60;
+        String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
+        timerText.setText(time);
+        //changing calorie text view
+        calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
+        calorieText.setText(String.format("Calories:\n%d", calories));
+        //changing step text view
+        stepText.setText(String.format("Steps:\n%d", steps));
+        distText.setText(String.format("Distance:\n%sm", df.format(distance)));
+        //changing pace text view
+        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
     }
 
     //PERMISSIONS
@@ -420,7 +418,7 @@ public class RunningActivity extends AppCompatActivity {
     //handling live notification bar
     public void sendOnChannel1() {
         //
-        notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.mipmap.appicon)
                 .setContentTitle("Running Tracking")
                 .setContentText(String.format("Steps: %d Distance: %s Calories: %d", steps, distText.getText(), calories))
@@ -429,4 +427,6 @@ public class RunningActivity extends AppCompatActivity {
                 .build();
         notificationManagerCompat.notify(1, notification);
     }
+
+
 }

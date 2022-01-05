@@ -28,9 +28,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.Detector;
 import com.example.exercisetracker.other.Filter;
-import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.button.MaterialButton;
@@ -41,7 +41,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class TreadmillActivity extends AppCompatActivity{
+public class TreadmillActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -101,9 +101,9 @@ public class TreadmillActivity extends AppCompatActivity{
         height = User.getHeight();
         MET = Float.parseFloat(getString(R.string.met_treadmill));
 
-        long millis=System.currentTimeMillis();
+        long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
-        timeStarted = timestamp.toString().substring(11,16);
+        timeStarted = timestamp.toString().substring(11, 16);
         date = new java.sql.Date(millis);
 
         timerText = findViewById(R.id.timerText);
@@ -124,7 +124,7 @@ public class TreadmillActivity extends AppCompatActivity{
             @Override
             public void onInit(int i) {
                 // if No error is found then only it will run
-                if(i!=TextToSpeech.ERROR){
+                if (i != TextToSpeech.ERROR) {
                     // To Choose language of speech
                     tts.setLanguage(Locale.UK);
                 }
@@ -142,10 +142,9 @@ public class TreadmillActivity extends AppCompatActivity{
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
         };
 
-        if (checkPermissions(this,PERMISSIONS) == Boolean.FALSE){
-            requestPermissions(PERMISSIONS,0);
-        }
-        else{
+        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
+            requestPermissions(PERMISSIONS, 0);
+        } else {
             startRunning();
         }
     }
@@ -204,11 +203,11 @@ public class TreadmillActivity extends AppCompatActivity{
                     //distance is calculated using the average stride based off their height*0.4 to a good approximation
                     //calculating distance and changing distance text view
                     DecimalFormat df = new DecimalFormat("#.##");
-                    distance = height.floatValue() * ((float) Math.floor(steps/2)) * 0.004f; //0.004 as user height stored as cm
-                    distText.setText(String.format("Distance:\n%sm",df.format(distance)));
+                    distance = height.floatValue() * ((float) Math.floor(steps / 2)) * 0.004f; //0.004 as user height stored as cm
+                    distText.setText(String.format("Distance:\n%sm", df.format(distance)));
 
                     //calculating pace and changing pace text view
-                    paceText.setText(Html.fromHtml("Pace:\n"+String.valueOf(df.format(distance/seconds.floatValue()))+"ms<sup>-1</sup"));
+                    paceText.setText(Html.fromHtml("Pace:\n" + String.valueOf(df.format(distance / seconds.floatValue())) + "ms<sup>-1</sup"));
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
                         hasProcessed = Boolean.FALSE;
@@ -233,31 +232,16 @@ public class TreadmillActivity extends AppCompatActivity{
                 DecimalFormat df = new DecimalFormat("#.##");
                 if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
                     //handling the linear acceleration
-                    Float x = Float.parseFloat(df.format(event.values[0]));
-                    Float y = Float.parseFloat(df.format(event.values[1]));
-                    Float z = Float.parseFloat(df.format(event.values[2]));
-                    Float[] entry = new Float[3];
-                    entry[0] = x;
-                    entry[1] = y;
-                    entry[2] = z;
+                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
                     System.out.println("acceleration:" + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
                     accel.add(entry);
-
-
                 }
                 if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
                     //handling gravimeter
-                    Float x = Float.parseFloat(df.format(event.values[0]));
-                    Float y = Float.parseFloat(df.format(event.values[1]));
-                    Float z = Float.parseFloat(df.format(event.values[2]));
-                    Float[] entry = new Float[3];
-                    entry[0] = x;
-                    entry[1] = y;
-                    entry[2] = z;
+                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
                     grav.add(entry);
                     System.out.println("gravity: " + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
                 }
-
 
                 //PROCESSING DATA
                 if (((seconds % 5) == 0 && (grav.size() > 0)) && (accel.size() > 0) && (hasProcessed == Boolean.FALSE)) {
@@ -280,7 +264,7 @@ public class TreadmillActivity extends AppCompatActivity{
                         Float[] accelValues = accel.get(j);
                         Float[] gravValues = grav.get(j);
                         Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
-                        result = result/9.81f;
+                        result = result / 9.81f;
                         results.add(result);
                         System.out.println("result: " + j + " " + result.toString());
                     }
@@ -297,6 +281,7 @@ public class TreadmillActivity extends AppCompatActivity{
 
                 }
             }
+
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
@@ -304,12 +289,24 @@ public class TreadmillActivity extends AppCompatActivity{
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
+
+    private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z, DecimalFormat df) {
+        Float x = Float.parseFloat(df.format(raw_x));
+        Float y = Float.parseFloat(df.format(raw_y));
+        Float z = Float.parseFloat(df.format(raw_z));
+        Float[] entry = new Float[3];
+        entry[0] = x;
+        entry[1] = y;
+        entry[2] = z;
+        return entry;
+    }
+
     //PERMISSIONS
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
         //CHECKING FOR EXISTING PERMISSIONS
-        if (context!=null && PERMISSIONS!=null){
-            for (String permission: PERMISSIONS){
-                if (ActivityCompat.checkSelfPermission(context,permission)!= PackageManager.PERMISSION_GRANTED){
+        if (context != null && PERMISSIONS != null) {
+            for (String permission : PERMISSIONS) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false;
                 }
             }
@@ -317,23 +314,22 @@ public class TreadmillActivity extends AppCompatActivity{
         return true;
     }
 
-    private void finishRunning(){
+    private void finishRunning() {
         isRunning = false;
         sensorManager.unregisterListener(listener);
 
         //audio text to speech to congratulate user
-        tts.speak(String.format("Congratulations, you burnt %d calories. See you next time!",calories),TextToSpeech.QUEUE_FLUSH,null);
+        tts.speak(String.format("Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
 
         //exiting the running activity and saving data to database
-        if (seconds>60){
+        if (seconds > 60) {
             dbhelper helper = new dbhelper(TreadmillActivity.this);
-            if (helper.saveActivity("treadmill",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
+            if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                 Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
             }
-        }
-        else{
+        } else {
             //saves space and resources on database
             Toast.makeText(TreadmillActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
         }
@@ -343,9 +339,9 @@ public class TreadmillActivity extends AppCompatActivity{
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch(requestCode){
+        switch (requestCode) {
             case 0:
-                if (grantResults.length>0) {
+                if (grantResults.length > 0) {
                     //checking if all permissions are granted on UI dialog
                     boolean granted = true;
                     for (int result : grantResults) {
@@ -367,13 +363,13 @@ public class TreadmillActivity extends AppCompatActivity{
 
 
     //handling live notification bar
-    public void sendOnChannel1(View v){
-        Notification notification = new NotificationCompat.Builder(this,CHANNEL_1_ID)
+    public void sendOnChannel1(View v) {
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.id.icon)
                 .setContentTitle("Treadmill Tracking")
                 .setContentText(String.valueOf(steps))
                 .setCategory(NotificationCompat.CATEGORY_WORKOUT)
                 .build();
-        notificationManagerCompat.notify(1,notification);
+        notificationManagerCompat.notify(1, notification);
     }
 }

@@ -16,6 +16,11 @@ import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.dbhelper;
 import com.google.android.material.textfield.TextInputLayout;
 
+/**
+ * handling log in screen
+ * Extends from AppCompatActivity class
+ */
+
 public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
@@ -31,28 +36,14 @@ public class LogInScreen extends AppCompatActivity {
         getSupportActionBar().hide();
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
-
         setContentView(R.layout.activity_loginscreen);
 
+        getUserSP();
         usernameField = findViewById(R.id.usernameField);
         passwordField = findViewById(R.id.passwordField);
         createbtn = findViewById(R.id.createaccount);
         loginbtn = findViewById(R.id.loginbtn);
         remember = findViewById(R.id.rememberBox);
-
-
-        //getting saved user details from shared preferences
-//        SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
-//        String checkbox = prefs.getString("remember","");
-//        if (checkbox.equals("true")){
-//            prefs = getSharedPreferences("userdetails",MODE_PRIVATE);
-//            User.setUserID(Integer.valueOf(prefs.getString("id","")));
-//            User.setName(prefs.getString("name",""));
-//            User.setWeight(Float.valueOf(prefs.getString("weight","")));
-//            User.setHeight(Integer.valueOf(prefs.getString("height","")));
-//            java.sql.Date date = java.sql.Date.valueOf(prefs.getString("DOB",""));
-//            User.setDateOfBirth(date);
-//        }
         loginbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,25 +53,8 @@ public class LogInScreen extends AppCompatActivity {
                 dbhelper helper = new dbhelper(LogInScreen.this);
                 if (helper.login(username, password)) {
                     String[] results = helper.getResult().get(0).split(" ");
-                    //saving to static User class
-                    User.setUsername(username);
-                    User.setPassword(password);
-                    User.setUserID(Integer.valueOf(results[0]));
-                    User.setForename(results[1]);
-                    User.setSurname(results[2]);
-                    java.sql.Date date = java.sql.Date.valueOf(results[3]);
-                    User.setDateOfBirth(date);
-                    User.setWeight(Float.valueOf(results[4]));
-                    User.setHeight(Integer.valueOf(results[5]));
-                    //saving to SharedPreferences
-                    SharedPreferences prefs = getSharedPreferences("userdetails", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("id", results[0]);
-                    editor.putString("name", (results[1] + " " + results[2]));
-                    editor.putString("DOB", results[3]);
-                    editor.putString("weight", results[4]);
-                    editor.putString("height", results[5]);
-                    editor.apply();
+                    saveToUserClass(results, username, password);
+                    saveToSharedPreferences(results);
                     finish();
                     Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent1);
@@ -116,5 +90,51 @@ public class LogInScreen extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void saveToUserClass(String[] results, String username, String password){
+        // results received in format ID, forename, surname, DOB, weight, height
+        //saving to static User class
+        User.setUsername(username);
+        User.setPassword(password);
+        User.setUserID(Integer.valueOf(results[0]));
+        User.setForename(results[1]);
+        User.setSurname(results[2]);
+        java.sql.Date date = java.sql.Date.valueOf(results[3]);
+        User.setDateOfBirth(date);
+        User.setWeight(Float.valueOf(results[4]));
+        User.setHeight(Integer.valueOf(results[5]));
+    }
+
+    private void saveToSharedPreferences(String[] results){
+        //saving to SharedPreferences
+        // results received in format ID, forename, surname, DOB, weight, height
+        SharedPreferences prefs = getSharedPreferences("userdetails", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("id", results[0]);
+        editor.putString("forename", results[1]);
+        editor.putString("surname",results[2]);
+        editor.putString("DOB", results[3]);
+        editor.putString("weight", results[4]);
+        editor.putString("height", results[5]);
+        editor.apply();
+    }
+
+    private void getUserSP(){
+        // getting saved user details from shared preferences
+        SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
+        String checkbox = prefs.getString("remember","");
+        if (checkbox.equals("true")){
+            prefs = getSharedPreferences("userdetails",MODE_PRIVATE);
+            String[] results = {
+                    prefs.getString("id",""),
+                    prefs.getString("forename",""),
+                    prefs.getString("surname",""),
+                    prefs.getString("DOB",""),
+                    prefs.getString("weight",""),
+                    prefs.getString("height","")
+            };
+            saveToUserClass(results,prefs.getString("username",""),prefs.getString("password",""));
+        }
     }
 }

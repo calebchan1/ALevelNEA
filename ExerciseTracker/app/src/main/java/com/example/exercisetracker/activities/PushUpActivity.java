@@ -49,6 +49,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
@@ -56,6 +57,7 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -315,8 +317,11 @@ public class PushUpActivity extends AppCompatActivity{
 
     private void processLandmarks(List<PoseLandmark> allLandmarks){
         //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
+        List<PointF3D> landmarks = new ArrayList<>();
         for (PoseLandmark landmark: allLandmarks){
+            landmarks.add(landmark.getPosition3D());
         }
+
     }
 
 

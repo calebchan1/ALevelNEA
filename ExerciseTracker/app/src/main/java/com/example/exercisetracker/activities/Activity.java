@@ -2,10 +2,12 @@ package com.example.exercisetracker.activities;
 
 import java.sql.Date;
 
+
+/**
+ * Class used to store data about Activity
+ */
 public class Activity {
-    //class used to store data as an object to produce dynamic cards relating to
-    //previous Activity history
-    //not to be confused with Android Activities
+
 
     private int img;
     private String name;

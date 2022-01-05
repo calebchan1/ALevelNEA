@@ -8,6 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Detector class used to detect number of steps by considering how long
+ * the user acceleration exceeds a certain amount
+ *
+ */
+
 public class Detector {
 
     private float Threshold;
