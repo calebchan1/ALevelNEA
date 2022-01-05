@@ -1,5 +1,6 @@
 package com.example.exercisetracker.fragments;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.exercisetracker.R;
@@ -138,26 +140,49 @@ public class LeaderboardFragment extends Fragment {
 
     private void createTable(Map<String, Integer> hashMap){
         //method to create TableLayout view graphic, to display leaderboard
+        int pos = 1;
+        //creating table headers
+        String[] arr = {"Position ", "Name ","Score"};
+        TableRow row = new TableRow(getContext());
+        for (String string : arr){
+            TextView tv = new TextView(getContext());
+            handleViews(tv, string, true, 30);
+            row.addView(tv);
+        }
+        table.addView(row);
         for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
             //getting values from sorted hash map
+            Integer fontsize = 25;
             String name = entry.getKey();
             Integer score = entry.getValue();
             //creating a row
-            TableRow row= new TableRow(getContext());
+            row= new TableRow(getContext());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
+            TextView posTV = new TextView(getContext());
+            handleViews(posTV, Integer.toString(pos) + ". ",false, fontsize);
             TextView nameTV = new TextView(getContext());
-            handleViews(nameTV, name);
+            handleViews(nameTV, name,false, fontsize);
             TextView scoreTV = new TextView(getContext());
-            handleViews(scoreTV, score.toString());
+            handleViews(scoreTV, score.toString(),false, fontsize);
+            row.addView(posTV);
             row.addView(nameTV);
             row.addView(scoreTV);
             table.addView(row);
+            pos++;
         }
     }
 
-    private void handleViews(TextView view, String text){
-        view.setText(text);
-        view.setTextSize(30);
+    private void handleViews(TextView view, String text, Boolean bold, Integer fontsize){
+        if (bold) {
+            Typeface face = ResourcesCompat.getFont(getContext(), R.font.gothicbb);
+            view.setTypeface(face);
+            view.setText(text + " ");
+            view.setTextSize(fontsize);
+        }
+        else{
+            view.setText(text + " ");
+            view.setTextSize(fontsize);
+        }
     }
 }

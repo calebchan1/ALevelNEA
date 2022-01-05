@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -10,8 +9,8 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginTop="70dp"
-        android:text="Leaderboard"
         android:fontFamily="@font/gothicbb"
+        android:text="Leaderboard"
         android:textAlignment="center"
         android:textSize="40dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
@@ -41,50 +40,42 @@
 
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/allUsersBtn"
-            android:layout_marginEnd="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
             android:fontFamily="@font/gothicbb"
             android:text="All Users" />
 
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/friendsBtn"
             android:layout_width="wrap_content"
-            android:layout_marginStart="10dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:fontFamily="@font/gothicbb"
-            android:text="Friends Only"/>
+            android:text="Friends Only" />
     </RadioGroup>
+
     <ScrollView
         android:id="@+id/leaderboard_scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/leaderboard_radioGroup"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <HorizontalScrollView
-            android:id="@+id/hscrll1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" >
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/leaderboard_radioGroup">
 
-            <RelativeLayout
-                android:id="@+id/RelativeLayout1"
-                android:layout_width="fill_parent"
-                android:layout_gravity="center"
-                android:layout_height="fill_parent"
-                android:orientation="vertical" >
+        <TableLayout
+            android:layout_margin="20dp"
+            android:id="@+id/table_main"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:isScrollContainer="true"
+            android:showDividers="middle"
+            android:divider="@color/main_colour_on_primary"
+            android:padding="10dp">
+        </TableLayout>
 
-                <TableLayout
-                    android:id="@+id/table_main"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true" >
-                </TableLayout>
-            </RelativeLayout>
-        </HorizontalScrollView>
 
     </ScrollView>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

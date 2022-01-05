@@ -41,13 +41,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity {
+public class RunningActivity extends AppCompatActivity{
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -91,7 +92,11 @@ public class RunningActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
         setContentView(R.layout.activity_running);
+        init();
+        handlePermissions();
+    }
 
+    private void init(){
         //instantiating all private variables
         long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
@@ -108,39 +113,26 @@ public class RunningActivity extends AppCompatActivity {
         calorieText = findViewById(R.id.calText);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         MET = Float.parseFloat(getString(R.string.met_running));
+        startStopBtn = findViewById(R.id.startStopBtn);
+        finishBtn = findViewById(R.id.finishBtn);
 
         //CUSTOM JAVA CLASSES
         filter = new Filter(-10f, 10f);
         detector = new Detector(0.5f, 2);
         ArrayList<Double[]> currentRoute = new ArrayList<>();
         route = new Route(currentRoute);
-
-        //handling when start and stop button clicked
-        startStopBtn = findViewById(R.id.startStopBtn);
-        finishBtn = findViewById(R.id.finishBtn);
-
-        //HANDLING PERMISSIONS
-        //Permissions
-        String[] PERMISSIONS = new String[]{
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
-            //dealt with overriding onRequestPermissionsResult method
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(PERMISSIONS, 0);
-            }
-        } else {
-            startRunning();
-        }
     }
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //requesting background permission for android q+
+            //Android forces you to request this separately
+            isRunning = false;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
+        }
         //click listeners
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,13 +154,6 @@ public class RunningActivity extends AppCompatActivity {
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //requesting background permission for android q+
-            //Android forces you to request this separately
-            isRunning = false;
-            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
-        }
-
         //handling location changes
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -186,35 +171,7 @@ public class RunningActivity extends AppCompatActivity {
 
         };
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 3, locationListener);
-
-        //creating handler to run simultaneously to track duration in seconds
-        final Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @SuppressLint("DefaultLocale")
-            @Override
-            public void run() {
-                handler.postDelayed(this, 1000);
-                if (isRunning) {
-                    seconds++;
-                    //calculating distances between location updates and updating text views
-                    DecimalFormat df = new DecimalFormat("#.##");
-                    if (route.getRouteSize() >= 2) {
-                        route.calculateDistance();
-                        distance = route.getDistance();
-                    }
-                    updateViews(df);
-                    //allowing preprocessing to happen at the instance of a 5 second interval
-                    if ((seconds % 5) == 0) {
-                        hasProcessed = Boolean.FALSE;
-                    }
-                    //updating notification every second
-                    sendOnChannel1();
-
-                }
-
-            }
-        });
-
+        createTimer();
 
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
@@ -222,7 +179,6 @@ public class RunningActivity extends AppCompatActivity {
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-
                 Sensor sensor = event.sensor;
                 //formatting by rounding to 2 decimal places
                 DecimalFormat df = new DecimalFormat("#.##");
@@ -240,31 +196,9 @@ public class RunningActivity extends AppCompatActivity {
                 }
 
 
-                //PROCESSING DATA
                 if (((seconds % 5) == 0 && (grav.size() > 0)) && (accel.size() > 0) && (hasProcessed == Boolean.FALSE)) {
-                    ArrayList<Float> results = new ArrayList<Float>();
-                    //PRE-PROCESSING DATA
-                    //handling when grav array and accel array are unequal:
-                    while (accel.size() != grav.size()) {
-                        if (accel.size() > grav.size()) {
-                            accel.remove(accel.size() - 1);
-
-                        } else {
-                            grav.remove(grav.size() - 1);
-                        }
-                    }
-
-                    System.out.println("Seconds: " + seconds);
-                    //PERFORM DOT PRODUCT
-                    System.out.println(String.format("gravsize: %d accelsize: %d", grav.size(), accel.size()));
-                    for (int j = 0; j < grav.size(); j++) {
-                        Float[] accelValues = accel.get(j);
-                        Float[] gravValues = grav.get(j);
-                        Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
-                        result = result / 9.81f;
-                        results.add(result);
-                        System.out.println("result: " + j + " " + result.toString());
-                    }
+                    //PROCESSING DATA
+                    ArrayList<Float> results= processData(accel, grav, df);
                     grav.clear();
                     accel.clear();
                     //hasProcessed to true to prevent small chunks of data being processed
@@ -301,6 +235,34 @@ public class RunningActivity extends AppCompatActivity {
         return entry;
     }
 
+    private ArrayList<Float> processData(ArrayList<Float[]> accel, ArrayList<Float[]> grav, DecimalFormat df){
+        ArrayList<Float> results = new ArrayList<Float>();
+        //PRE-PROCESSING DATA
+        //handling when grav array and accel array are unequal:
+        while (accel.size() != grav.size()) {
+            if (accel.size() > grav.size()) {
+                accel.remove(accel.size() - 1);
+
+            } else {
+                grav.remove(grav.size() - 1);
+            }
+        }
+
+        System.out.println("Seconds: " + seconds);
+        //PERFORM DOT PRODUCT
+        System.out.println(String.format("gravsize: %d accelsize: %d", grav.size(), accel.size()));
+        for (int j = 0; j < grav.size(); j++) {
+            Float[] accelValues = accel.get(j);
+            Float[] gravValues = grav.get(j);
+            Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
+            result = result / 9.81f;
+            results.add(result);
+            System.out.println("result: " + j + " " + result.toString());
+        }
+        return results;
+    }
+
+
     //saving to csv file for debugging
     private void saveToStorage(Float[] filtered_data) {
         for (int i = 0; i < filtered_data.length; i++) {
@@ -324,6 +286,36 @@ public class RunningActivity extends AppCompatActivity {
         }
     }
 
+    private void createTimer() {
+        //creating handler to run simultaneously to track duration in seconds
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @SuppressLint("DefaultLocale")
+            @Override
+            public void run() {
+                handler.postDelayed(this, 1000);
+                if (isRunning) {
+                    seconds++;
+                    //calculating distances between location updates and updating text views
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    if (route.getRouteSize() >= 2) {
+                        route.calculateDistance();
+                        distance = route.getDistance();
+                    }
+                    updateViews(df);
+                    //allowing preprocessing to happen at the instance of a 5 second interval
+                    if ((seconds % 5) == 0) {
+                        hasProcessed = Boolean.FALSE;
+                    }
+                    //updating notification every second
+                    sendOnChannel1();
+
+                }
+
+            }
+        });
+    }
+
     private void updateViews(DecimalFormat df) {
         //changing timer text view
         int hours = seconds / 3600;
@@ -339,6 +331,24 @@ public class RunningActivity extends AppCompatActivity {
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
         paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
+    }
+
+    private void handlePermissions(){
+        //HANDLING PERMISSIONS
+        //Permissions
+        String[] PERMISSIONS = new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
+            //dealt with overriding onRequestPermissionsResult method
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(PERMISSIONS, 0);
+            }
+        } else {
+            startRunning();
+        }
     }
 
     //PERMISSIONS

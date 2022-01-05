@@ -92,8 +92,13 @@ public class TreadmillActivity extends AppCompatActivity {
         }
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
-
         setContentView(R.layout.activity_treadmill);
+
+        init();
+        handlePermissions();
+    }
+
+    private void init(){
         //instantiating all private variables
         seconds = 0;
         steps = 0;
@@ -135,25 +140,11 @@ public class TreadmillActivity extends AppCompatActivity {
         startStopBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
 
-
-        //HANDLING PERMISSIONS
-        PERMISSIONS = new String[]{
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        };
-
-        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
-            requestPermissions(PERMISSIONS, 0);
-        } else {
-            startRunning();
-        }
     }
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
         isRunning = true;
-
-
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,50 +165,7 @@ public class TreadmillActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-        //creating handler to run simultaneously to track duration in seconds
-        final Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @SuppressLint("DefaultLocale")
-            @Override
-            public void run() {
-                handler.postDelayed(this, 1000);
-                if (isRunning) {
-                    seconds++;
-                    //changing timer text view
-                    int hours = seconds / 3600;
-                    int minutes = (seconds % 3600) / 60;
-                    int secs = seconds % 60;
-                    String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
-                    timerText.setText(time);
-
-                    //changing calorie text view
-                    calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-                    calorieText.setText(String.format("Calories:\n%d", calories));
-
-                    //changing step text view
-                    stepText.setText(String.format("Steps:\n%d", steps));
-
-                    //rather than using geolocation and routes, treadmill is in one location
-                    //distance is calculated using the average stride based off their height*0.4 to a good approximation
-                    //calculating distance and changing distance text view
-                    DecimalFormat df = new DecimalFormat("#.##");
-                    distance = height.floatValue() * ((float) Math.floor(steps / 2)) * 0.004f; //0.004 as user height stored as cm
-                    distText.setText(String.format("Distance:\n%sm", df.format(distance)));
-
-                    //calculating pace and changing pace text view
-                    paceText.setText(Html.fromHtml("Pace:\n" + String.valueOf(df.format(distance / seconds.floatValue())) + "ms<sup>-1</sup"));
-                    //allowing preprocessing to happen at the instance of a 5 second interval
-                    if ((seconds % 5) == 0) {
-                        hasProcessed = Boolean.FALSE;
-                    }
-
-                }
-
-            }
-        });
-
+        createTimer();
 
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
         ArrayList<Float[]> accel = new ArrayList<Float[]>();
@@ -299,6 +247,66 @@ public class TreadmillActivity extends AppCompatActivity {
         entry[1] = y;
         entry[2] = z;
         return entry;
+    }
+
+    private void createTimer(){
+        //creating handler to run simultaneously to track duration in seconds
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @SuppressLint("DefaultLocale")
+            @Override
+            public void run() {
+                handler.postDelayed(this, 1000);
+                if (isRunning) {
+                    //rather than using geolocation and routes, treadmill is in one location
+                    //distance is calculated using the average stride based off their height*0.4 to a good approximation
+                    //calculating distance and changing distance text view
+                    seconds++;
+                    distance = height.floatValue() * ((float) Math.floor(steps / 2)) * 0.004f; //0.004 as user height stored as cm
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    updateViews(df);
+                    //allowing preprocessing to happen at the instance of a 5 second interval
+                    if ((seconds % 5) == 0) {
+                        hasProcessed = Boolean.FALSE;
+                    }
+
+                }
+
+            }
+        });
+    }
+
+    private void updateViews(DecimalFormat df) {
+        //changing timer text view
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int secs = seconds % 60;
+        String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
+        timerText.setText(time);
+        //changing calorie text view
+        calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
+        calorieText.setText(String.format("Calories:\n%d", calories));
+        //changing step text view
+        stepText.setText(String.format("Steps:\n%d", steps));
+        distText.setText(String.format("Distance:\n%sm", df.format(distance)));
+        //changing pace text view
+        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
+    }
+
+    private void handlePermissions(){
+        //HANDLING PERMISSIONS
+        PERMISSIONS = new String[]{
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        };
+
+        if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(PERMISSIONS, 0);
+            }
+        } else {
+            startRunning();
+        }
     }
 
     //PERMISSIONS
