@@ -142,7 +142,7 @@ public class LeaderboardFragment extends Fragment {
         //method to create TableLayout view graphic, to display leaderboard
         int pos = 1;
         //creating table headers
-        String[] arr = {"Position ", "Name ","Score"};
+        String[] arr = {"Pos. ", "User ","Score"};
         TableRow row = new TableRow(getContext());
         for (String string : arr){
             TextView tv = new TextView(getContext());
@@ -152,7 +152,7 @@ public class LeaderboardFragment extends Fragment {
         table.addView(row);
         for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
             //getting values from sorted hash map
-            Integer fontsize = 25;
+            Integer fontsize = 20;
             String name = entry.getKey();
             Integer score = entry.getValue();
             //creating a row

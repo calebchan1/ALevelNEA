@@ -1,5 +1,10 @@
 package com.example.exercisetracker.other;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.example.exercisetracker.activities.LogInScreen;
+
 public class User {
     private static Integer UserID;
     private static String forename;
@@ -78,7 +83,8 @@ public class User {
         User.dateOfBirth = dateOfBirth;
     }
 
-    public static void logout(){
+    public static void logout(Context context){
+        //clearing User class data
         setUsername(null);
         setUserID(null);
         setHeight(null);
@@ -87,5 +93,11 @@ public class User {
         setPassword(null);
         setForename(null);
         setSurname(null);
+        //clearing shared preferences
+        SharedPreferences prefs = context.getSharedPreferences(LogInScreen.getShared_prefs(),Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.apply();
     }
+
 }

@@ -5,7 +5,10 @@ import static com.example.exercisetracker.other.BaseApp.CHANNEL_1_ID;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -18,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -31,6 +35,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.Detector;
+import com.example.exercisetracker.other.ExerciseService;
 import com.example.exercisetracker.other.Filter;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
@@ -81,6 +86,8 @@ public class RunningActivity extends AppCompatActivity{
     private String timeStarted;
     private Date date;
 
+    private ExerciseService customService = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,7 +128,27 @@ public class RunningActivity extends AppCompatActivity{
         detector = new Detector(0.5f, 2);
         ArrayList<Double[]> currentRoute = new ArrayList<>();
         route = new Route(currentRoute);
+
+        //foreground services
+        Intent intent = new Intent(this, ExerciseService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        }else{
+            startService(intent);
+        }
     }
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            customService = ExerciseService.getInstance();
+            // now you have the instance of service.
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            customService = null;
+        }
+    };
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
@@ -308,7 +335,6 @@ public class RunningActivity extends AppCompatActivity{
                         hasProcessed = Boolean.FALSE;
                     }
                     //updating notification every second
-                    sendOnChannel1();
 
                 }
 

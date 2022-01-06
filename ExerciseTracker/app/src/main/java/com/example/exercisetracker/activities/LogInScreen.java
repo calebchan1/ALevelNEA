@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,15 +21,30 @@ import com.google.android.material.textfield.TextInputLayout;
  */
 
 public class LogInScreen extends AppCompatActivity {
+    //shared preferences strings
+    private final static String remember_me = "remember";
+    private final static String shared_prefs = "sharedPrefs";
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
     private CheckBox remember;
-    private Button loginbtn;
-    private Button createbtn;
 
+    public static String getRemember_me() {
+        return remember_me;
+    }
+
+    public static String getShared_prefs() {
+        return shared_prefs;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // if user has previously logged in, and selected "remember me"
+        // user automatically logged into the app
+        if (getUserSP()) {
+            Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+            finish();
+            startActivity(intent1);
+        }
         super.onCreate(savedInstanceState);
         //visuals
         getSupportActionBar().hide();
@@ -38,11 +52,10 @@ public class LogInScreen extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
         setContentView(R.layout.activity_loginscreen);
 
-        getUserSP();
         usernameField = findViewById(R.id.usernameField);
         passwordField = findViewById(R.id.passwordField);
-        createbtn = findViewById(R.id.createaccount);
-        loginbtn = findViewById(R.id.loginbtn);
+        Button createbtn = findViewById(R.id.createaccount);
+        Button loginbtn = findViewById(R.id.loginbtn);
         remember = findViewById(R.id.rememberBox);
         loginbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +67,9 @@ public class LogInScreen extends AppCompatActivity {
                 if (helper.login(username, password)) {
                     String[] results = helper.getResult().get(0).split(" ");
                     saveToUserClass(results, username, password);
-                    saveToSharedPreferences(results);
+                    if (remember.isChecked()) {
+                        saveToSharedPreferences(results, username, password);
+                    }
                     finish();
                     Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent1);
@@ -76,23 +91,21 @@ public class LogInScreen extends AppCompatActivity {
                 //using Android's SharedPreferences to store whether or not the user has requested
                 //to stay logged in, even after closing the app
                 if (buttonView.isChecked()) {
-                    SharedPreferences prefs = getSharedPreferences("checkbox", MODE_PRIVATE);
+                    SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("remember", "true");
+                    editor.putBoolean(remember_me, true);
                     editor.apply();
-                    Toast.makeText(LogInScreen.this, "Checked", Toast.LENGTH_SHORT).show();
                 } else if (!buttonView.isChecked()) {
-                    SharedPreferences prefs = getSharedPreferences("checkbox", MODE_PRIVATE);
+                    SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("remember", "false");
+                    editor.putBoolean(remember_me, false);
                     editor.apply();
-                    Toast.makeText(LogInScreen.this, "Unchecked", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    private void saveToUserClass(String[] results, String username, String password){
+    private void saveToUserClass(String[] results, String username, String password) {
         // results received in format ID, forename, surname, DOB, weight, height
         //saving to static User class
         User.setUsername(username);
@@ -106,35 +119,40 @@ public class LogInScreen extends AppCompatActivity {
         User.setHeight(Integer.valueOf(results[5]));
     }
 
-    private void saveToSharedPreferences(String[] results){
+    public void saveToSharedPreferences(String[] results, String username, String password) {
         //saving to SharedPreferences
         // results received in format ID, forename, surname, DOB, weight, height
-        SharedPreferences prefs = getSharedPreferences("userdetails", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("username", username);
+        editor.putString("password", password);
         editor.putString("id", results[0]);
         editor.putString("forename", results[1]);
-        editor.putString("surname",results[2]);
+        editor.putString("surname", results[2]);
         editor.putString("DOB", results[3]);
         editor.putString("weight", results[4]);
         editor.putString("height", results[5]);
         editor.apply();
     }
 
-    private void getUserSP(){
+    private boolean getUserSP() {
         // getting saved user details from shared preferences
-        SharedPreferences prefs = getSharedPreferences("checkbox",MODE_PRIVATE);
-        String checkbox = prefs.getString("remember","");
-        if (checkbox.equals("true")){
-            prefs = getSharedPreferences("userdetails",MODE_PRIVATE);
+        // handles saving user details to User class from shared preferences
+        SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
+        Boolean checkbox = prefs.getBoolean(remember_me, false);
+        if (checkbox.equals(true)) {
+            prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
             String[] results = {
-                    prefs.getString("id",""),
-                    prefs.getString("forename",""),
-                    prefs.getString("surname",""),
-                    prefs.getString("DOB",""),
-                    prefs.getString("weight",""),
-                    prefs.getString("height","")
+                    prefs.getString("id", ""),
+                    prefs.getString("forename", ""),
+                    prefs.getString("surname", ""),
+                    prefs.getString("DOB", ""),
+                    prefs.getString("weight", ""),
+                    prefs.getString("height", "")
             };
-            saveToUserClass(results,prefs.getString("username",""),prefs.getString("password",""));
+            saveToUserClass(results, prefs.getString("username", ""), prefs.getString("password", ""));
+            return true;
         }
+        return false;
     }
 }

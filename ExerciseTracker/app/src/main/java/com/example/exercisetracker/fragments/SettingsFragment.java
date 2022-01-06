@@ -150,9 +150,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                 }
                 break;
             case R.id.logoutBtn:
-                //When  the user wants to logout
+                //When  the user wants to logout, clearing User details
+                //Clearing shared preferences
+
                 getActivity().finish();
-                User.logout();
+                User.logout(getContext());
                 Intent intent1 = new Intent(getContext(), LogInScreen.class);
                 startActivity(intent1);
                 break;
