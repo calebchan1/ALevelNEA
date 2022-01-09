@@ -29,10 +29,11 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.Detector;
-import com.example.exercisetracker.other.Filter;
+import com.example.exercisetracker.stepcounting.Detector;
+import com.example.exercisetracker.stepcounting.Filter;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
 import java.sql.Date;
@@ -61,17 +62,14 @@ public class TreadmillActivity extends AppCompatActivity {
     //Specialised running variables
     private float MET;
     private double distance;
-    private Filter filter;
-    private Detector detector;
     private Boolean isRunning;
     private Integer seconds;
     private Integer steps;
     private Integer calories;
-    private Float[] filtered_data;
-    private Boolean hasProcessed;
     private Integer height;
     private String timeStarted;
     private Date date;
+    private StepCounter stepCounter;
 
     //audio
     private TextToSpeech tts;
@@ -119,8 +117,7 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //CUSTOM JAVA CLASSES
-        filter = new Filter(-10f, 10f);
-        detector = new Detector(0.5f, 2);
+        stepCounter = new StepCounter(this, 2,0.5f,-10f,10f,new DecimalFormat("#.##"));
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -167,66 +164,21 @@ public class TreadmillActivity extends AppCompatActivity {
         });
         createTimer();
 
-        //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
-        ArrayList<Float[]> accel = new ArrayList<Float[]>();
-        ArrayList<Float[]> grav = new ArrayList<Float[]>();
-
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-
                 Sensor sensor = event.sensor;
-                //formatting by rounding to 2 decimal places
-                DecimalFormat df = new DecimalFormat("#.##");
                 if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
-                    //handling the linear acceleration
-                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
-                    System.out.println("acceleration:" + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
-                    accel.add(entry);
+                    //getting values from accelerometer
+                    stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
+                } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
+                    //getting values from gravimeter
+                    stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
                 }
-                if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
-                    //handling gravimeter
-                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
-                    grav.add(entry);
-                    System.out.println("gravity: " + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
-                }
-
                 //PROCESSING DATA
-                if (((seconds % 5) == 0 && (grav.size() > 0)) && (accel.size() > 0) && (hasProcessed == Boolean.FALSE)) {
-                    ArrayList<Float> results = new ArrayList<Float>();
-                    //PRE-PROCESSING DATA
-                    //handling when grav array and accel array are unequal:
-                    while (accel.size() != grav.size()) {
-                        if (accel.size() > grav.size()) {
-                            accel.remove(accel.size() - 1);
-
-                        } else {
-                            grav.remove(grav.size() - 1);
-                        }
-                    }
-
-                    System.out.println("Seconds: " + seconds);
-                    //PERFORM DOT PRODUCT
-                    System.out.println(String.format("gravsize: %d accelsize: %d", grav.size(), accel.size()));
-                    for (int j = 0; j < grav.size(); j++) {
-                        Float[] accelValues = accel.get(j);
-                        Float[] gravValues = grav.get(j);
-                        Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
-                        result = result / 9.81f;
-                        results.add(result);
-                        System.out.println("result: " + j + " " + result.toString());
-                    }
-                    grav.clear();
-                    accel.clear();
-                    //hasProcessed to true to prevent small chunks of data being processed
-                    hasProcessed = Boolean.TRUE;
-
-                    //FILTERING DATA
-                    filter.filter(results);
-                    filtered_data = filter.getFiltered_data();
-                    detector.detect(filtered_data);
-                    steps = detector.getStepCount();
-
+                if ((seconds % 5) == 0 && (!stepCounter.isEmpty())) {
+                    stepCounter.countSteps();
+                    steps = stepCounter.getSteps();
                 }
             }
 
@@ -238,16 +190,6 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z, DecimalFormat df) {
-        Float x = Float.parseFloat(df.format(raw_x));
-        Float y = Float.parseFloat(df.format(raw_y));
-        Float z = Float.parseFloat(df.format(raw_z));
-        Float[] entry = new Float[3];
-        entry[0] = x;
-        entry[1] = y;
-        entry[2] = z;
-        return entry;
-    }
 
     private void createTimer(){
         //creating handler to run simultaneously to track duration in seconds
@@ -267,7 +209,7 @@ public class TreadmillActivity extends AppCompatActivity {
                     updateViews(df);
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
-                        hasProcessed = Boolean.FALSE;
+                        stepCounter.setHasProcessed(Boolean.FALSE);
                     }
 
                 }

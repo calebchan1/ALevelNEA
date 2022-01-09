@@ -28,11 +28,12 @@
         app:layout_constraintGuide_begin="180dp" />
 
     <RadioGroup
-        android:id="@+id/leaderboard_radioGroup"
+        android:id="@+id/leaderboard_publicPrivateRG"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checkedButton="@id/allUsersBtn"
         android:orientation="horizontal"
+        app:layout_constraintVertical_bias="1"
         app:layout_constraintBottom_toTopOf="@id/leaderboard_scrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,6 +55,39 @@
             android:fontFamily="@font/gothicbb"
             android:text="Friends Only" />
     </RadioGroup>
+    <RadioGroup
+        android:id="@+id/period_radiogroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/oneDay"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/leaderboard_scrollView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/leaderboard_publicPrivateRG">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/oneDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:fontFamily="@font/gothicbb"
+            android:text="24 Hr" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/oneMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:fontFamily="@font/gothicbb"
+            android:text="30 Days" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/allTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/gothicbb"
+            android:text="All Time" />
+    </RadioGroup>
 
     <ScrollView
         android:id="@+id/leaderboard_scrollView"
@@ -61,7 +95,7 @@
         android:layout_height="0dp"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/leaderboard_radioGroup">
+        app:layout_constraintTop_toBottomOf="@id/period_radiogroup">
 
         <TableLayout
             android:layout_margin="20dp"

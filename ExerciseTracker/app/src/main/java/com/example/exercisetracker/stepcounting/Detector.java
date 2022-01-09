@@ -1,4 +1,4 @@
-package com.example.exercisetracker.other;
+package com.example.exercisetracker.stepcounting;
 
 import android.os.Environment;
 import android.widget.Toast;
@@ -17,17 +17,16 @@ import java.io.IOException;
 public class Detector {
 
     private float Threshold;
-    private Integer stepCount;
     private Integer stepduration;
 
     public Detector(float Threshold, Integer stepduration) {
         this.Threshold = Threshold;
         this.stepduration = stepduration;
-        stepCount = 0;
     }
 
-    public void detect(Float[] filtered_data) {
+    public Integer detect(Float[] filtered_data) {
         int i = 0;
+        int stepCount = 0;
         while (i<filtered_data.length-1){
             Float data = filtered_data[i];
             if (data>=Threshold){
@@ -44,10 +43,6 @@ public class Detector {
                 i++;
             }
         }
-    }
-
-
-    public Integer getStepCount() {
         return stepCount;
     }
 

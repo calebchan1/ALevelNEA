@@ -1,4 +1,4 @@
-package com.example.exercisetracker.other;
+package com.example.exercisetracker.stepcounting;
 
 import java.util.ArrayList;
 

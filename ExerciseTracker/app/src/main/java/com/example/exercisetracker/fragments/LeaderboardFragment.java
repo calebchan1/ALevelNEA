@@ -5,12 +5,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,10 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class LeaderboardFragment extends Fragment {
     private TableLayout table;
@@ -43,8 +39,27 @@ public class LeaderboardFragment extends Fragment {
         if (userScores!=null) {
             createTable(userScores);
         }
-        RadioGroup radioGroup = view.findViewById(R.id.leaderboard_radioGroup);
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        RadioGroup periodRG = view.findViewById(R.id.period_radiogroup);
+        periodRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                //when user changes the time period of the leaderboard
+                switch(checkedId){
+                    case R.id.oneDay:
+                        //period of the last 24 hrs
+                        break;
+                    case R.id.oneMonth:
+                        //period of the last 30 days
+                        break;
+                    case R.id.allTime:
+                        //period of all time
+                        break;
+
+                }
+            }
+        });
+        RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
+        publicPrivateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.friendsBtn) {

@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -34,26 +33,24 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.Detector;
 import com.example.exercisetracker.other.ExerciseService;
-import com.example.exercisetracker.other.Filter;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Array;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class RunningActivity extends AppCompatActivity{
+public class RunningActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -74,19 +71,28 @@ public class RunningActivity extends AppCompatActivity{
     //Specialised running variables
     private float MET;
     private double distance;
-    private Filter filter;
-    private Detector detector;
     private Boolean isRunning;
     private Integer seconds;
     private Integer steps;
     private Integer calories;
-    private Float[] filtered_data;
-    private Boolean hasProcessed;
     private Route route;
     private String timeStarted;
     private Date date;
+    private StepCounter stepCounter;
 
     private ExerciseService customService = null;
+    private final ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            customService = ExerciseService.getInstance();
+            // now you have the instance of service.
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            customService = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +109,7 @@ public class RunningActivity extends AppCompatActivity{
         handlePermissions();
     }
 
-    private void init(){
+    private void init() {
         //instantiating all private variables
         long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
@@ -124,31 +130,18 @@ public class RunningActivity extends AppCompatActivity{
         finishBtn = findViewById(R.id.finishBtn);
 
         //CUSTOM JAVA CLASSES
-        filter = new Filter(-10f, 10f);
-        detector = new Detector(0.5f, 2);
+        stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
         ArrayList<Double[]> currentRoute = new ArrayList<>();
         route = new Route(currentRoute);
 
         //foreground services
-        Intent intent = new Intent(this, ExerciseService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        }else{
-            startService(intent);
-        }
+//        Intent intent = new Intent(this, ExerciseService.class);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(intent);
+//        }else{
+//            startService(intent);
+//        }
     }
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            customService = ExerciseService.getInstance();
-            // now you have the instance of service.
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            customService = null;
-        }
-    };
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
@@ -201,44 +194,21 @@ public class RunningActivity extends AppCompatActivity{
         createTimer();
 
         //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
-        ArrayList<Float[]> accel = new ArrayList<Float[]>();
-        ArrayList<Float[]> grav = new ArrayList<Float[]>();
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
                 Sensor sensor = event.sensor;
-                //formatting by rounding to 2 decimal places
-                DecimalFormat df = new DecimalFormat("#.##");
                 if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
-                    //handling the linear acceleration
-                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
-                    System.out.println("acceleration:" + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
-                    accel.add(entry);
+                    //getting values from accelerometer
+                    stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
+                } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
+                    //getting values from gravimeter
+                    stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
                 }
-                if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
-                    //handling gravimeter
-                    Float[] entry = convertToEntry(event.values[0], event.values[1], event.values[2], df);
-                    grav.add(entry);
-                    System.out.println("gravity: " + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
-                }
-
-
-                if (((seconds % 5) == 0 && (grav.size() > 0)) && (accel.size() > 0) && (hasProcessed == Boolean.FALSE)) {
-                    //PROCESSING DATA
-                    ArrayList<Float> results= processData(accel, grav, df);
-                    grav.clear();
-                    accel.clear();
-                    //hasProcessed to true to prevent small chunks of data being processed
-                    hasProcessed = Boolean.TRUE;
-
-                    //FILTERING DATA
-                    filter.filter(results);
-                    filtered_data = filter.getFiltered_data();
-
-                    //detecting steps
-                    detector.detect(filtered_data);
-                    steps = detector.getStepCount();
-
+                //PROCESSING DATA
+                if ((seconds % 5) == 0 && (!stepCounter.isEmpty())) {
+                    stepCounter.countSteps();
+                    steps = stepCounter.getSteps();
                 }
             }
 
@@ -248,47 +218,7 @@ public class RunningActivity extends AppCompatActivity{
         };
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
-
     }
-
-    private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z, DecimalFormat df) {
-        Float x = Float.parseFloat(df.format(raw_x));
-        Float y = Float.parseFloat(df.format(raw_y));
-        Float z = Float.parseFloat(df.format(raw_z));
-        Float[] entry = new Float[3];
-        entry[0] = x;
-        entry[1] = y;
-        entry[2] = z;
-        return entry;
-    }
-
-    private ArrayList<Float> processData(ArrayList<Float[]> accel, ArrayList<Float[]> grav, DecimalFormat df){
-        ArrayList<Float> results = new ArrayList<Float>();
-        //PRE-PROCESSING DATA
-        //handling when grav array and accel array are unequal:
-        while (accel.size() != grav.size()) {
-            if (accel.size() > grav.size()) {
-                accel.remove(accel.size() - 1);
-
-            } else {
-                grav.remove(grav.size() - 1);
-            }
-        }
-
-        System.out.println("Seconds: " + seconds);
-        //PERFORM DOT PRODUCT
-        System.out.println(String.format("gravsize: %d accelsize: %d", grav.size(), accel.size()));
-        for (int j = 0; j < grav.size(); j++) {
-            Float[] accelValues = accel.get(j);
-            Float[] gravValues = grav.get(j);
-            Float result = Float.parseFloat(df.format(gravValues[0] * accelValues[0] + gravValues[1] * accelValues[1] + gravValues[2] * accelValues[2]));
-            result = result / 9.81f;
-            results.add(result);
-            System.out.println("result: " + j + " " + result.toString());
-        }
-        return results;
-    }
-
 
     //saving to csv file for debugging
     private void saveToStorage(Float[] filtered_data) {
@@ -332,7 +262,7 @@ public class RunningActivity extends AppCompatActivity{
                     updateViews(df);
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
-                        hasProcessed = Boolean.FALSE;
+                        stepCounter.setHasProcessed(Boolean.FALSE);
                     }
                     //updating notification every second
 
@@ -359,7 +289,7 @@ public class RunningActivity extends AppCompatActivity{
         paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
     }
 
-    private void handlePermissions(){
+    private void handlePermissions() {
         //HANDLING PERMISSIONS
         //Permissions
         String[] PERMISSIONS = new String[]{
