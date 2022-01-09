@@ -55,6 +55,30 @@
             android:layout_height="5dp"
             android:background="@drawable/rectangle"
             />
+        <View
+            android:id="@+id/left_hip"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/rectangle"
+            />
+        <View
+            android:id="@+id/right_hip"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/rectangle"
+            />
+        <View
+            android:id="@+id/right_knee"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/rectangle"
+            />
+        <View
+            android:id="@+id/left_knee"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:background="@drawable/rectangle"
+            />
     </FrameLayout>
 
 
