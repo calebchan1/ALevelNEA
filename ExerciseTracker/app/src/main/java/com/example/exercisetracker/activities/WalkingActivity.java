@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -75,6 +76,11 @@ public class WalkingActivity extends AppCompatActivity{
     private Date date;
     private StepCounter stepCounter;
 
+    //audio
+    private TextToSpeech tts;
+    private int currquote;
+    private String[] quotes;
+
     //Permissions
     private String[] PERMISSIONS;
     private ActivityResultLauncher<String> requestPermissionLauncher;
@@ -121,6 +127,17 @@ public class WalkingActivity extends AppCompatActivity{
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         MET = Float.parseFloat(getString(R.string.met_walking));
 
+        //text to speech instantiation
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                // if No error is found then only it will run
+                if (i != TextToSpeech.ERROR) {
+                    // To Choose language of speech
+                    tts.setLanguage(Locale.UK);
+                }
+            }
+        });
 
         //CUSTOM JAVA CLASSES
         stepCounter = new StepCounter(this, 2,0.5f,-10f,10f,new DecimalFormat("#.##"));
@@ -264,6 +281,9 @@ public class WalkingActivity extends AppCompatActivity{
 
     private void finishWalking(){
         isWalking = false;
+        //audio text to speech to congratulate user
+        tts.speak(String.format("Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
+
         sensorManager.unregisterListener(listener);
         if (locationManager!=null && timeStarted!=null) {
             locationManager.removeUpdates(locationListener);

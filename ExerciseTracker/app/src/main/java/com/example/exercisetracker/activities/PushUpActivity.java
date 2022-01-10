@@ -65,7 +65,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PushUpActivity extends AppCompatActivity {
     //Text Views
-    private TextView timerText, repText, calText;
+    private TextView timerText, repText, calText, poseIndicatorTV;
     //buttons
     private Button startBtn, finishBtn;
     //pushup custom variables
@@ -159,10 +159,12 @@ public class PushUpActivity extends AppCompatActivity {
         timerText = findViewById(R.id.timerText);
         repText = findViewById(R.id.repText);
         calText = findViewById(R.id.calText);
+        poseIndicatorTV = findViewById(R.id.PoseIndicator);
         MET = Float.parseFloat(getString(R.string.met_pushup));
         tv = findViewById(R.id.tv);
         frameLayout = findViewById(R.id.framelayout);
-        repcounter = new RepCounter(this);
+
+        repcounter = new RepCounter(this, poseIndicatorTV);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -271,7 +273,6 @@ public class PushUpActivity extends AppCompatActivity {
                         public void onSuccess(@NonNull Pose pose) {
                             //when the pose detector successfully can attach to image
                             //Receiving and processing landmarks from Google's ML kit software
-                            System.out.println("Successful Pose Detection");
                             List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
                             processLandmarks(allPoseLandmarks);
                             //drawing on the landmarks onto the user's screen
