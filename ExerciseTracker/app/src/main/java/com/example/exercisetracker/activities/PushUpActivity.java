@@ -164,7 +164,7 @@ public class PushUpActivity extends AppCompatActivity {
         tv = findViewById(R.id.tv);
         frameLayout = findViewById(R.id.framelayout);
 
-        repcounter = new RepCounter(this, poseIndicatorTV);
+        repcounter = new RepCounter(this, poseIndicatorTV,20f,50f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -218,6 +218,7 @@ public class PushUpActivity extends AppCompatActivity {
                     int secs = seconds % 60;
                     String time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs);
                     calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
+                    reps = repcounter.getReps();
                     //updating text views
                     timerText.setText(time);
                     calText.setText("Calories:\n" + calories.toString());

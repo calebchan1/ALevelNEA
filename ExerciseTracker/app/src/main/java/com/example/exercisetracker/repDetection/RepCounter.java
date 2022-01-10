@@ -3,10 +3,12 @@ package com.example.exercisetracker.repDetection;
 import android.content.Context;
 import android.widget.TextView;
 
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.exercisetracker.R;
 import com.google.mlkit.vision.common.PointF3D;
+import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseLandmark;
 
 import java.util.HashMap;
@@ -23,12 +25,28 @@ public class RepCounter {
     private TextView indicator;
     private int reps;
     private Context context;
+    //calculations
+    private int duration;
+    private boolean pushedDown;
+    private boolean returnedToPosition;
+    private Map<Integer, PointF3D> startPoint;
+    private Float uncertainty;
+    private Float minDistance;
 
-    public RepCounter(Context context, TextView indicator) {
+    public int getReps() {
+        return reps;
+    }
+
+
+    public RepCounter(Context context, TextView indicator, Float uncertainty, Float minDistance) {
         this.context = context;
         enteredPose = false;
         reps = 0;
+        this.uncertainty = uncertainty;
+        this.minDistance = minDistance;
+        duration = 0;
         this.indicator = indicator;
+        pushedDown = false;
     }
 
     public void addEntry(List<PoseLandmark> landmarks) {
@@ -42,7 +60,41 @@ public class RepCounter {
                             && relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ()
                             && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.NOSE).getZ()
                             && relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ();
+            if (enteredPose){
+                detectReps(relevantLandmarks);
+            }
+            else{
+                //not entered pose, therefore no duration and startPoint for calculation
+                duration = 0;
+                startPoint = null;
+                pushedDown = false;
+            }
             updateIndicator();
+        }
+    }
+
+    private void detectReps(Map<Integer,PointF3D> relevantLandmarks){
+        //calculation of reps is done in a process:
+        //when user first initially enters pose, the position is recorded
+        //user has to then push down by at least x amount and return to original position for a rep to be counted
+        if (startPoint!=null){
+            //checking whether user has returned to original position
+            returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY()<=startPoint.get(PoseLandmark.NOSE).getY()-uncertainty;
+            //checking whether user has pushed down
+            pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY()>=startPoint.get(PoseLandmark.NOSE).getY()-minDistance;
+        }
+        if (duration==0){
+            //first time entering pose
+            startPoint = relevantLandmarks;
+        }
+        else if(pushedDown && returnedToPosition){
+            reps++;
+            duration = 0;
+            pushedDown = false;
+            returnedToPosition = false;
+        }
+        else{
+            duration++;
         }
     }
 
