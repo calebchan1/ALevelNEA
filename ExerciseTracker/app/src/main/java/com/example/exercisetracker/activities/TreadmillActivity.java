@@ -29,8 +29,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.stepcounting.Detector;
-import com.example.exercisetracker.stepcounting.Filter;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.dbhelper;
 import com.example.exercisetracker.stepcounting.StepCounter;
@@ -39,7 +37,6 @@ import com.google.android.material.button.MaterialButton;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 
 public class TreadmillActivity extends AppCompatActivity {
@@ -96,7 +93,7 @@ public class TreadmillActivity extends AppCompatActivity {
         handlePermissions();
     }
 
-    private void init(){
+    private void init() {
         //instantiating all private variables
         seconds = 0;
         steps = 0;
@@ -117,7 +114,7 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //CUSTOM JAVA CLASSES
-        stepCounter = new StepCounter(this, 2,0.5f,-10f,10f,new DecimalFormat("#.##"));
+        stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -167,18 +164,20 @@ public class TreadmillActivity extends AppCompatActivity {
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                Sensor sensor = event.sensor;
-                if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
-                    //getting values from accelerometer
-                    stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
-                } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
-                    //getting values from gravimeter
-                    stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
-                }
-                //PROCESSING DATA
-                if ((seconds % 5) == 0 && (!stepCounter.isEmpty())) {
-                    stepCounter.countSteps();
-                    steps = stepCounter.getSteps();
+                if (isRunning) {
+                    Sensor sensor = event.sensor;
+                    if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+                        //getting values from accelerometer
+                        stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
+                    } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
+                        //getting values from gravimeter
+                        stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
+                    }
+                    //PROCESSING DATA
+                    if ((seconds % 5) == 0 && (!stepCounter.isEmpty())) {
+                        stepCounter.countSteps();
+                        steps = stepCounter.getSteps();
+                    }
                 }
             }
 
@@ -191,7 +190,7 @@ public class TreadmillActivity extends AppCompatActivity {
     }
 
 
-    private void createTimer(){
+    private void createTimer() {
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -235,7 +234,7 @@ public class TreadmillActivity extends AppCompatActivity {
         paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
     }
 
-    private void handlePermissions(){
+    private void handlePermissions() {
         //HANDLING PERMISSIONS
         PERMISSIONS = new String[]{
                 Manifest.permission.READ_EXTERNAL_STORAGE,

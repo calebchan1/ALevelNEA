@@ -197,18 +197,20 @@ public class RunningActivity extends AppCompatActivity {
         listener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-                Sensor sensor = event.sensor;
-                if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION & isRunning) {
-                    //getting values from accelerometer
-                    stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
-                } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
-                    //getting values from gravimeter
-                    stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
-                }
-                //PROCESSING DATA
-                if ((seconds % 5) == 0 && (!stepCounter.isEmpty())) {
-                    stepCounter.countSteps();
-                    steps = stepCounter.getSteps();
+                if (isRunning) {
+                    Sensor sensor = event.sensor;
+                    if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+                        //getting values from accelerometer
+                        stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
+                    } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
+                        //getting values from gravimeter
+                        stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
+                    }
+                    //PROCESSING DATA
+                    if ((seconds % 5) == 0 && (!stepCounter.isEmpty())) {
+                        stepCounter.countSteps();
+                        steps = stepCounter.getSteps();
+                    }
                 }
             }
 

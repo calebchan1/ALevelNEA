@@ -263,36 +263,42 @@ public class PushUpActivity extends AppCompatActivity {
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(PushUpActivity.this), new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
-                int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-                @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
-                if (image != null) {
-                    //receiving the input image from camera
-                    InputImage inputimage = InputImage.fromMediaImage(image, rotationDegrees);
-                    Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
-                        @Override
-                        public void onSuccess(@NonNull Pose pose) {
-                            //when the pose detector successfully can attach to image
-                            //Receiving and processing landmarks from Google's ML kit software
-                            List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
-                            processLandmarks(allPoseLandmarks);
-                            //drawing on the landmarks onto the user's screen
-                            graphic.drawGraphic(allPoseLandmarks, size);
 
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            //when the pose detector cannot attach to image
-                            System.out.println("Failed Pose Detection");
-                        }
-                    }).addOnCompleteListener(new OnCompleteListener<Pose>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Pose> task) {
-                            //making sure to close the instance of the image to allow the next image to be processed
-                            imageProxy.close();
-                        }
-                    });
-                }
+                    int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+                    @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
+                    if (image != null) {
+                        //receiving the input image from camera
+                        InputImage inputimage = InputImage.fromMediaImage(image, rotationDegrees);
+                        Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
+                            @Override
+                            public void onSuccess(@NonNull Pose pose) {
+                                if (isTracking){
+                                //when the pose detector successfully can attach to image
+                                //Receiving and processing landmarks from Google's ML kit software
+                                List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
+                                processLandmarks(allPoseLandmarks);
+                                //drawing on the landmarks onto the user's screen
+                                graphic.drawGraphic(allPoseLandmarks, size);
+                                }
+                                else{
+                                    graphic.clearGraphic();
+                                }
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                //when the pose detector cannot attach to image
+                                System.out.println("Failed Pose Detection");
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Pose>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Pose> task) {
+                                //making sure to close the instance of the image to allow the next image to be processed
+                                imageProxy.close();
+                            }
+                        });
+                    }
             }
         });
 
@@ -450,12 +456,16 @@ public class PushUpActivity extends AppCompatActivity {
             view.setY(y + yoffset);
         }
 
+        private void clearGraphic(){
+            for (View view : graphicViewsMap.values()) {
+                view.setVisibility(View.GONE);
+            }
+        }
+
         private void drawGraphic(List<PoseLandmark> allLandmarks, Point displaySize) {
             if (allLandmarks.isEmpty()) {
                 //if no landmarks are detected, remove points from graphic
-                for (View view : graphicViewsMap.values()) {
-                    view.setVisibility(View.GONE);
-                }
+                clearGraphic();
 
             }
             //drawing points on the preview, corresponding to where ML Kit has detected the positions
