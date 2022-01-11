@@ -127,6 +127,22 @@
         android:textSize="20dp"
         />
 
+    <TextView
+        android:id="@+id/debugTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/guideline3"
+        app:layout_constraintBottom_toTopOf="@+id/finishBtn"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="debug"
+        android:padding="5dp"
+        android:textColor="@color/red"
+        android:fontFamily="@font/gothic"
+        android:textSize="10dp"
+        />
+
     <LinearLayout
         android:id="@+id/row1"
         android:layout_width="match_parent"

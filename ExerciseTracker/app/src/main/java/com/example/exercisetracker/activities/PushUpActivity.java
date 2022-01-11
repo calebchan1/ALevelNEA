@@ -163,8 +163,8 @@ public class PushUpActivity extends AppCompatActivity {
         MET = Float.parseFloat(getString(R.string.met_pushup));
         tv = findViewById(R.id.tv);
         frameLayout = findViewById(R.id.framelayout);
-
-        repcounter = new RepCounter(this, poseIndicatorTV,20f,50f);
+        TextView debug = findViewById(R.id.debugTV);
+        repcounter = new RepCounter(this, poseIndicatorTV,debug,10f,50f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -394,20 +394,6 @@ public class PushUpActivity extends AppCompatActivity {
         //destroying notification
         notificationManagerCompat.cancel(1);
         this.finish();
-    }
-
-    //handling live notification bar
-    public void sendOnChannel1() {
-        //creating notification
-        notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
-                .setSmallIcon(R.mipmap.appicon)
-                .setContentTitle("Push-Up Tracking")
-                //adding details into description
-                .setContentText(String.format("Reps: %d Calories: %d", reps, calories))
-                .setCategory(NotificationCompat.CATEGORY_WORKOUT)
-                .setOnlyAlertOnce(true)
-                .build();
-        notificationManagerCompat.notify(1, notification);
     }
 
     //<---------Graphics---------->

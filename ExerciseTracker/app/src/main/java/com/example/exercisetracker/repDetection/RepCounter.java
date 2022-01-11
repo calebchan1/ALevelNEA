@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class RepCounter {
     private boolean enteredPose;
-    private TextView indicator;
+    private TextView indicator, debugTV;
     private int reps;
     private Context context;
     //calculations
@@ -38,15 +38,17 @@ public class RepCounter {
     }
 
 
-    public RepCounter(Context context, TextView indicator, Float uncertainty, Float minDistance) {
+    public RepCounter(Context context, TextView indicator, TextView debug, Float uncertainty, Float minDistance) {
         this.context = context;
         enteredPose = false;
         reps = 0;
         this.uncertainty = uncertainty;
         this.minDistance = minDistance;
+        this.debugTV = debug;
         duration = 0;
         this.indicator = indicator;
         pushedDown = false;
+        returnedToPosition = false;
     }
 
     public void addEntry(List<PoseLandmark> landmarks) {
@@ -79,31 +81,41 @@ public class RepCounter {
         //user has to then push down by at least x amount and return to original position for a rep to be counted
         if (startPoint!=null){
             //checking whether user has returned to original position
+            System.out.println(Float.toString(relevantLandmarks.get(PoseLandmark.NOSE).getY()));
+            debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY()+"\n Start pos:"+startPoint.get(PoseLandmark.NOSE).getY());
             returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY()<=startPoint.get(PoseLandmark.NOSE).getY()-uncertainty;
             //checking whether user has pushed down
-            pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY()>=startPoint.get(PoseLandmark.NOSE).getY()-minDistance;
+            pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY()>=startPoint.get(PoseLandmark.NOSE).getY()+minDistance;
+            if(pushedDown && returnedToPosition){
+                reps++;
+                duration = 0;
+                pushedDown = false;
+                returnedToPosition = false;
+            }
+            else{
+                duration++;
+            }
         }
-        if (duration==0){
+        else if (enteredPose && startPoint == null){
             //first time entering pose
             startPoint = relevantLandmarks;
         }
-        else if(pushedDown && returnedToPosition){
-            reps++;
-            duration = 0;
-            pushedDown = false;
-            returnedToPosition = false;
-        }
-        else{
-            duration++;
-        }
+
     }
 
     private void updateIndicator() {
         //method to update text view indicator on screen to show if user has entered a push up or not
-        if (enteredPose) {
+        if (enteredPose && pushedDown && returnedToPosition) {
+            indicator.setTextColor(ContextCompat.getColor(context, R.color.green));
+            indicator.setText("Push Up Entered, Pushed Down, Returned");
+        } else if (enteredPose && pushedDown ){
+            indicator.setTextColor(ContextCompat.getColor(context, R.color.green));
+            indicator.setText("Push Up Entered, Pushed Down");
+        }
+        else if (enteredPose){
             indicator.setTextColor(ContextCompat.getColor(context, R.color.green));
             indicator.setText("Push Up Entered");
-        } else {
+        }else {
             indicator.setTextColor(ContextCompat.getColor(context, R.color.red));
             indicator.setText("Push Up Not Entered");
         }

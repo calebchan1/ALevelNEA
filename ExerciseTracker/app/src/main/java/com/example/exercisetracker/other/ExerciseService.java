@@ -69,7 +69,7 @@ public class ExerciseService extends Service {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(false)
                 .setOnlyAlertOnce(true)
-                .setSmallIcon(R.mipmap.appicon)
+                .setSmallIcon(R.drawable.runningman)
                 .setContentTitle("Exercise Tracker")
                 .setContentTitle("00:00:00")
                 .build();
