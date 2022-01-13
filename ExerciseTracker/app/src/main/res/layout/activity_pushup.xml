@@ -9,6 +9,7 @@
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
         android:layout_width="wrap_content"
+
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="250dp" />
@@ -138,9 +139,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:text="debug"
         android:padding="5dp"
-        android:textColor="@color/red"
-        android:fontFamily="@font/gothic"
-        android:textSize="10dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/gothicbb"
+        android:textSize="20dp"
         />
 
     <LinearLayout

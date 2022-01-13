@@ -164,7 +164,7 @@ public class PushUpActivity extends AppCompatActivity {
         tv = findViewById(R.id.tv);
         frameLayout = findViewById(R.id.framelayout);
         TextView debug = findViewById(R.id.debugTV);
-        repcounter = new RepCounter(this, poseIndicatorTV,debug,10f,50f);
+        repcounter = new RepCounter(this, poseIndicatorTV,debug,50f,500f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -334,8 +334,11 @@ public class PushUpActivity extends AppCompatActivity {
 //        for (PoseLandmark landmark : allLandmarks) {
 //            landmarks.add(landmark.getPosition3D());
 //        }
-        repcounter.addEntry(allLandmarks);
-
+        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood()>0.9f
+                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood()>0.9f &&
+                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood()>0.9f) {
+            repcounter.addEntry(allLandmarks);
+        }
     }
 
     // --------PERMISSIONS------------
