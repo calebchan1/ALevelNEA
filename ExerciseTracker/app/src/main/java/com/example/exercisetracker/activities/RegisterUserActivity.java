@@ -13,7 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -113,7 +113,7 @@ public class RegisterUserActivity extends AppCompatActivity {
                 String DOB = Objects.requireNonNull(DOBField.getEditText()).getText().toString();
                 String weight = weightField.getEditText().getText().toString();
                 String height = heightField.getEditText().getText().toString();
-                dbhelper helper = new dbhelper(RegisterUserActivity.this);
+                DBhelper helper = new DBhelper(RegisterUserActivity.this);
                 if (helper.registerUser(username, passsword, forename, surname, DOB, weight, height)) {
                     //if user was successfully added to database, enter the app
                     finish();

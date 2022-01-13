@@ -1,6 +1,5 @@
 package com.example.exercisetracker.activities;
 
-import static com.example.exercisetracker.other.BaseApp.CHANNEL_1_ID;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -33,13 +32,12 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.repDetection.RepCounter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,14 +45,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.common.PointF3D;
 import com.google.mlkit.vision.pose.Pose;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -384,7 +380,7 @@ public class PushUpActivity extends AppCompatActivity {
 
         if (seconds > 60) {
             //saving activity results to database, as long as activity lasted for more than a minute
-            dbhelper helper = new dbhelper(PushUpActivity.this);
+            DBhelper helper = new DBhelper(PushUpActivity.this);
             if (helper.saveActivity("pushup", date.toString(), timeStarted, seconds.toString(), calories.toString(), null, null, reps.toString())) {
                 Toast.makeText(PushUpActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {

@@ -30,13 +30,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.example.exercisetracker.stepcounting.Detector;
-import com.example.exercisetracker.stepcounting.Filter;
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.stepcounting.StepCounter;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.google.android.material.button.MaterialButton;
 
 import java.sql.Date;
@@ -292,7 +290,7 @@ public class WalkingActivity extends AppCompatActivity{
             //exiting the walking activity and saving data to database
             //will only save activities which last longer than 60s
             if (seconds>60){
-                dbhelper helper = new dbhelper(WalkingActivity.this);
+                DBhelper helper = new DBhelper(WalkingActivity.this);
                 if (helper.saveActivity("walking",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
                     Toast.makeText(WalkingActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {

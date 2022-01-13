@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.activities.Activity;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
-        dbhelper helper = new dbhelper(getContext());
+        DBhelper helper = new DBhelper(getContext());
         if (helper.readActivities()){
             //if activities was read successfully from database
             ArrayList<String> queryResults = helper.getResult();
@@ -127,7 +127,7 @@ public class HistoryFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     //handling when delete button is pressed (deleting activity record on database)
-                    dbhelper helper = new dbhelper(context.getApplicationContext());
+                    DBhelper helper = new DBhelper(context.getApplicationContext());
                     if (helper.deleteActivity(activity.getId())) {
                         Toast.makeText(context.getApplicationContext(), "Activity Deleted", Toast.LENGTH_SHORT).show();
                         ActivityArr.remove(activity);

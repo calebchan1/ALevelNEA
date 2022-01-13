@@ -30,7 +30,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
@@ -272,7 +272,7 @@ public class TreadmillActivity extends AppCompatActivity {
 
         //exiting the running activity and saving data to database
         if (seconds > 60) {
-            dbhelper helper = new dbhelper(TreadmillActivity.this);
+            DBhelper helper = new DBhelper(TreadmillActivity.this);
             if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                 Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {

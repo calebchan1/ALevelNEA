@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
@@ -63,7 +63,7 @@ public class LogInScreen extends AppCompatActivity {
                 String username = usernameField.getEditText().getText().toString();
                 String password = passwordField.getEditText().getText().toString();
                 //user validation here
-                dbhelper helper = new dbhelper(LogInScreen.this);
+                DBhelper helper = new DBhelper(LogInScreen.this);
                 if (helper.login(username, password)) {
                     String[] results = helper.getResult().get(0).split(" ");
                     saveToUserClass(results, username, password);

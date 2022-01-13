@@ -16,7 +16,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +85,7 @@ public class LeaderboardFragment extends Fragment {
     private Map<String, Integer> getPublicLeaderboard() {
         //getting all activities from database, and performing calculations
         //for top most active users
-        dbhelper helper = new dbhelper(getContext());
+        DBhelper helper = new DBhelper(getContext());
         LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
         if (helper.getAllActivities()) {
             for (String string : helper.getResult()) {

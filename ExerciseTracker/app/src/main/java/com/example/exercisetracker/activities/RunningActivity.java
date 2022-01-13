@@ -36,7 +36,7 @@ import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.ExerciseService;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
@@ -364,7 +364,7 @@ public class RunningActivity extends AppCompatActivity {
             //exiting the running activity and saving data to database
             //will only save activities which last longer than 60s
             if (seconds > 60) {
-                dbhelper helper = new dbhelper(RunningActivity.this);
+                DBhelper helper = new DBhelper(RunningActivity.this);
                 if (helper.saveActivity("running", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                     Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {

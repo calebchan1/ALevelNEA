@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.example.exercisetracker.activities.LogInScreen;
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.dbhelper;
+import com.example.exercisetracker.other.DBhelper;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -139,7 +139,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                     String surname = String.valueOf(surnameField.getEditText().getText());
                     User.setSurname(surname);
 
-                    dbhelper helper  = new dbhelper(getContext());
+                    DBhelper helper  = new DBhelper(getContext());
                     if (helper.updateUser()) {
                         Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
                     }

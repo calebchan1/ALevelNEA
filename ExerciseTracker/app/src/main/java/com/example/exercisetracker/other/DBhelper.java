@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class dbhelper {
+public class DBhelper {
     private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
     private static final String dbuser = "sql4456768";
     private static final String dbpassword = "gyFr8LHqQA";
@@ -22,7 +22,7 @@ public class dbhelper {
     private int flag;
     private ArrayList<String> result = new ArrayList<String>();
 
-    public dbhelper(Context context) {
+    public DBhelper(Context context) {
         this.context = context;
     }
 
@@ -33,7 +33,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
@@ -71,7 +71,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
@@ -119,7 +119,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             Date dob = User.getDateOfBirth();
@@ -163,7 +163,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             int resultset = 0;
             //executing SQL statement
@@ -219,7 +219,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
@@ -272,7 +272,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(dbhelper.url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
@@ -309,7 +309,7 @@ public class dbhelper {
             StrictMode.setThreadPolicy(policy);
             Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(url, dbhelper.dbuser, dbhelper.dbpassword);
+            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
