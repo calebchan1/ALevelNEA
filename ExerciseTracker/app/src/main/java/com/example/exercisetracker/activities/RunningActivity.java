@@ -78,8 +78,10 @@ public class RunningActivity extends AppCompatActivity {
     private Route route;
     private String timeStarted;
     private Date date;
+    private double pace;
     private StepCounter stepCounter;
 
+    private DecimalFormat df;
     private ExerciseService customService = null;
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -128,6 +130,7 @@ public class RunningActivity extends AppCompatActivity {
         MET = Float.parseFloat(getString(R.string.met_running));
         startStopBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
+        df = new DecimalFormat("#.##");
 
         //CUSTOM JAVA CLASSES
         stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
@@ -202,6 +205,7 @@ public class RunningActivity extends AppCompatActivity {
                     if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
                         //getting values from accelerometer
                         stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
+                        pace=stepCounter.calculatePace(event.values[0], event.values[1], event.values[2]);
                     } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
                         //getting values from gravimeter
                         stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
@@ -261,7 +265,7 @@ public class RunningActivity extends AppCompatActivity {
                         route.calculateDistance();
                         distance = route.getDistance();
                     }
-                    updateViews(df);
+                    updateViews();
                     //allowing preprocessing to happen at the instance of a 5 second interval
                     if ((seconds % 5) == 0) {
                         stepCounter.setHasProcessed(Boolean.FALSE);
@@ -274,7 +278,7 @@ public class RunningActivity extends AppCompatActivity {
         });
     }
 
-    private void updateViews(DecimalFormat df) {
+    private void updateViews() {
         //changing timer text view
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
@@ -288,7 +292,9 @@ public class RunningActivity extends AppCompatActivity {
         stepText.setText(String.format("Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
-        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
+//        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
+
+        paceText.setText(Html.fromHtml("Pace:\n" + df.format(pace)));
     }
 
     private void handlePermissions() {

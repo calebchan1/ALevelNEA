@@ -87,6 +87,12 @@ public class StepCounter {
         this.steps += detector.detect(filter.getFiltered_data());
     }
 
+    public double calculatePace(Float x, Float y, Float z){
+        //since change in second for acceleration in one second
+        //working out magnitude of velocity
+        double pace = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));
+        return pace;
+    }
     private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z) {
         Float x = Float.parseFloat(df.format(raw_x));
         Float y = Float.parseFloat(df.format(raw_y));
