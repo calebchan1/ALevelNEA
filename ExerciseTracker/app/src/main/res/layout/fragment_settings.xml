@@ -181,9 +181,23 @@
         android:textSize="20sp"
         app:cornerRadius="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/deleteBtn"
         app:layout_constraintStart_toEndOf="@id/UpdateButton"
         app:layout_constraintTop_toTopOf="@+id/guideline2" />
+    <com.google.android.material.button.MaterialButton
+
+        android:layout_marginBottom="20dp"
+        android:id="@+id/deleteBtn"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:background="@drawable/delete"
+        app:backgroundTint="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@id/UpdateButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/logoutBtn"
+        />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

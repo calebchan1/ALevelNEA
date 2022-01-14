@@ -17,23 +17,25 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.example.exercisetracker.activities.LogInScreen;
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.User;
+import com.example.exercisetracker.activities.LogInScreen;
 import com.example.exercisetracker.other.DBhelper;
+import com.example.exercisetracker.other.User;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SettingsFragment extends Fragment implements View.OnClickListener{
+public class SettingsFragment extends Fragment implements View.OnClickListener {
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
     private TextInputLayout weightField;
@@ -46,8 +48,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_settings,container,false);
-        sp = getActivity().getSharedPreferences("userprefs",Context.MODE_PRIVATE);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        sp = getActivity().getSharedPreferences("userprefs", Context.MODE_PRIVATE);
         usernameField = view.findViewById(R.id.settings_usernameField);
         passwordField = view.findViewById(R.id.settings_passwordField);
         weightField = view.findViewById(R.id.weightField);
@@ -85,10 +87,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     datepicker.show(getActivity().getSupportFragmentManager(), "Date Picker");
                 }
-                return  false;
+                return false;
             }
         });
 
@@ -114,6 +116,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         updateButton.setOnClickListener(this);
         Button logoutBtn = view.findViewById(R.id.logoutBtn);
         logoutBtn.setOnClickListener(this);
+        Button deleteBtn = view.findViewById(R.id.deleteBtn);
+        deleteBtn.setOnClickListener(this);
 
         return view;
     }
@@ -122,7 +126,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.UpdateButton:
                 //saving user details to User class and updating database
                 try {
@@ -139,12 +143,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
                     String surname = String.valueOf(surnameField.getEditText().getText());
                     User.setSurname(surname);
 
-                    DBhelper helper  = new DBhelper(getContext());
+                    DBhelper helper = new DBhelper(getContext());
                     if (helper.updateUser()) {
                         Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
                     }
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(getContext(), "Save unsuccessful", Toast.LENGTH_SHORT).show();
                 }
@@ -152,11 +155,44 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
             case R.id.logoutBtn:
                 //When  the user wants to logout, clearing User details
                 //Clearing shared preferences
-
                 getActivity().finish();
                 User.logout(getContext());
                 Intent intent1 = new Intent(getContext(), LogInScreen.class);
                 startActivity(intent1);
+                break;
+            case R.id.deleteBtn:
+                //handling deleting an account
+                //show dialogue to user to confirm if they want to delete account
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        DBhelper helper = new DBhelper(getContext());
+                        if (helper.deleteAccount(User.getUserID())){
+                            Toast.makeText(getContext(), "Account Deleted", Toast.LENGTH_SHORT).show();
+                            User.logout(getContext());
+                            getActivity().finish();
+                            Intent intent1 = new Intent(getContext(), LogInScreen.class);
+                            startActivity(intent1);
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.cancel();
+
+
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                ;
+                builder.setMessage("This will permanently delete your account")
+                        .setTitle("Delete My Account?");
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 break;
         }
     }

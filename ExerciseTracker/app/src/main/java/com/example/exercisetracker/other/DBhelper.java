@@ -156,6 +156,42 @@ public class DBhelper {
     }
 
 
+    public boolean deleteAccount(int userID) {
+        Connection conn = null;
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            //connecting to database server
+            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
+            Statement statement = conn.createStatement();
+            //executing SQL statement
+            int resultset = statement.executeUpdate(
+                    String.format("DELETE FROM User WHERE UserID = '%d'", userID)
+            );
+            if (resultset == 0) {
+                //could not delete account
+                return false;
+            }
+            //account was deleted successfully
+            return true;
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    //closing the connection
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance, String reps) {
         Connection conn = null;
         try {

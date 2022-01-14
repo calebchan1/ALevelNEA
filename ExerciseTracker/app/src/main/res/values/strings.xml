@@ -21,4 +21,8 @@
         <item>The difference between the impossible and the possible lies in a person’s determination</item>
         <item>We can push ourselves further. We always have more to give.</item>
     </string-array>
+
+    <string name="hide">Hide</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
 </resources>
