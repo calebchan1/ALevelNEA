@@ -52,7 +52,6 @@ public class RepCounter {
         pushedDown = false;
         returnedToPosition = false;
         countedRep = false;
-        startPoint = new HashMap<>();
     }
 
     private void reset(){
@@ -104,8 +103,7 @@ public class RepCounter {
                 pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() >= startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
             }
             if (!returnedToPosition) {
-                returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() - uncertainty
-                        && relevantLandmarks.get(PoseLandmark.LEFT_HIP).getY() < startPoint.get(PoseLandmark.LEFT_HIP).getY() - uncertainty;
+                returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() - uncertainty;
             }
             if (pushedDown) {
                 //checking whether user has pushed down
@@ -115,6 +113,9 @@ public class RepCounter {
                         reps++;
                         countedRep = true;
 
+                    }
+                    else{
+                        duration++;
                     }
                 } else {
                     duration++;

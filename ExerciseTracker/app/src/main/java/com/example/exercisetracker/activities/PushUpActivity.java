@@ -87,6 +87,7 @@ public class PushUpActivity extends AppCompatActivity {
     private Notification notification;
 
     private Graphic graphic;
+    private Size displaySize;
     private FrameLayout frameLayout;
 
     @Override
@@ -160,7 +161,7 @@ public class PushUpActivity extends AppCompatActivity {
         tv = findViewById(R.id.tv);
         frameLayout = findViewById(R.id.framelayout);
         TextView debug = findViewById(R.id.debugTV);
-        repcounter = new RepCounter(this, poseIndicatorTV,debug,50f,500f);
+        repcounter = new RepCounter(this, poseIndicatorTV,debug,10f,100f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -183,6 +184,12 @@ public class PushUpActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //getting display size for graphic
+        Display display = getWindowManager().getDefaultDisplay();
+        Point temp = new Point();
+        display.getSize(temp);
+        displaySize = new Size(temp.x, temp.y);
     }
 
     private void startTracking() {
@@ -245,15 +252,13 @@ public class PushUpActivity extends AppCompatActivity {
     private void handleCamera() {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         //getting display size (dependent on device)
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        Size imageSize = new Size(size.x, 680);
-//        graphic.setScaleFactor(size,imageSize);
+
+
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
                         //instantiating ImageAnalysis, with user's phone display dimensions
-                        .setTargetResolution(new Size(size.x, size.y))
+//                        .setTargetResolution()
+                        .setTargetResolution(displaySize)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
         //setting the configuration for the image analysis
@@ -275,7 +280,7 @@ public class PushUpActivity extends AppCompatActivity {
                                 List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
                                 processLandmarks(allPoseLandmarks);
                                 //drawing on the landmarks onto the user's screen
-                                graphic.drawGraphic(allPoseLandmarks, size);
+                                graphic.drawGraphic(allPoseLandmarks);
                                 }
                                 else{
                                     graphic.clearGraphic();
@@ -321,7 +326,8 @@ public class PushUpActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
 
-        graphic = new Graphic(size);
+        graphic = new Graphic(displaySize);
+
     }
 
     private void processLandmarks(List<PoseLandmark> allLandmarks) {
@@ -401,14 +407,14 @@ public class PushUpActivity extends AppCompatActivity {
 
         //hash map, associating landmark name to graphic View
         private final Map<String, View> graphicViewsMap;
-        private final Point displaySize;
+        private final Size displaySize;
         private float scalex;
         private float scaley;
         private int yoffset;
         private int xoffset;
         //n pixels to offset in order to fit scaled up image on view
 
-        private Graphic(Point displaySize) {
+        private Graphic(Size displaySize) {
             //HASH MAP to store all views corresponding to landmarks
             graphicViewsMap = new HashMap<String, View>();
             graphicViewsMap.put("nose", (View) findViewById(R.id.nose));
@@ -420,26 +426,35 @@ public class PushUpActivity extends AppCompatActivity {
             graphicViewsMap.put("right_hip", (View) findViewById(R.id.right_hip));
             graphicViewsMap.put("left_knee", (View) findViewById(R.id.left_knee));
             graphicViewsMap.put("right_knee", (View) findViewById(R.id.right_knee));
-            yoffset = 170;
-            xoffset = -30;
             this.displaySize = displaySize;
         }
 
+//        private int gcd(int p, int q){
+//            //euclid's algorithm to find smallest possible ratio
+//            if (q == 0) return p;
+//            else return gcd(q, p % q);
+//        }
+//        private int ratio(int a, int b) {
+//            final int gcd = gcd(a,b);
+//            return (b/gcd);
+//        }
+//
 //        private void setScaleFactor(Point displaySize, Size imageSize){
-//            System.out.println(String.format("Display size: %d, %d",displaySize.x,displaySize.y));
-//            scalex = (float) (displaySize.x / imageSize.getWidth());
-//            scaley = (float) (displaySize.y / imageSize.getHeight());
-//            int[] arr = new int[2];
-//            tv.getLocationInWindow(arr);
-//            yoffset = arr[1];
+//            Toast.makeText(PushUpActivity.this, String.format("Ratio of y: %d",ratio(displaySize.x,displaySize.y)), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(PushUpActivity.this, String.format("Display size: %d, %d",displaySize.x,displaySize.y), Toast.LENGTH_SHORT).show();
+//            scalex = 2.25f;
+//            scaley = 2.25f;
+////            int[] arr = new int[2];
+////            tv.getLocationInWindow(arr);
+////            yoffset = arr[1];
 //        }
 
         private void updateLandmarkGraphic(String name, Float x, Float y) {
             View view = graphicViewsMap.get(name);
             view.setVisibility(View.VISIBLE);
             //inverting x coordinate, as camera is in mirroring position
-            view.setX(displaySize.x - x + xoffset);
-            view.setY(y + yoffset);
+            view.setX(displaySize.getWidth() - x);
+            view.setY(y);
         }
 
         private void clearGraphic(){
@@ -448,7 +463,7 @@ public class PushUpActivity extends AppCompatActivity {
             }
         }
 
-        private void drawGraphic(List<PoseLandmark> allLandmarks, Point displaySize) {
+        private void drawGraphic(List<PoseLandmark> allLandmarks) {
             if (allLandmarks.isEmpty()) {
                 //if no landmarks are detected, remove points from graphic
                 clearGraphic();
