@@ -196,6 +196,8 @@ public class LeaderboardFragment extends Fragment {
             view.setTextSize(fontsize);
         }
         else{
+            Typeface face = ResourcesCompat.getFont(getContext(), R.font.gothic);
+            view.setTypeface(face);
             view.setText(text + " ");
             view.setTextSize(fontsize);
         }

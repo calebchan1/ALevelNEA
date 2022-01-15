@@ -42,8 +42,8 @@ public class LogInScreen extends AppCompatActivity {
         // user automatically logged into the app
         if (getUserSP()) {
             Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
-            finish();
             startActivity(intent1);
+            finish();
         }
         super.onCreate(savedInstanceState);
         //visuals

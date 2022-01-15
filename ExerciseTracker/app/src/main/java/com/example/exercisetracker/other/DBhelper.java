@@ -259,7 +259,7 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
-                    "SELECT Activity.ActivityID, Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance " +
+                    "SELECT Activity.ActivityID, Exercise.Name, Activity.Date, Activity.timeStarted, Activity.duration, Activity.calories, Activity.steps, Activity.distance, Activity.reps " +
                             "FROM Exercise, Activity " +
                             String.format("WHERE Activity.UserID = (SELECT User.UserID FROM User WHERE User.username = '%s') ", User.getUsername()) +
                             "AND Exercise.ExerciseID = Activity.ExerciseID " +
@@ -274,7 +274,7 @@ public class DBhelper {
             //dealing with multiple rows
             while (resultset.next()) {
                 String row = "";
-                for (int i = 1; i <= 8; i++) {
+                for (int i = 1; i <= 9; i++) {
                     //adding result to dbhelper
                     row = row + resultset.getString(i) + " ";
                 }

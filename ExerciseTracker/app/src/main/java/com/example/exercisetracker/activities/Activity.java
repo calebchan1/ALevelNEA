@@ -28,6 +28,27 @@ public class Activity {
         this.img = img;
         this.id = id;
 
+        String[] temp = desc.split(" ");
+
+        // temp formatted as (date, time, duration, calories, steps, distance,reps)
+        if (name == "running" || name == "treadmill" || name == "walking"){
+            //null values for number of reps
+            this.date = Date.valueOf(temp[0]);
+            this.timeStarted = temp[1];
+            this.duration = Integer.parseInt(temp[2]);
+            this.calories = Integer.parseInt(temp[3]);
+            this.steps = Integer.parseInt(temp[4]);
+            this.distance = Integer.parseInt(temp[5]);
+        }
+        else if (name=="pushup"){
+            //null values for steps and distance
+            this.date = Date.valueOf(temp[0]);
+            this.timeStarted = temp[1];
+            this.duration = Integer.parseInt(temp[2]);
+            this.calories = Integer.parseInt(temp[3]);
+            this.reps = Integer.parseInt(temp[6]);
+        }
+
     }
 
     public String getTimeStarted() {

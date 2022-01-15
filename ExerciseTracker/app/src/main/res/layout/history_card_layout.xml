@@ -48,6 +48,7 @@
         <!--Image used in present in drawable folder-->
         <TextView
             android:id="@+id/ExerciseDesc"
+            android:fontFamily="@font/gothic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/ExerciseName"

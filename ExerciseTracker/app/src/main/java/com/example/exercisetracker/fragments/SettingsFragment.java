@@ -155,16 +155,27 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             case R.id.logoutBtn:
                 //When  the user wants to logout, clearing User details
                 //Clearing shared preferences
-                getActivity().finish();
-                User.logout(getContext());
-                Intent intent1 = new Intent(getContext(), LogInScreen.class);
-                startActivity(intent1);
+                //show dialogue to user to confirm if they want to delete account
+                MaterialAlertDialogBuilder builder = createDialogBuilder("Logout?", "Are you sure you want to logout?");
+
+                builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getActivity().finish();
+                        User.logout(getContext());
+                        Intent intent1 = new Intent(getContext(), LogInScreen.class);
+                        startActivity(intent1);
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 break;
             case R.id.deleteBtn:
                 //handling deleting an account
                 //show dialogue to user to confirm if they want to delete account
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-                builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                MaterialAlertDialogBuilder builder2  = createDialogBuilder("Delete My Account?", "Are you sure you want to delete your account?");
+                builder2.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         DBhelper helper = new DBhelper(getContext());
@@ -179,23 +190,26 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
                         }
                         dialog.cancel();
-
-
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                ;
-                builder.setMessage("This will permanently delete your account")
-                        .setTitle("Delete My Account?");
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                });
+                AlertDialog dialog2 = builder2.create();
+                dialog2.show();
                 break;
         }
     }
 
+    private MaterialAlertDialogBuilder createDialogBuilder(String title, String message){
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        })
+        ;
+        builder.setMessage(message)
+                .setTitle(title);
+        return builder;
+    }
 
 }
