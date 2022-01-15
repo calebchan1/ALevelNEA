@@ -161,11 +161,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        getActivity().finish();
                         User.logout(getContext());
                         Intent intent1 = new Intent(getContext(), LogInScreen.class);
                         startActivity(intent1);
                         dialog.cancel();
+                        getActivity().finish();
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -182,9 +182,9 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                         if (helper.deleteAccount(User.getUserID())){
                             Toast.makeText(getContext(), "Account Deleted", Toast.LENGTH_SHORT).show();
                             User.logout(getContext());
-                            getActivity().finish();
                             Intent intent1 = new Intent(getContext(), LogInScreen.class);
                             startActivity(intent1);
+                            getActivity().finish();
                         }
                         else{
                             Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();

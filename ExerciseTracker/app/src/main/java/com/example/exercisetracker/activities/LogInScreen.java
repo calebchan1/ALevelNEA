@@ -70,9 +70,9 @@ public class LogInScreen extends AppCompatActivity {
                     if (remember.isChecked()) {
                         saveToSharedPreferences(results, username, password);
                     }
-                    finish();
                     Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent1);
+                    finish();
                 }
 
             }

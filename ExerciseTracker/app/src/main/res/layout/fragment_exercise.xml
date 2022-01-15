@@ -72,7 +72,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="20dp"
                             android:gravity="center_horizontal"
-                            android:text="Running exercise"
+                            android:text="Running"
                             android:textAlignment="center"
                             android:textSize="20sp"
                             android:textStyle="bold" />
