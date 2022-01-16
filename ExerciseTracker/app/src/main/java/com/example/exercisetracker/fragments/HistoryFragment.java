@@ -29,21 +29,23 @@ import java.util.Locale;
 
 public class HistoryFragment extends Fragment {
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
+        RecyclerView historyRV = view.findViewById(R.id.HistoryRV);
+
         DBhelper helper = new DBhelper(getContext());
-        if (helper.readActivities()){
+        if (helper.readActivities()) {
             //if activities was read successfully from database
             ArrayList<String> queryResults = helper.getResult();
-            RecyclerView historyRV = view.findViewById(R.id.HistoryRV);
-
 
             //RecyclerView allows us to dynamically produce card views as a list
             // Arraylist for storing data
             ArrayList<Activity> activityArr = new ArrayList<>();
-            for (String query : queryResults){
+            for (String query : queryResults) {
                 activityArr.add(handleQuery(query));
             }
             // we are initializing our adapter class and passing our arraylist to it.
@@ -55,8 +57,7 @@ public class HistoryFragment extends Fragment {
             historyRV.setLayoutManager(linearLayoutManager);
             historyRV.setAdapter(courseAdapter);
 
-        }
-        else{
+        } else {
             //activity was not read successfully, recycler view not created
             Toast.makeText(getContext(), "Activity History not read", Toast.LENGTH_SHORT).show();
         }

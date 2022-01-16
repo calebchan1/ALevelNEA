@@ -5,8 +5,10 @@ import static com.example.exercisetracker.other.BaseApp.CHANNEL_1_ID;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -33,6 +35,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
+import com.example.exercisetracker.other.BaseApp;
 import com.example.exercisetracker.other.ExerciseService;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
@@ -81,20 +84,22 @@ public class RunningActivity extends AppCompatActivity {
     private double pace;
     private StepCounter stepCounter;
 
+    private Intent notifIntent;
+
     private DecimalFormat df;
     private ExerciseService customService = null;
-    private final ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            customService = ExerciseService.getInstance();
-            // now you have the instance of service.
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            customService = null;
-        }
-    };
+//    private final ServiceConnection mConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+//            customService = ExerciseService.getInstance();
+//            // now you have the instance of service.
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName componentName) {
+//            customService = null;
+//        }
+//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +154,9 @@ public class RunningActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     private void startRunning() {
         //NOTIFICATION MANAGER
-        notificationManagerCompat = NotificationManagerCompat.from(this);
+        startService(new Intent(RunningActivity.this,ExerciseService.class));
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //requesting background permission for android q+
             //Android forces you to request this separately
@@ -383,23 +390,9 @@ public class RunningActivity extends AppCompatActivity {
 
         }
         //destroying notification
-        notificationManagerCompat.cancel(1);
+        stopService(new Intent(RunningActivity.this, ExerciseService.class));
         this.finish();
 
-    }
-
-
-    //handling live notification bar
-    public void sendOnChannel1() {
-        //
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
-                .setSmallIcon(R.mipmap.appicon)
-                .setContentTitle("Running Tracking")
-                .setContentText(String.format(Locale.getDefault(),"Steps: %d Distance: %s Calories: %d", steps, distText.getText(), calories))
-                .setCategory(NotificationCompat.CATEGORY_WORKOUT)
-                .setOnlyAlertOnce(true)
-                .build();
-        notificationManagerCompat.notify(1, notification);
     }
 
 
