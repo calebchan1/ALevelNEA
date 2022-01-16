@@ -129,35 +129,46 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.UpdateButton:
                 //saving user details to User class and updating database
-                try {
-                    String username = String.valueOf(usernameField.getEditText().getText());
-                    User.setUsername(username);
-                    String password = String.valueOf(passwordField.getEditText().getText());
-                    User.setPassword(password);
-                    Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
-                    User.setWeight(weight);
-                    Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
-                    User.setHeight(height);
-                    String forename = String.valueOf(forenameField.getEditText().getText());
-                    User.setForename(forename);
-                    String surname = String.valueOf(surnameField.getEditText().getText());
-                    User.setSurname(surname);
+                //show dialogue to user to confirm if they want to delete account
+                MaterialAlertDialogBuilder builder3  = createDialogBuilder("Update My Details?", "Are you sure you want to update your account?");
+                builder3.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            String username = String.valueOf(usernameField.getEditText().getText());
+                            User.setUsername(username);
+                            String password = String.valueOf(passwordField.getEditText().getText());
+                            User.setPassword(password);
+                            Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
+                            User.setWeight(weight);
+                            Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
+                            User.setHeight(height);
+                            String forename = String.valueOf(forenameField.getEditText().getText());
+                            User.setForename(forename);
+                            String surname = String.valueOf(surnameField.getEditText().getText());
+                            User.setSurname(surname);
 
-                    DBhelper helper = new DBhelper(getContext());
-                    if (helper.updateUser()) {
-                        Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+                            DBhelper helper = new DBhelper(getContext());
+                            if (helper.updateUser()) {
+                                //if update on database was successful
+                                Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(getContext(), "Save unsuccessful", Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.cancel();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(getContext(), "Save unsuccessful", Toast.LENGTH_SHORT).show();
-                }
+                });
+                AlertDialog dialog3 = builder3.create();
+                dialog3.show();
+
                 break;
             case R.id.logoutBtn:
                 //When  the user wants to logout, clearing User details
                 //Clearing shared preferences
                 //show dialogue to user to confirm if they want to delete account
                 MaterialAlertDialogBuilder builder = createDialogBuilder("Logout?", "Are you sure you want to logout?");
-
                 builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

@@ -68,8 +68,6 @@ public class RunningActivity extends AppCompatActivity {
     //Buttons
     private MaterialButton finishBtn;
     private MaterialButton startStopBtn;
-    //notification
-    private NotificationManagerCompat notificationManagerCompat;
 
     //Specialised running variables
     private float MET;
@@ -84,22 +82,31 @@ public class RunningActivity extends AppCompatActivity {
     private double pace;
     private StepCounter stepCounter;
 
+    //notification and services
+    private NotificationManagerCompat notificationManagerCompat;
     private Intent notifIntent;
+    ExerciseService mService;
+    boolean mBound = false;
 
     private DecimalFormat df;
     private ExerciseService customService = null;
-//    private final ServiceConnection mConnection = new ServiceConnection() {
-//        @Override
-//        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-//            customService = ExerciseService.getInstance();
-//            // now you have the instance of service.
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName componentName) {
-//            customService = null;
-//        }
-//    };
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ExerciseService.LocalBinder binder = (ExerciseService.LocalBinder) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +122,7 @@ public class RunningActivity extends AppCompatActivity {
         init();
         handlePermissions();
     }
+
 
     private void init() {
         //instantiating all private variables
@@ -154,7 +162,11 @@ public class RunningActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     private void startRunning() {
         //NOTIFICATION MANAGER
-        startService(new Intent(RunningActivity.this,ExerciseService.class));
+        Context context = getApplicationContext();
+        Intent intent = new Intent(RunningActivity.this,ExerciseService.class); // Build the intent for the service
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        }
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -191,6 +203,7 @@ public class RunningActivity extends AppCompatActivity {
             public void onLocationChanged(@NonNull Location location) {
                 if (isRunning) {
                     //location in form of latitude and longitude
+                    pace = location.getSpeed();
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
                     Double[] entry = {latitude, longitude};
@@ -212,7 +225,6 @@ public class RunningActivity extends AppCompatActivity {
                     if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
                         //getting values from accelerometer
                         stepCounter.addEntry(0, event.values[0], event.values[1], event.values[2]);
-                        pace=stepCounter.calculatePace(event.values[0], event.values[1], event.values[2]);
                     } else if (sensor.getType() == Sensor.TYPE_GRAVITY & isRunning) {
                         //getting values from gravimeter
                         stepCounter.addEntry(1, event.values[0], event.values[1], event.values[2]);
@@ -395,5 +407,14 @@ public class RunningActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+    }
 }
+
