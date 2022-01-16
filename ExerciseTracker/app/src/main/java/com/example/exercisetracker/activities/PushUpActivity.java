@@ -382,7 +382,7 @@ public class PushUpActivity extends AppCompatActivity {
         //handles the safe closing of the activity, and presenting any information to the user
         isTracking = false;
         //audio text to speech to congratulate user
-        tts.speak(String.format("Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps), TextToSpeech.QUEUE_FLUSH, null);
+        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps), TextToSpeech.QUEUE_FLUSH, null);
 
         if (seconds > 60) {
             //saving activity results to database, as long as activity lasted for more than a minute

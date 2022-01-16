@@ -31,7 +31,7 @@ public class Activity {
         String[] temp = desc.split(" ");
 
         // temp formatted as (date, time, duration, calories, steps, distance,reps)
-        if (name == "running" || name == "treadmill" || name == "walking"){
+        if (name.equals("Running") || name.equals("Treadmill") || name.equals("Walking")){
             //null values for number of reps
             this.date = Date.valueOf(temp[0]);
             this.timeStarted = temp[1];
@@ -40,7 +40,7 @@ public class Activity {
             this.steps = Integer.parseInt(temp[4]);
             this.distance = Integer.parseInt(temp[5]);
         }
-        else if (name=="pushup"){
+        else if (name.equals("Push Up")){
             //null values for steps and distance
             this.date = Date.valueOf(temp[0]);
             this.timeStarted = temp[1];

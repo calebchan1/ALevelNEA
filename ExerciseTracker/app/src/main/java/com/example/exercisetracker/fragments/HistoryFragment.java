@@ -25,6 +25,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class HistoryFragment extends Fragment {
 
@@ -124,9 +125,11 @@ public class HistoryFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull Viewholder holder, int position) {
             //set data to textview and imageview of each card layout
+            //get details from activity array holding items of activity class
+            //providing details for the holder views
             Activity activity = ActivityArr.get(position);
             holder.exerciseNameTV.setText(activity.getName());
-            holder.exerciseDescTV.setText(activity.getDesc());
+            holder.exerciseDescTV.setText(activity.getDate().toString() + " " +activity.getTimeStarted());
             holder.exerciseIV.setImageResource(activity.getImg());
             holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -149,6 +152,7 @@ public class HistoryFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     //handling when more details button is pressed
+                    //displays as a dialogue the full stats of a workout
                     createDialogBuilder(holder.exerciseNameTV.getText().toString(),activity);
                 }
             });
@@ -180,8 +184,22 @@ public class HistoryFragment extends Fragment {
 
         private void createDialogBuilder(String title, Activity activity){
             //creating the alert dialog to show stats to user from a previous exercise
-            String message =
-                    String.format("Duration: %s\nTime Started: %s",String.valueOf(activity.getDuration()),activity.getTimeStarted());
+            int hours = activity.getDuration() / 3600;
+            int minutes = (activity.getDuration() % 3600) / 60;
+            int secs = activity.getDuration() % 60;
+            String time = String.format(Locale.getDefault(), "%dh:%02dm:%02ds", hours, minutes, secs);
+            String message = "";
+            if (activity.getName().equals("Running") || activity.getName().equals("Walking") || activity.getName().equals("Treadmill")){
+                message =
+                        String.format(Locale.getDefault(),"Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm",
+                                time,activity.getCalories(),activity.getSteps(),activity.getDistance());
+            }
+            else  if (activity.getName().equals("Push Up")){
+                message =
+                        String.format(Locale.getDefault(),"Duration: %s\nCalories Burnt: %d\nReps: %d",
+                                time,activity.getCalories(),activity.getReps());
+            }
+
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this.context);
             builder.setNegativeButton("dismiss", new DialogInterface.OnClickListener() {
                 @Override

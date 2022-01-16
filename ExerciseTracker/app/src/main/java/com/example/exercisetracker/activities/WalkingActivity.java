@@ -282,7 +282,7 @@ public class WalkingActivity extends AppCompatActivity{
     private void finishWalking(){
         isWalking = false;
         //audio text to speech to congratulate user
-        tts.speak(String.format("Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
+        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
 
         sensorManager.unregisterListener(listener);
         if (locationManager!=null && timeStarted!=null) {

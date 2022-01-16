@@ -287,9 +287,9 @@ public class RunningActivity extends AppCompatActivity {
         timerText.setText(time);
         //changing calorie text view
         calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-        calorieText.setText(String.format("Calories:\n%d", calories));
+        calorieText.setText(String.format(Locale.getDefault(),"Calories:\n%d", calories));
         //changing step text view
-        stepText.setText(String.format("Steps:\n%d", steps));
+        stepText.setText(String.format(Locale.getDefault(),"Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
 //        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
@@ -395,7 +395,7 @@ public class RunningActivity extends AppCompatActivity {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.mipmap.appicon)
                 .setContentTitle("Running Tracking")
-                .setContentText(String.format("Steps: %d Distance: %s Calories: %d", steps, distText.getText(), calories))
+                .setContentText(String.format(Locale.getDefault(),"Steps: %d Distance: %s Calories: %d", steps, distText.getText(), calories))
                 .setCategory(NotificationCompat.CATEGORY_WORKOUT)
                 .setOnlyAlertOnce(true)
                 .build();

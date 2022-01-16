@@ -226,9 +226,9 @@ public class TreadmillActivity extends AppCompatActivity {
         timerText.setText(time);
         //changing calorie text view
         calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-        calorieText.setText(String.format("Calories:\n%d", calories));
+        calorieText.setText(String.format(Locale.getDefault(),"Calories:\n%d", calories));
         //changing step text view
-        stepText.setText(String.format("Steps:\n%d", steps));
+        stepText.setText(String.format(Locale.getDefault(),"Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
         paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
@@ -268,7 +268,7 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager.unregisterListener(listener);
 
         //audio text to speech to congratulate user
-        tts.speak(String.format("Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
+        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
 
         //exiting the running activity and saving data to database
         if (seconds > 60) {
@@ -304,7 +304,6 @@ public class TreadmillActivity extends AppCompatActivity {
                         Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
                         finishRunning();
                     }
-                    return;
                 }
 
         }
