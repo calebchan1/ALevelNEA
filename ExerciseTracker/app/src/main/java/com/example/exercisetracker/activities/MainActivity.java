@@ -56,16 +56,7 @@ public class MainActivity extends AppCompatActivity{
                         fragment = new SettingsFragment();
                         break;
                 }
-                RotateAnimation rotateAnimation = new RotateAnimation(0, 359, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                rotateAnimation.setRepeatCount(Animation.INFINITE);
-                rotateAnimation.setRepeatMode(Animation.RESTART);
-                rotateAnimation.setDuration(1000);
-                ImageView iv = (ImageView) findViewById(R.id.refresh);
-                iv.setVisibility(View.VISIBLE);
-                iv.startAnimation(rotateAnimation);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
-                iv.clearAnimation();
-                iv.setVisibility(View.INVISIBLE);
                 return true;
             }
         });
