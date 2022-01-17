@@ -29,11 +29,7 @@ public class DBhelper {
     public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
@@ -53,13 +49,7 @@ public class DBhelper {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
@@ -67,11 +57,7 @@ public class DBhelper {
         //handles login validation process
         Connection conn = null;
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
@@ -85,13 +71,7 @@ public class DBhelper {
                 return false;
             }
             resultset.beforeFirst();
-            while (resultset.next()) {
-                String row = "";
-                for (int i = 1; i <= 6; i++) {
-                    row = row + resultset.getString(i) + " ";
-                }
-                addResult(row);
-            }
+            addResult(resultset,6);
             Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
 
             return true;
@@ -102,24 +82,14 @@ public class DBhelper {
             e.printStackTrace();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
     public boolean updateUser() {
         Connection conn = null;
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
             Date dob = User.getDateOfBirth();
@@ -144,14 +114,7 @@ public class DBhelper {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    //closing the connection
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
@@ -159,11 +122,7 @@ public class DBhelper {
     public boolean deleteAccount(int userID) {
         Connection conn = null;
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
@@ -180,14 +139,7 @@ public class DBhelper {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    //closing the connection
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
@@ -195,11 +147,7 @@ public class DBhelper {
     public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance, String reps) {
         Connection conn = null;
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             int resultset = 0;
             //executing SQL statement
@@ -236,14 +184,7 @@ public class DBhelper {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    //closing the connection
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
@@ -251,11 +192,8 @@ public class DBhelper {
         Connection conn = null;
         //get all activities associated with the user's ID
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
+            //connecting to database
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
@@ -271,18 +209,9 @@ public class DBhelper {
                 return false;
             }
             resultset.beforeFirst();
-            //dealing with multiple rows
-            while (resultset.next()) {
-                String row = "";
-                for (int i = 1; i <= 9; i++) {
-                    //adding result to dbhelper
-                    row = row + resultset.getString(i) + " ";
-                }
-                //moving to next row (if there is any)
-                addResult(row);
-            }
+            addResult(resultset,9);
             //activities read in form:
-            //"exercise name", "date", "time", "duration", "calories","steps","distance"
+            //"exercise name", "date", "time", "duration", "calories","steps","distance","reps"
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -291,24 +220,15 @@ public class DBhelper {
             e.printStackTrace();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
     public boolean deleteActivity(int ActivityID) {
         Connection conn = null;
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            //connecting to database server
-            conn = DriverManager.getConnection(DBhelper.url, DBhelper.dbuser, DBhelper.dbpassword);
+            //connecting to database
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
@@ -325,28 +245,19 @@ public class DBhelper {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    //closing the connection
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
-    public boolean getAllActivities(){
+    public boolean getAllActivities(Integer duration){
         Connection conn = null;
         //get request to database for all activities done for public leaderboard
         //includes userID, and first name corresponding to each activity
         try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
             //connecting to database server
-            conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
+            conn = createNewConnection();
             Statement statement = conn.createStatement();
+
             //executing SQL statement
             ResultSet resultset = statement.executeQuery(
                     "SELECT User.firstname, Activity.calories " +
@@ -354,22 +265,13 @@ public class DBhelper {
                             "WHERE Activity.UserID = User.UserID " +
                             "ORDER BY Activity.Date DESC;"
             );
-
             if (!resultset.next()) {
                 Toast.makeText(this.context, "No Activities Stored", Toast.LENGTH_SHORT).show();
                 return false;
             }
             resultset.beforeFirst();
             //dealing with multiple rows
-            while (resultset.next()) {
-                String row = "";
-                for (int i = 1; i <= 2; i++) {
-                    //adding result to dbhelper
-                    row = row + resultset.getString(i) + " ";
-                }
-                //moving to next row (if there is any)
-                addResult(row);
-            }
+            addResult(resultset,2);
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -378,13 +280,7 @@ public class DBhelper {
             e.printStackTrace();
             return false;
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(conn);
         }
     }
 
@@ -393,7 +289,37 @@ public class DBhelper {
         return result;
     }
 
-    public void addResult(String result) {
-        this.result.add(result);
+    public void addResult(ResultSet resultset,int columns) throws SQLException {
+        //dealing with multiple rows
+        while (resultset.next()) {
+            String row = "";
+            for (int i = 1; i <= columns; i++) {
+                //adding result to dbhelper
+                row = row + resultset.getString(i) + " ";
+            }
+            //moving to next row (if there is any)
+            this.result.add(row);
+        }
+
+    }
+
+    private Connection createNewConnection() throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Connection conn = null;
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
+        //connecting to database server
+        conn = DriverManager.getConnection(url, DBhelper.dbuser, DBhelper.dbpassword);
+        return conn;
+    }
+
+    private void closeConnection(Connection conn){
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

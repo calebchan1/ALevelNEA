@@ -28,6 +28,7 @@ import java.util.Map;
 
 public class LeaderboardFragment extends Fragment {
     private TableLayout table;
+    private Integer timeframe;
 
     @Nullable
     @Override
@@ -46,12 +47,15 @@ public class LeaderboardFragment extends Fragment {
                 //when user changes the time period of the leaderboard
                 switch(checkedId){
                     case R.id.oneDay:
+                        timeframe = 1;
                         //period of the last 24 hrs
                         break;
                     case R.id.oneMonth:
+                        timeframe = 30;
                         //period of the last 30 days
                         break;
                     case R.id.allTime:
+                        timeframe = 0;
                         //period of all time
                         break;
 
@@ -87,7 +91,7 @@ public class LeaderboardFragment extends Fragment {
         //for top most active users
         DBhelper helper = new DBhelper(getContext());
         LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
-        if (helper.getAllActivities()) {
+        if (helper.getAllActivities(timeframe)) {
             for (String string : helper.getResult()) {
                 String[] row = string.split(" ");
                 if (userScoresHashMap.get(row[0]) != null) {
