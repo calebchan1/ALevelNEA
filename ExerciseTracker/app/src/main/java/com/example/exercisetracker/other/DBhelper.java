@@ -257,16 +257,44 @@ public class DBhelper {
             //connecting to database server
             conn = createNewConnection();
             Statement statement = conn.createStatement();
-
-            //executing SQL statement
-            ResultSet resultset = statement.executeQuery(
-                    "SELECT User.firstname, Activity.calories " +
-                            "FROM Activity, User " +
-                            "WHERE Activity.UserID = User.UserID " +
-                            "ORDER BY Activity.Date DESC;"
-            );
+            ResultSet resultset = null;
+            if (duration==0) {
+                //executing SQL statement
+                //requesting leaderboard of all time
+                resultset = statement.executeQuery(
+                        "SELECT User.firstname, Activity.calories " +
+                                "FROM Activity, User " +
+                                "WHERE Activity.UserID = User.UserID " +
+                                "ORDER BY Activity.Date DESC;"
+                );
+            }
+            else if (duration == 1){
+                //executing SQL statement
+                //requesting leaderboard from past day
+                long millis = System.currentTimeMillis();
+                Date date = new java.sql.Date(millis);
+                resultset = statement.executeQuery(
+                        "SELECT User.firstname, Activity.calories " +
+                                "FROM Activity, User " +
+                                "WHERE Activity.UserID = User.UserID AND " +
+                                String.format("Activity.Date = '%s' ",date.toString()) +
+                                "ORDER BY Activity.Date DESC;"
+                );
+            }
+            else if (duration == 30){
+                //requesting leaderboard from past 30 days
+                long millis = System.currentTimeMillis();
+                millis = millis - 2592000000L;
+                Date date = new java.sql.Date(millis);
+                resultset = statement.executeQuery(
+                        "SELECT User.firstname, Activity.calories " +
+                                "FROM Activity, User " +
+                                "WHERE Activity.UserID = User.UserID AND " +
+                                String.format("Activity.Date >= '%s' ",date.toString()) +
+                                "ORDER BY Activity.Date DESC;"
+                );
+            }
             if (!resultset.next()) {
-                Toast.makeText(this.context, "No Activities Stored", Toast.LENGTH_SHORT).show();
                 return false;
             }
             resultset.beforeFirst();

@@ -9,13 +9,16 @@ import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.exercisetracker.R;
+import com.example.exercisetracker.activities.Activity;
 import com.example.exercisetracker.other.DBhelper;
 
 import java.util.ArrayList;
@@ -29,17 +32,37 @@ import java.util.Map;
 public class LeaderboardFragment extends Fragment {
     private TableLayout table;
     private Integer timeframe;
+    private Map<String, Integer> userScores;
+    private Boolean isPublic;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         table = view.findViewById(R.id.table_main);
-        //by default, leaderboard set to public leaderboard
-        Map<String, Integer> userScores = getPublicLeaderboard();
+        //by default, leaderboard set to public leaderboard at 24Hr
+        timeframe = 1;
+        userScores = getPublicLeaderboard();
+        isPublic = true;
         if (userScores!=null) {
             createTable(userScores);
         }
+        RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
+        publicPrivateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.friendsBtn) {
+                    isPublic = false;
+                    //when user selects friends radio button, private leaderboard is shown
+                    updateTable(getPrivateLeaderboard());
+                } else if (checkedId == R.id.allUsersBtn) {
+                    isPublic = true;
+                    //when user selects all users radio button, public leaderboard is shown
+                    updateTable(getPublicLeaderboard());
+                }
+            }
+        });
+
         RadioGroup periodRG = view.findViewById(R.id.period_radiogroup);
         periodRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -48,42 +71,54 @@ public class LeaderboardFragment extends Fragment {
                 switch(checkedId){
                     case R.id.oneDay:
                         timeframe = 1;
+                        if (isPublic) {
+                            updateTable(getPublicLeaderboard());
+                        }
+                        else{
+                            updateTable(getPrivateLeaderboard());
+                        }
                         //period of the last 24 hrs
                         break;
                     case R.id.oneMonth:
                         timeframe = 30;
+                        if (isPublic) {
+                            updateTable(getPublicLeaderboard());
+                        }
+                        else{
+                            updateTable(getPrivateLeaderboard());
+                        }
                         //period of the last 30 days
                         break;
                     case R.id.allTime:
                         timeframe = 0;
+                        if (isPublic) {
+                            updateTable(getPublicLeaderboard());
+                        }
+                        else{
+                            updateTable(getPrivateLeaderboard());
+                        }
                         //period of all time
                         break;
 
                 }
             }
         });
-        RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
-        publicPrivateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.friendsBtn) {
-                    //when user selects friends radio button, private leaderboard is shown
-                    table.removeAllViews();
-                    Map<String, Integer> userScores = getPrivateLeaderboard();
-                    if (userScores!=null) {
-                        createTable(userScores);
-                    }
-                } else if (checkedId == R.id.allUsersBtn) {
-                    //when user selects all users radio button, public leaderboard is shown
-                    table.removeAllViews();
-                    Map<String, Integer> userScores = getPublicLeaderboard();
-                    if (userScores!=null) {
-                        createTable(userScores);
-                    }
-                }
-            }
-        });
+
         return view;
+    }
+
+    private void updateTable(Map<String, Integer> newScores){
+        table.removeAllViews();
+        if (userScores!= null) {
+            userScores.clear();
+        }
+        userScores = newScores;
+        if (newScores!=null) {
+            createTable(newScores);
+        }
+        else{
+            Toast.makeText(getContext(), "No Activities stored", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Map<String, Integer> getPublicLeaderboard() {

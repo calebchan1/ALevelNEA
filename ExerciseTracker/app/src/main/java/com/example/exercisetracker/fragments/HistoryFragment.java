@@ -30,41 +30,65 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class HistoryFragment extends Fragment {
+    private ActivityAdapter courseAdapter;
+    private ArrayList<Activity> activityArr;
+    private RecyclerView historyRV;
+    private LinearLayoutManager linearLayoutManager;
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        new Thread(){
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                            DBhelper helper = new DBhelper(getContext());
+                            if (helper.readActivities()) {
+                                //if activities was read successfully from database
+                                ArrayList<String> queryResults = helper.getResult();
+
+                                //RecyclerView allows us to dynamically produce card views as a list
+                                // Arraylist for storing data
+                                ArrayList<Activity> activityArr = new ArrayList<>();
+                                for (String query : queryResults) {
+                                    activityArr.add(handleQuery(query));
+                                }
+                                // we are initializing our adapter class and passing our arraylist to it.
+                                courseAdapter = new ActivityAdapter(getContext(), activityArr);
+                                //setting a layout manager for our recycler view.
+                                // creating vertical list
+                                linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                                // setting layout manager and adapter to our recycler view.
+                                historyRV.setLayoutManager(linearLayoutManager);
+                                historyRV.setAdapter(courseAdapter);
+
+                            } else {
+                                //activity was not read successfully, recycler view not created
+                                Toast.makeText(getContext(), "Activity History not read", Toast.LENGTH_SHORT).show();
+                            }
+
+
+
+                    }
+                });
+            }
+        }.start();
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history,container,false);
-        RecyclerView historyRV = view.findViewById(R.id.HistoryRV);
-        DBhelper helper = new DBhelper(getContext());
-        if (helper.readActivities()) {
-            //if activities was read successfully from database
-            ArrayList<String> queryResults = helper.getResult();
-
-            //RecyclerView allows us to dynamically produce card views as a list
-            // Arraylist for storing data
-            ArrayList<Activity> activityArr = new ArrayList<>();
-            for (String query : queryResults) {
-                activityArr.add(handleQuery(query));
-            }
-            // we are initializing our adapter class and passing our arraylist to it.
-            ActivityAdapter courseAdapter = new ActivityAdapter(getContext(), activityArr);
-            //setting a layout manager for our recycler view.
-            // creating vertical list
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-            // setting layout manager and adapter to our recycler view.
-            historyRV.setLayoutManager(linearLayoutManager);
-            historyRV.setAdapter(courseAdapter);
-
-        } else {
-            //activity was not read successfully, recycler view not created
-            Toast.makeText(getContext(), "Activity History not read", Toast.LENGTH_SHORT).show();
-        }
-
+        historyRV = view.findViewById(R.id.HistoryRV);
+        activityArr = new ArrayList<>();
+        courseAdapter = new ActivityAdapter(getContext(), activityArr);
+        linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        // setting layout manager and adapter to our recycler view.
+        historyRV.setLayoutManager(linearLayoutManager);
+        historyRV.setAdapter(courseAdapter);
         return view;
-
     }
 
     private Activity handleQuery(String query){
