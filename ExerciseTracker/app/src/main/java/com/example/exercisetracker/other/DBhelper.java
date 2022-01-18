@@ -350,6 +350,44 @@ public class DBhelper {
         }
     }
 
+    public boolean getFriends(){
+        Connection conn = null;
+        try{
+            //checking both columns for any friendships between users
+            conn = createNewConnection();
+            Statement statement = conn.createStatement();
+            ResultSet resultset = null;
+            resultset = statement.executeQuery(
+                    "SELECT User2ID," +
+                            "FROM Friends WHERE USERID1 = "+
+                            String.format(Locale.getDefault(),"'%d' ",User.getUserID())
+            );
+            if (!resultset.next()) {
+                return false;
+            }
+            resultset.beforeFirst();
+            addResult(resultset,1);
+
+            resultset = statement.executeQuery(
+                    "SELECT User1ID," +
+                            "FROM Friends WHERE USERID2 = "+
+                            String.format(Locale.getDefault(),"'%d' ",User.getUserID())
+            );
+            if (!resultset.next()) {
+                return false;
+            }
+            resultset.beforeFirst();
+            addResult(resultset,1);
+
+            return true;
+        }
+        catch(Exception e){
+            return  false;
+        }
+        finally {
+            closeConnection(conn);
+        }
+    }
 
     public boolean addFriend(int user1, int user2){
         Connection conn = null;
@@ -358,7 +396,9 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
             resultset = statement.executeQuery(
-                    "INSERT INTO Friends(UserID1");
+                    "INSERT INTO Friends(User1ID,User2ID) " +
+                            String.format(Locale.getDefault(),"VALUES ('%d','%d')",user1,user2)
+            );
             if (!resultset.next()) {
                 return false;
             }
@@ -409,5 +449,9 @@ public class DBhelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void clearResults(){
+        this.getResult().clear();
     }
 }

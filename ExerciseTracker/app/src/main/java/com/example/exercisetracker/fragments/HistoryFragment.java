@@ -37,8 +37,8 @@ public class HistoryFragment extends Fragment {
 
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         new Thread(){
             public void run() {
                 getActivity().runOnUiThread(new Runnable() {

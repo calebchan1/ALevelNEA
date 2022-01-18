@@ -3,6 +3,7 @@ package com.example.exercisetracker.activities;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import com.example.exercisetracker.R;
 import com.example.exercisetracker.fragments.HistoryFragment;
 import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.Friend;
+import com.example.exercisetracker.other.User;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
@@ -34,17 +36,29 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private RecyclerView recyclerView;
     private ArrayList<Friend> friendArr;
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        //handling when back button is pressed
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //visuals
         setContentView(R.layout.activity_addfriends);
-        getSupportActionBar().hide();
+        // showing the back button in action bar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
+        getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
 
         //setting on click listener to class
-        findViewById(R.id.goBackBtn).setOnClickListener(this);
         findViewById(R.id.searchBtn).setOnClickListener(this);
         TextInputLayout input = findViewById(R.id.searchView);
         searchEditText = input.getEditText();
@@ -63,14 +77,21 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.goBackBtn:
-                //when user wants to go back to main app
-                finish();
-                break;
             case R.id.searchBtn:
+                //refreshing the static user class friend list from database
+                DBhelper helper = new DBhelper(this);
+                if (helper.getFriends()){
+                    for (String friend : helper.getResult()){
+                        User.addFriendsList(Integer.parseInt(friend));
+                    }
+                    helper.clearResults();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+                }
+
                 //when user wants to search for other users
                 if (!searchEditText.getText().toString().equals("")) {
-                    DBhelper helper = new DBhelper(this);
                     if (helper.getUsers(searchEditText.getText().toString())){
                         //list of users passed to recycler view
                         //resetting friendArr for new query
@@ -80,7 +101,6 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                             friendArr.add(handleQuery(row));
                             courseAdapter.notifyItemInserted(courseAdapter.getItemCount()-1);
                             // setting layout manager and adapter to our recycler view.
-
                         }
 
                     }
@@ -140,7 +160,14 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 @Override
                 public void onClick(View v) {
                     //handling when user clicks on add friend on a specific user
-                    Toast.makeText(context.getApplicationContext(), "Friend Added", Toast.LENGTH_SHORT).show();
+                    DBhelper helper = new DBhelper(context);
+                    if (helper.addFriend(User.getUserID(),friend.getId())) {
+                        Toast.makeText(context.getApplicationContext(), "Friend Added", Toast.LENGTH_SHORT).show();
+                        holder.addFriendBtn.setText("Remove Friend");
+                    }
+                    else{
+                        Toast.makeText(context.getApplicationContext(), "Could not add friend", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
@@ -150,7 +177,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             return friendsArr.size();
         }
 
-        // View holder class for initializing of views such as TextView and Imageview.
+        // View holder class for initializing of views such as TextView
         public static class Viewholder extends RecyclerView.ViewHolder {
             private final TextView realNameTV;
             private final TextView usernameIDTV;

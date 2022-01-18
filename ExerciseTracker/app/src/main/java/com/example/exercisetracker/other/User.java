@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 import com.example.exercisetracker.login.LogInScreen;
 
+import java.util.ArrayList;
+
 public class User {
     private static Integer UserID;
     private static String forename;
@@ -14,6 +16,15 @@ public class User {
     private static Integer height;
     private static String username;
     private static String password;
+    private static ArrayList<Integer> friendsList;
+
+    public static ArrayList<Integer> getFriendsList() {
+        return friendsList;
+    }
+
+    public static void addFriendsList(Integer friend) {
+        User.friendsList.add(friend);
+    }
 
     public static String getUsername() {
         return username;
