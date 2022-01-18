@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class DBhelper {
     private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
@@ -26,6 +27,9 @@ public class DBhelper {
         this.context = context;
     }
 
+    /**
+     *  FOLLOWING METHODS DEAL WITH THE ACTUAL USER OF TEH APP
+     */
     public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
         try {
@@ -143,7 +147,9 @@ public class DBhelper {
         }
     }
 
-
+    /**
+     *  FOLLOWING METHODS DEAL WITH HANDLING ACTIVITIES
+     */
     public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance, String reps) {
         Connection conn = null;
         try {
@@ -308,6 +314,60 @@ public class DBhelper {
             e.printStackTrace();
             return false;
         } finally {
+            closeConnection(conn);
+        }
+    }
+
+
+    /**
+     *  FOLLOWING METHODS DEAL WITH FRIENDS SYSTEM IN THE APP
+     */
+    public boolean getUsers(String name){
+        Connection conn = null;
+        try{
+            conn = createNewConnection();
+            Statement statement = conn.createStatement();
+            ResultSet resultset = null;
+            resultset = statement.executeQuery(
+                    "SELECT UserID, firstname, surname, username " +
+                            "FROM User WHERE firstname LIKE " +
+                            "'%"+name +"%' " +
+                            "OR surname LIKE "+   "'%"+name +"%' "
+
+            );
+            if (!resultset.next()) {
+                return false;
+            }
+            resultset.beforeFirst();
+            addResult(resultset,4);
+            return true;
+        }
+        catch(Exception e){
+            return  false;
+        }
+        finally {
+            closeConnection(conn);
+        }
+    }
+
+
+    public boolean addFriend(int user1, int user2){
+        Connection conn = null;
+        try{
+            conn = createNewConnection();
+            Statement statement = conn.createStatement();
+            ResultSet resultset = null;
+            resultset = statement.executeQuery(
+                    "INSERT INTO Friends(UserID1");
+            if (!resultset.next()) {
+                return false;
+            }
+            return true;
+        }
+        catch(Exception e){
+            return  false;
+        }
+        finally {
             closeConnection(conn);
         }
     }

@@ -3,7 +3,7 @@ package com.example.exercisetracker.other;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.exercisetracker.activities.LogInScreen;
+import com.example.exercisetracker.login.LogInScreen;
 
 public class User {
     private static Integer UserID;

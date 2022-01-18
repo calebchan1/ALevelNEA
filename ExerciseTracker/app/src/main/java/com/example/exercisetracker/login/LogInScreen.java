@@ -1,4 +1,4 @@
-package com.example.exercisetracker.activities;
+package com.example.exercisetracker.login;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +11,7 @@ import android.widget.CompoundButton;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.exercisetracker.R;
+import com.example.exercisetracker.activities.MainActivity;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.DBhelper;
 import com.google.android.material.textfield.TextInputLayout;

@@ -7,6 +7,8 @@
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/drawable/homeButton_background.xml" value="0.3728205128205128" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/drawable/rectangle.xml" value="0.35648148148148145" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/font/centurygpthoc.xml" value="0.3927083333333333" />
+        <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout-v23/activity_addfriends.xml" value="0.321875" />
+        <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_addfriends.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_loginscreen.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_main.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_pushup.xml" value="0.3625" />
@@ -16,11 +18,13 @@
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/activity_walking.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/exercise.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/exercise_nav.xml" value="0.3625" />
+        <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_addfriends.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_exercise.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_friends.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_history.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_leaderboard.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/fragment_settings.xml" value="0.33" />
+        <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/friends_card_layout.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/history_card_layout.xml" value="0.3625" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/layout/snackbar_permissions.xml" value="0.29791666666666666" />
         <entry key="..\:/Users/Caleb Chan/Documents/GitHub/ALevelNEA/ExerciseTracker/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.3625" />

@@ -1,4 +1,4 @@
-package com.example.exercisetracker.activities;
+package com.example.exercisetracker.login;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;

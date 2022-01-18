@@ -21,7 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.activities.LogInScreen;
+import com.example.exercisetracker.login.LogInScreen;
 import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.User;
 import com.google.android.material.datepicker.CalendarConstraints;

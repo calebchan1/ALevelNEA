@@ -1,5 +1,6 @@
 package com.example.exercisetracker.fragments;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.activities.Activity;
+import com.example.exercisetracker.activities.AddFriendsActivity;
+import com.example.exercisetracker.activities.RunningActivity;
 import com.example.exercisetracker.other.DBhelper;
 
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LeaderboardFragment extends Fragment {
+public class LeaderboardFragment extends Fragment implements View.OnClickListener {
     private TableLayout table;
     private Integer timeframe;
     private Map<String, Integer> userScores;
@@ -39,6 +42,7 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
+        view.findViewById(R.id.navigateToFriendsActivity).setOnClickListener(this);
         table = view.findViewById(R.id.table_main);
         //by default, leaderboard set to public leaderboard at 24Hr
         timeframe = 1;
@@ -239,6 +243,14 @@ public class LeaderboardFragment extends Fragment {
             view.setTypeface(face);
             view.setText(text + " ");
             view.setTextSize(fontsize);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId()==R.id.navigateToFriendsActivity){
+            Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
+            startActivity(intent1);
         }
     }
 }

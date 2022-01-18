@@ -51,7 +51,7 @@ public class HistoryFragment extends Fragment {
 
                                 //RecyclerView allows us to dynamically produce card views as a list
                                 // Arraylist for storing data
-                                ArrayList<Activity> activityArr = new ArrayList<>();
+                                activityArr = new ArrayList<>();
                                 for (String query : queryResults) {
                                     activityArr.add(handleQuery(query));
                                 }
