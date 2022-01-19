@@ -92,6 +92,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
 
                 //when user wants to search for other users
                 if (!searchEditText.getText().toString().equals("")) {
+                    helper.clearResults();
                     if (helper.getUsers(searchEditText.getText().toString())){
                         //list of users passed to recycler view
                         //resetting friendArr for new query
@@ -159,14 +160,26 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             holder.addFriendBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //handling when user clicks on add friend on a specific user
-                    DBhelper helper = new DBhelper(context);
-                    if (helper.addFriend(User.getUserID(),friend.getId())) {
-                        Toast.makeText(context.getApplicationContext(), "Friend Added", Toast.LENGTH_SHORT).show();
-                        holder.addFriendBtn.setText("Remove Friend");
+                    if (holder.addFriendBtn.getText().equals("Add Friend")) {
+                        //handling when user clicks on add friend on a specific user
+                        DBhelper helper = new DBhelper(context);
+                        if (helper.addFriend(User.getUserID(), friend.getId())) {
+                            Toast.makeText(context.getApplicationContext(), "Friend Added", Toast.LENGTH_SHORT).show();
+                            holder.addFriendBtn.setText("Remove Friend");
+                        } else {
+                            Toast.makeText(context.getApplicationContext(), "Could not add friend", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    else{
-                        Toast.makeText(context.getApplicationContext(), "Could not add friend", Toast.LENGTH_SHORT).show();
+                    else if(holder.addFriendBtn.getText() == "Remove Friend"){
+                        //when friend has been already added and wants to remove friendship
+                        DBhelper helper = new DBhelper(context);
+                        if (helper.removeFriend(User.getUserID(),friend.getId())){
+                            Toast.makeText(context.getApplicationContext(), "Friend Removed", Toast.LENGTH_SHORT).show();
+                            holder.addFriendBtn.setText("Add Friend");
+                        }
+                        else{
+                            Toast.makeText(context.getApplicationContext(), "Could not remove friend", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             });

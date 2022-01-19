@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.example.exercisetracker.login.LogInScreen;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class User {
     private static Integer UserID;
@@ -16,15 +18,23 @@ public class User {
     private static Integer height;
     private static String username;
     private static String password;
-    private static ArrayList<Integer> friendsList;
+    private static Set<Integer> friendsList = new HashSet<Integer>();
 
-    public static ArrayList<Integer> getFriendsList() {
+    public static Set<Integer> getFriendsList() {
         return friendsList;
     }
 
     public static void addFriendsList(Integer friend) {
+        //adds to set of friends
+        //as set, no duplicate ids will exist
         User.friendsList.add(friend);
     }
+    public static void removeFriendsList(Integer friend) {
+        //adds to set of friends
+        //as set, no duplicate ids will exist
+        User.friendsList.remove(friend);
+    }
+
 
     public static String getUsername() {
         return username;

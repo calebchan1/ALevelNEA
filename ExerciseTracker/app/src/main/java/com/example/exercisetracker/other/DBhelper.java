@@ -130,7 +130,7 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    String.format("DELETE FROM User WHERE UserID = '%d'", userID)
+                    String.format(Locale.getDefault(),"DELETE FROM User WHERE UserID = '%d'", userID)
             );
             if (resultset == 0) {
                 //could not delete account
@@ -238,7 +238,7 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    String.format("DELETE FROM Activity WHERE ActivityID = '%d'", ActivityID)
+                    String.format(Locale.getDefault(),"DELETE FROM Activity WHERE ActivityID = '%d'", ActivityID)
             );
             if (resultset == 0) {
                 //could not delete activity
@@ -358,8 +358,8 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
             resultset = statement.executeQuery(
-                    "SELECT User2ID," +
-                            "FROM Friends WHERE USERID1 = "+
+                    "SELECT User2ID " +
+                            "FROM Friends WHERE USER1ID = "+
                             String.format(Locale.getDefault(),"'%d' ",User.getUserID())
             );
             if (!resultset.next()) {
@@ -369,8 +369,8 @@ public class DBhelper {
             addResult(resultset,1);
 
             resultset = statement.executeQuery(
-                    "SELECT User1ID," +
-                            "FROM Friends WHERE USERID2 = "+
+                    "SELECT User1ID " +
+                            "FROM Friends WHERE USER2ID = "+
                             String.format(Locale.getDefault(),"'%d' ",User.getUserID())
             );
             if (!resultset.next()) {
@@ -390,21 +390,54 @@ public class DBhelper {
     }
 
     public boolean addFriend(int user1, int user2){
+        //adding friend relationship to database
+        //where user1 is user who initiated friendship
         Connection conn = null;
         try{
             conn = createNewConnection();
             Statement statement = conn.createStatement();
-            ResultSet resultset = null;
-            resultset = statement.executeQuery(
-                    "INSERT INTO Friends(User1ID,User2ID) " +
-                            String.format(Locale.getDefault(),"VALUES ('%d','%d')",user1,user2)
+            int resultset = 0;
+            resultset = statement.executeUpdate(
+                    "INSERT INTO Friends " +
+                            String.format(Locale.getDefault(),"VALUES ('%d','%d');",user1,user2)
             );
-            if (!resultset.next()) {
+            if (resultset == 0) {
                 return false;
             }
+            //adding to User class set of friends
+            User.addFriendsList(user2);
             return true;
         }
         catch(Exception e){
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            return  false;
+        }
+        finally {
+            closeConnection(conn);
+        }
+    }
+
+    public boolean removeFriend(int user1, int user2){
+        //adding friend relationship to database
+        //where user1 is user who initiated friendship
+        Connection conn = null;
+        try{
+            conn = createNewConnection();
+            Statement statement = conn.createStatement();
+            int resultset = 0;
+            resultset = statement.executeUpdate(
+                    "DELETE FROM Friends " +
+                            String.format(Locale.getDefault(),"WHERE User1ID = '%d' AND User2ID = '%d'",user1,user2)
+            );
+            if (resultset == 0) {
+                return false;
+            }
+            //adding to User class set of friends
+            User.removeFriendsList(user2);
+            return true;
+        }
+        catch(Exception e){
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return  false;
         }
         finally {
@@ -452,6 +485,6 @@ public class DBhelper {
     }
 
     public void clearResults(){
-        this.getResult().clear();
+        this.result.clear();
     }
 }
