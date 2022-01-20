@@ -23,6 +23,7 @@ import com.example.exercisetracker.activities.Activity;
 import com.example.exercisetracker.activities.AddFriendsActivity;
 import com.example.exercisetracker.activities.RunningActivity;
 import com.example.exercisetracker.other.DBhelper;
+import com.example.exercisetracker.other.User;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,7 +164,52 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
     }
     private Map<String, Integer> getPrivateLeaderboard() {
-        return null;
+        //getting all activities from database, and performing calculations
+        //for top most active users
+        DBhelper helper = new DBhelper(getContext());
+        if (helper.getFriends()){
+            for (String friend : helper.getResult()){
+                //as query returns multiple columns, must slice string
+                //first column is always the id of the friend
+                String[] arr = friend.split(" ");
+                User.addFriendsList(Integer.parseInt(arr[0]));
+            }
+            helper.clearResults();
+        }
+        else{
+            Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+        }
+        LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
+        if (helper.getFriendsActivities(timeframe, User.getFriendsList())) {
+            for (String string : helper.getResult()) {
+                String[] row = string.split(" ");
+                if (userScoresHashMap.get(row[0]) != null) {
+                    //if the user exists on the hash map
+                    //previous total added on top
+                    userScoresHashMap.put(row[0], Integer.parseInt(row[1]) + userScoresHashMap.get(row[0]));
+
+                } else {
+                    //if user does not yet exist on hash map
+                    userScoresHashMap.put(row[0], Integer.parseInt(row[1]));
+                }
+            }
+
+            //converting hashmap to arraylist
+            ArrayList<String> listOfKeys = new ArrayList<>();
+            ArrayList<Integer> listOfValues = new ArrayList<>();
+            for (Map.Entry<String, Integer> entry : userScoresHashMap.entrySet()) {
+                String name = entry.getKey();
+                Integer calories = entry.getValue();
+                //parsing to arraylists
+                listOfKeys.add(name);
+                listOfValues.add(calories);
+            }
+            //returning the sorted hash map rather than converting to array then sorting
+            return sortHashMapByValues(userScoresHashMap);
+        }
+        else{
+            return null;
+        }
     }
 
     private Map<String, Integer> sortHashMapByValues(HashMap<String , Integer> passedMap) {

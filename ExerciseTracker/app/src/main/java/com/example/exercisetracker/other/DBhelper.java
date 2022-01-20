@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 
 public class DBhelper {
     private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
@@ -255,6 +256,84 @@ public class DBhelper {
         }
     }
 
+    public boolean getFriendsActivities(Integer duration, Set<Integer> friendsList){
+
+        //by using WHERE IN VALUES(), we can limit which activities are requested
+        // in format ('id1','id2',....)
+        StringBuilder sqlCondition = new StringBuilder("(");
+        for (Integer id: friendsList){
+            sqlCondition.append(String.format(Locale.getDefault(), "'%d',", id));
+        }
+        sqlCondition.deleteCharAt(sqlCondition.length()-1);
+        sqlCondition.append(") ");
+
+        Connection conn = null;
+        //get request to database for all activities done for private leaderboard
+        //includes userID, and first name corresponding to each activity
+
+        try {
+            //connecting to database server
+            conn = createNewConnection();
+            Statement statement = conn.createStatement();
+            ResultSet resultset = null;
+            if (duration==0) {
+                //executing SQL statement
+                //requesting leaderboard of all time
+                resultset = statement.executeQuery(
+                        "SELECT User.firstname, Activity.calories " +
+                                "FROM Activity, User " +
+                                "WHERE Activity.UserID IN " + sqlCondition +
+                                "ORDER BY Activity.Date DESC;"
+                );
+            }
+            else if (duration == 1){
+                //executing SQL statement
+                //requesting leaderboard from past day
+                long millis = System.currentTimeMillis();
+                Date date = new java.sql.Date(millis);
+                resultset = statement.executeQuery(
+                        "SELECT User.firstname, Activity.calories " +
+                                "FROM Activity, User " +
+                                "WHERE Activity.UserID IN " + sqlCondition + "AND " +
+                                String.format("Activity.Date = '%s' ",date.toString()) +
+                                "ORDER BY Activity.Date DESC;"
+                );
+            }
+            else if (duration == 30){
+                //requesting leaderboard from past 30 days
+                long millis = System.currentTimeMillis();
+                millis = millis - 2592000000L;
+                Date date = new java.sql.Date(millis);
+                resultset = statement.executeQuery(
+                        "SELECT User.firstname, Activity.calories " +
+                                "FROM Activity, User " +
+                                "WHERE Activity.UserID IN " + sqlCondition + "AND " +
+                                String.format("Activity.Date >= '%s' ",date.toString()) +
+                                "ORDER BY Activity.Date DESC;"
+                );
+            }
+            if (!resultset.next()) {
+                return false;
+            }
+            resultset.beforeFirst();
+            //dealing with multiple rows
+            addResult(resultset,2);
+            for (String string:this.result) {
+                Toast.makeText(this.context, string, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+
+        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            //if connection throws exception, login failed and false is returned
+            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return false;
+        } finally {
+            closeConnection(conn);
+        }
+    }
+
+
     public boolean getAllActivities(Integer duration){
         Connection conn = null;
         //get request to database for all activities done for public leaderboard
@@ -328,11 +407,15 @@ public class DBhelper {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
+            //getting all users on the database, based on search
+            //removing user which has the same userID as the user currently in the app
+            //(you cannot be a friend of yourself)
             resultset = statement.executeQuery(
                     "SELECT UserID, firstname, surname, username " +
                             "FROM User WHERE firstname LIKE " +
                             "'%"+name +"%' " +
-                            "OR surname LIKE "+   "'%"+name +"%' "
+                            "OR surname LIKE "+   "'%"+name +"%' " +
+                            String.format(Locale.getDefault(),"AND UserID <> '%d' ",User.getUserID())
 
             );
             if (!resultset.next()) {
@@ -358,27 +441,17 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
             resultset = statement.executeQuery(
-                    "SELECT User2ID " +
-                            "FROM Friends WHERE USER1ID = "+
-                            String.format(Locale.getDefault(),"'%d' ",User.getUserID())
+                    "SELECT Friends.User2ID, User.firstname, User.surname, User.username " +
+                            "FROM Friends, User "+
+                            String.format(Locale.getDefault()," WHERE Friends.USER1ID = '%d' ",User.getUserID()) +
+                            "AND User.UserID = Friends.USER2ID"
             );
             if (!resultset.next()) {
                 return false;
             }
+            User.getFriendsList().clear();
             resultset.beforeFirst();
-            addResult(resultset,1);
-
-            resultset = statement.executeQuery(
-                    "SELECT User1ID " +
-                            "FROM Friends WHERE USER2ID = "+
-                            String.format(Locale.getDefault(),"'%d' ",User.getUserID())
-            );
-            if (!resultset.next()) {
-                return false;
-            }
-            resultset.beforeFirst();
-            addResult(resultset,1);
-
+            addResult(resultset,4);
             return true;
         }
         catch(Exception e){

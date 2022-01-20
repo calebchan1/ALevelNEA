@@ -72,6 +72,27 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         recyclerView.setAdapter(courseAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
 
+
+        //by default, the user's friends list shows on the screen
+        //they can decide to remove any of their friends
+        DBhelper helper = new DBhelper(this);
+        if (helper.getFriends()){
+            for (String query : helper.getResult()){
+                Friend friendObj = handleQuery(query);
+                //adding to user's list of friends
+                User.addFriendsList(friendObj.getId());
+                friendArr.add(friendObj);
+                courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
+                //adding to recycler view (by default when user loads this section
+                //their friends will appear
+            }
+            helper.clearResults();
+        }
+        else{
+            Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+        }
+
+
     }
 
     @Override
@@ -81,8 +102,16 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 //refreshing the static user class friend list from database
                 DBhelper helper = new DBhelper(this);
                 if (helper.getFriends()){
-                    for (String friend : helper.getResult()){
-                        User.addFriendsList(Integer.parseInt(friend));
+                    for (String query : helper.getResult()){
+                        Friend friendObj = handleQuery(query);
+                        //adding to user's list of friends
+                        User.addFriendsList(friendObj.getId());
+                        friendArr.clear();
+                        courseAdapter.notifyDataSetChanged();
+                        friendArr.add(friendObj);
+                        courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
+                        //adding to recycler view (by default when user loads this section
+                        //their friends will appear
                     }
                     helper.clearResults();
                 }
@@ -100,7 +129,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                         courseAdapter.notifyDataSetChanged();
                         for (String row : helper.getResult()){
                             friendArr.add(handleQuery(row));
-                            courseAdapter.notifyItemInserted(courseAdapter.getItemCount()-1);
+                            courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
                             // setting layout manager and adapter to our recycler view.
                         }
 
@@ -155,6 +184,13 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         public void onBindViewHolder(@NonNull AddFriendsActivity.FriendAdapter.Viewholder holder, int position) {
             //setting the instance holder data from the friend object at that position in the array
             Friend friend = friendsArr.get(position);
+
+            if (User.getFriendsList().contains(friend.getId())){
+                //if friend is in the user's friend list change button to remove friend
+                holder.addFriendBtn.setText("Remove Friend");
+            }
+
+
             holder.realNameTV.setText(friend.getFirstname() + " " +friend.getSurname());
             holder.usernameIDTV.setText("username: "+ friend.getUsername());
             holder.addFriendBtn.setOnClickListener(new View.OnClickListener() {
