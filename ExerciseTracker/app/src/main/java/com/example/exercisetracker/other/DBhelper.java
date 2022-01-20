@@ -412,9 +412,9 @@ public class DBhelper {
             //(you cannot be a friend of yourself)
             resultset = statement.executeQuery(
                     "SELECT UserID, firstname, surname, username " +
-                            "FROM User WHERE firstname LIKE " +
+                            "FROM User WHERE (firstname LIKE " +
                             "'%"+name +"%' " +
-                            "OR surname LIKE "+   "'%"+name +"%' " +
+                            "OR surname LIKE "+   "'%"+name +"%') " +
                             String.format(Locale.getDefault(),"AND UserID <> '%d' ",User.getUserID())
 
             );
