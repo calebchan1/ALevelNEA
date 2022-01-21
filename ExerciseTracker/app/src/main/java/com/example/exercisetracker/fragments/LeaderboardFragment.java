@@ -1,11 +1,13 @@
 package com.example.exercisetracker.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -38,6 +40,15 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     private Integer timeframe;
     private Map<String, Integer> userScores;
     private Boolean isPublic;
+    private ProgressDialog loadingDialog;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (loadingDialog!=null) {
+            loadingDialog.dismiss();
+        }
+    }
 
     @Nullable
     @Override
@@ -295,8 +306,15 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v.getId()==R.id.navigateToFriendsActivity){
+            loadingDialog = new ProgressDialog(getContext());
+            loadingDialog.setMessage("Loading..");
+            loadingDialog.setTitle("Retrieving Your Friends List");
+            loadingDialog.setIndeterminate(false);
+            loadingDialog.setCancelable(true);
+            loadingDialog.show();
             Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
             startActivity(intent1);
+
         }
     }
 }

@@ -121,11 +121,11 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private void loadFriendsList(){
         DBhelper helper = new DBhelper(this);
         if (helper.getFriends()){
+            friendArr.clear();
             for (String query : helper.getResult()){
                 Friend friendObj = handleQuery(query);
                 //adding to user's list of friends
                 User.addFriendsList(friendObj.getId());
-                friendArr.clear();
                 courseAdapter.notifyDataSetChanged();
                 friendArr.add(friendObj);
                 courseAdapter.notifyItemInserted(courseAdapter.getItemCount()-1);

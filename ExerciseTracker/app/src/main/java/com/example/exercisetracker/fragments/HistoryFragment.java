@@ -1,5 +1,6 @@
 package com.example.exercisetracker.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -34,11 +35,16 @@ public class HistoryFragment extends Fragment {
     private ArrayList<Activity> activityArr;
     private RecyclerView historyRV;
     private LinearLayoutManager linearLayoutManager;
+    private    ProgressDialog loadingDialog;
+
 
 
     @Override
     public void onResume() {
         super.onResume();
+        if (loadingDialog!=null){
+            loadingDialog.dismiss();
+        }
         new Thread(){
             public void run() {
                 getActivity().runOnUiThread(new Runnable() {
@@ -80,6 +86,12 @@ public class HistoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        loadingDialog = new ProgressDialog(getContext());
+        loadingDialog.setMessage("Loading..");
+        loadingDialog.setTitle("Retrieving Your Friends List");
+        loadingDialog.setIndeterminate(false);
+        loadingDialog.setCancelable(true);
+        loadingDialog.show();
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         historyRV = view.findViewById(R.id.HistoryRV);
         activityArr = new ArrayList<>();

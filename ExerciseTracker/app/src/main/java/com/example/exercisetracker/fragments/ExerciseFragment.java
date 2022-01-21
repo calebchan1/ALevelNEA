@@ -1,6 +1,7 @@
 package com.example.exercisetracker.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,10 +26,16 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
     //notification
     private NotificationManagerCompat notificationManagerCompat;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+
         View view =  inflater.inflate(R.layout.fragment_exercise,container,false);
         Button runBtn = (Button) view.findViewById(R.id.runBtn);
         Button walkBtn = (Button) view.findViewById(R.id.walkBtn);
