@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -18,13 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.activities.Activity;
 import com.example.exercisetracker.activities.AddFriendsActivity;
-import com.example.exercisetracker.activities.MainActivity;
-import com.example.exercisetracker.activities.RunningActivity;
 import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.User;
 
@@ -42,13 +37,15 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     private Map<String, Integer> userScores;
     private Boolean isPublic;
     private ProgressDialog loadingDialog;
+    private TextView noLeaderboard;
 
     @Override
     public void onResume() {
         super.onResume();
-        if (loadingDialog!=null) {
+        if (loadingDialog != null) {
             loadingDialog.dismiss();
         }
+
     }
 
     @Nullable
@@ -57,6 +54,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         view.findViewById(R.id.navigateToFriendsActivity).setOnClickListener(this);
         table = view.findViewById(R.id.table_main);
+        noLeaderboard = view.findViewById(R.id.noLeaderboard);
 
         //by default, leaderboard set to public leaderboard at 24Hr
         timeframe = 1;
@@ -65,7 +63,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             public void run() {
                 userScores = getPublicLeaderboard();
                 isPublic = true;
-                if (userScores!=null) {
+                if (userScores != null) {
                     createTable(userScores);
                 }
             }
@@ -79,6 +77,23 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 if (checkedId == R.id.friendsBtn) {
                     isPublic = false;
                     //when user selects friends radio button, private leaderboard is shown
+                    //updating User class for friends list
+
+                    DBhelper helper = new DBhelper(getContext());
+                    //retrieving friends from database
+                    if (helper.getFriends()) {
+                        User.clearFriendsList();
+                        for (String query : helper.getResult()) {
+                            String[] arr = query.split(" ");
+                            //parsing user id to user class
+                            System.out.println(arr[0]);
+                            User.addFriendsList(Integer.parseInt(arr[0]));
+                        }
+                        helper.clearResults();
+                    } else {
+                        Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+                    }
+
                     updateTable(getPrivateLeaderboard());
                 } else if (checkedId == R.id.allUsersBtn) {
                     isPublic = true;
@@ -93,13 +108,12 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 //when user changes the time period of the leaderboard
-                switch(checkedId){
+                switch (checkedId) {
                     case R.id.oneDay:
                         timeframe = 1;
                         if (isPublic) {
                             updateTable(getPublicLeaderboard());
-                        }
-                        else{
+                        } else {
                             updateTable(getPrivateLeaderboard());
                         }
                         //period of the last 24 hrs
@@ -108,8 +122,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         timeframe = 30;
                         if (isPublic) {
                             updateTable(getPublicLeaderboard());
-                        }
-                        else{
+                        } else {
                             updateTable(getPrivateLeaderboard());
                         }
                         //period of the last 30 days
@@ -118,8 +131,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         timeframe = 0;
                         if (isPublic) {
                             updateTable(getPublicLeaderboard());
-                        }
-                        else{
+                        } else {
                             updateTable(getPrivateLeaderboard());
                         }
                         //period of all time
@@ -132,20 +144,21 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         return view;
     }
 
-    private void updateTable(Map<String, Integer> newScores){
+    private void updateTable(Map<String, Integer> newScores) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 table.removeAllViews();
-                if (userScores!= null) {
+                if (userScores != null) {
                     userScores.clear();
                 }
                 userScores = newScores;
-                if (newScores!=null) {
+                if (newScores != null) {
+                    noLeaderboard.setVisibility(View.INVISIBLE);
                     createTable(newScores);
-                }
-                else{
-                    Toast.makeText(getContext(), "No Activities stored", Toast.LENGTH_SHORT).show();
+                } else {
+                    //show message to user that no activities found during this period on leaderboard
+                    noLeaderboard.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -184,63 +197,65 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             }
             //returning the sorted hash map rather than converting to array then sorting
             return sortHashMapByValues(userScoresHashMap);
-        }
-        else{
+        } else {
             return null;
         }
 
     }
+
     private Map<String, Integer> getPrivateLeaderboard() {
-        //getting all activities from database, and performing calculations
-        //for top most active users
-        DBhelper helper = new DBhelper(getContext());
-        if (helper.getFriends()){
-            for (String friend : helper.getResult()){
-                //as query returns multiple columns, must slice string
-                //first column is always the id of the friend
-                String[] arr = friend.split(" ");
-                User.addFriendsList(Integer.parseInt(arr[0]));
-            }
-            helper.clearResults();
-        }
-        else{
-            Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
-        }
-        LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
-        //getting activities of friends
-        if (helper.getFriendsActivities(timeframe, User.getFriendsList())) {
-            for (String string : helper.getResult()) {
-                String[] row = string.split(" ");
-                if (userScoresHashMap.get(row[0]) != null) {
-                    //if the user exists on the hash map
-                    //previous total added on top
-                    userScoresHashMap.put(row[0], Integer.parseInt(row[1]) + userScoresHashMap.get(row[0]));
-
-                } else {
-                    //if user does not yet exist on hash map
-                    userScoresHashMap.put(row[0], Integer.parseInt(row[1]));
+        //if the user has at least one friend
+        if (!User.getFriendsList().isEmpty()) {
+            //getting all activities from database, and performing calculations
+            //for top most active users
+            DBhelper helper = new DBhelper(getContext());
+            if (helper.getFriends()) {
+                for (String friend : helper.getResult()) {
+                    //as query returns multiple columns, must slice string
+                    //first column is always the id of the friend
+                    String[] arr = friend.split(" ");
+                    User.addFriendsList(Integer.parseInt(arr[0]));
                 }
+                helper.clearResults();
+            } else {
+                Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
             }
+            LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
+            //getting activities of friends
+            if (helper.getFriendsActivities(timeframe, User.getFriendsList())) {
+                for (String string : helper.getResult()) {
+                    String[] row = string.split(" ");
+                    if (userScoresHashMap.get(row[0]) != null) {
+                        //if the user exists on the hash map
+                        //previous total added on top
+                        userScoresHashMap.put(row[0], Integer.parseInt(row[1]) + userScoresHashMap.get(row[0]));
 
-            //converting hashmap to arraylist
-            ArrayList<String> listOfKeys = new ArrayList<>();
-            ArrayList<Integer> listOfValues = new ArrayList<>();
-            for (Map.Entry<String, Integer> entry : userScoresHashMap.entrySet()) {
-                String name = entry.getKey();
-                Integer calories = entry.getValue();
-                //parsing to arraylists
-                listOfKeys.add(name);
-                listOfValues.add(calories);
+                    } else {
+                        //if user does not yet exist on hash map
+                        userScoresHashMap.put(row[0], Integer.parseInt(row[1]));
+                    }
+                }
+
+                //converting hashmap to arraylist
+                ArrayList<String> listOfKeys = new ArrayList<>();
+                ArrayList<Integer> listOfValues = new ArrayList<>();
+                for (Map.Entry<String, Integer> entry : userScoresHashMap.entrySet()) {
+                    String name = entry.getKey();
+                    Integer calories = entry.getValue();
+                    //parsing to arraylists
+                    listOfKeys.add(name);
+                    listOfValues.add(calories);
+                }
+                //returning the sorted hash map rather than converting to array then sorting
+                return sortHashMapByValues(userScoresHashMap);
+            } else {
+                return null;
             }
-            //returning the sorted hash map rather than converting to array then sorting
-            return sortHashMapByValues(userScoresHashMap);
         }
-        else{
-            return null;
-        }
+        return null;
     }
 
-    private Map<String, Integer> sortHashMapByValues(HashMap<String , Integer> passedMap) {
+    private Map<String, Integer> sortHashMapByValues(HashMap<String, Integer> passedMap) {
         //lists of values and keys in separate lists
         List<String> mapKeys = new ArrayList<>(passedMap.keySet());
         List<Integer> mapValues = new ArrayList<>(passedMap.values());
@@ -270,13 +285,13 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         return sortedMap;
     }
 
-    private void createTable(Map<String, Integer> hashMap){
+    private void createTable(Map<String, Integer> hashMap) {
         //method to create TableLayout view graphic, to display leaderboard
         int pos = 1;
         //creating table headers
-        String[] arr = {"Pos. ", "User ","Score"};
+        String[] arr = {"Pos. ", "User ", "Score"};
         TableRow row = new TableRow(getContext());
-        for (String string : arr){
+        for (String string : arr) {
             TextView tv = new TextView(getContext());
             handleViews(tv, string, true, 30);
             row.addView(tv);
@@ -288,15 +303,15 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             String name = entry.getKey();
             Integer score = entry.getValue();
             //creating a row
-            row= new TableRow(getContext());
+            row = new TableRow(getContext());
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
             TextView posTV = new TextView(getContext());
-            handleViews(posTV, Integer.toString(pos) + ". ",false, fontsize);
+            handleViews(posTV, Integer.toString(pos) + ". ", false, fontsize);
             TextView nameTV = new TextView(getContext());
-            handleViews(nameTV, name,false, fontsize);
+            handleViews(nameTV, name, false, fontsize);
             TextView scoreTV = new TextView(getContext());
-            handleViews(scoreTV, score.toString(),false, fontsize);
+            handleViews(scoreTV, score.toString(), false, fontsize);
             row.addView(posTV);
             row.addView(nameTV);
             row.addView(scoreTV);
@@ -305,14 +320,13 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         }
     }
 
-    private void handleViews(TextView view, String text, Boolean bold, Integer fontsize){
+    private void handleViews(TextView view, String text, Boolean bold, Integer fontsize) {
         if (bold) {
             Typeface face = ResourcesCompat.getFont(getContext(), R.font.gothicbb);
             view.setTypeface(face);
             view.setText(text + " ");
             view.setTextSize(fontsize);
-        }
-        else{
+        } else {
             Typeface face = ResourcesCompat.getFont(getContext(), R.font.gothic);
             view.setTypeface(face);
             view.setText(text + " ");
@@ -322,7 +336,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        if (v.getId()==R.id.navigateToFriendsActivity){
+        if (v.getId() == R.id.navigateToFriendsActivity) {
             Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
             loadingDialog = new ProgressDialog(getContext());
             loadingDialog.setMessage("Loading..");

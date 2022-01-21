@@ -283,7 +283,7 @@ public class DBhelper {
                 resultset = statement.executeQuery(
                         "SELECT User.firstname, Activity.calories " +
                                 "FROM Activity, User " +
-                                "WHERE Activity.UserID IN " + sqlCondition +
+                                "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition +
                                 "ORDER BY Activity.Date DESC;"
                 );
             }
@@ -295,7 +295,7 @@ public class DBhelper {
                 resultset = statement.executeQuery(
                         "SELECT User.firstname, Activity.calories " +
                                 "FROM Activity, User " +
-                                "WHERE Activity.UserID IN " + sqlCondition + "AND " +
+                                "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition + "AND " +
                                 String.format("Activity.Date = '%s' ",date.toString()) +
                                 "ORDER BY Activity.Date DESC;"
                 );
@@ -308,7 +308,7 @@ public class DBhelper {
                 resultset = statement.executeQuery(
                         "SELECT User.firstname, Activity.calories " +
                                 "FROM Activity, User " +
-                                "WHERE Activity.UserID IN " + sqlCondition + "AND " +
+                                "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition + "AND " +
                                 String.format("Activity.Date >= '%s' ",date.toString()) +
                                 "ORDER BY Activity.Date DESC;"
                 );

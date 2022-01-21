@@ -35,7 +35,8 @@ public class HistoryFragment extends Fragment {
     private ArrayList<Activity> activityArr;
     private RecyclerView historyRV;
     private LinearLayoutManager linearLayoutManager;
-    private    ProgressDialog loadingDialog;
+    private TextView noHistory;
+    private ProgressDialog loadingDialog;
 
 
 
@@ -72,7 +73,13 @@ public class HistoryFragment extends Fragment {
 
                             } else {
                                 //activity was not read successfully, recycler view not created
-                                Toast.makeText(getContext(), "Activity History not read", Toast.LENGTH_SHORT).show();
+                                //show disclaimer text view on screen
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        noHistory.setVisibility(View.VISIBLE);
+                                    }
+                                });
                             }
 
 
@@ -88,6 +95,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_history,container,false);
+        noHistory = view.findViewById(R.id.noExercises);
         historyRV = view.findViewById(R.id.HistoryRV);
         activityArr = new ArrayList<>();
         courseAdapter = new ActivityAdapter(getContext(), activityArr);
@@ -99,6 +107,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private Activity handleQuery(String query){
+        //method to handle query
         String[] arr = query.split(" ");
         int id = Integer.parseInt(arr[0]);
         String name = arr[1];
@@ -109,6 +118,7 @@ public class HistoryFragment extends Fragment {
             description = description + string + " ";
         }
         int img = -1;
+        //adding images to corresponding exercise
         switch (name) {
             case "running":
                 img = R.drawable.runningman;
