@@ -267,6 +267,7 @@ public class DBhelper {
         sqlCondition.deleteCharAt(sqlCondition.length()-1);
         sqlCondition.append(") ");
 
+        System.out.println(sqlCondition);
         Connection conn = null;
         //get request to database for all activities done for private leaderboard
         //includes userID, and first name corresponding to each activity
@@ -505,7 +506,7 @@ public class DBhelper {
             if (resultset == 0) {
                 return false;
             }
-            //adding to User class set of friends
+            //removing from User set of friends
             User.removeFriendsList(user2);
             return true;
         }

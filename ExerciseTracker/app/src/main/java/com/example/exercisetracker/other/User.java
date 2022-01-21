@@ -35,6 +35,10 @@ public class User {
         User.friendsList.remove(friend);
     }
 
+    public static void clearFriendsList(){
+        friendsList.clear();
+    }
+
 
     public static String getUsername() {
         return username;

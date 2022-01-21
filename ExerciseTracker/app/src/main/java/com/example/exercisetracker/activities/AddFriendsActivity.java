@@ -56,7 +56,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
-        getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.white));
 
         //setting on click listener to class
         findViewById(R.id.searchBtn).setOnClickListener(this);
@@ -75,6 +75,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
 
         //by default, the user's friends list shows on the screen
         //they can decide to remove any of their friends
+
         loadFriendsList();
     }
 
@@ -84,7 +85,6 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             case R.id.searchBtn:
                 //refreshing the static user class friend list from database
                 DBhelper helper = new DBhelper(this);
-                loadFriendsList();
                 //when user wants to search for other users
                 if (!searchEditText.getText().toString().equals("")) {
                     helper.clearResults();
@@ -94,23 +94,19 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                         friendArr.clear();
                         courseAdapter.notifyDataSetChanged();
                         for (String row : helper.getResult()){
-                            friendArr.add(handleQuery(row));
+                            Friend friendObj = handleQuery(row);
+                            friendArr.add(friendObj);
                             courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
                             // setting layout manager and adapter to our recycler view.
                         }
 
                     }
                     else{
-                        friendArr.clear();
-                        courseAdapter.notifyDataSetChanged();
                         Toast.makeText(getApplicationContext(), "No Users Found", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
                     //user has searched empty query
-                    friendArr.clear();
-                    loadFriendsList();
-                    courseAdapter.notifyDataSetChanged();
                     Toast.makeText(getApplicationContext(), "You have not entered anything", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -121,14 +117,15 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private void loadFriendsList(){
         DBhelper helper = new DBhelper(this);
         if (helper.getFriends()){
+            User.clearFriendsList();
             friendArr.clear();
+            courseAdapter.notifyDataSetChanged();
             for (String query : helper.getResult()){
                 Friend friendObj = handleQuery(query);
                 //adding to user's list of friends
                 User.addFriendsList(friendObj.getId());
-                courseAdapter.notifyDataSetChanged();
                 friendArr.add(friendObj);
-                courseAdapter.notifyItemInserted(courseAdapter.getItemCount()-1);
+                courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
                 //adding to recycler view (by default when user loads this section
                 //their friends will appear
             }
@@ -176,6 +173,9 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             if (User.getFriendsList().contains(friend.getId())){
                 //if friend is in the user's friend list change button to remove friend
                 holder.addFriendBtn.setText("Remove Friend");
+            }
+            else{
+                holder.addFriendBtn.setText("Add Friend");
             }
 
 

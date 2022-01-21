@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.activities.Activity;
 import com.example.exercisetracker.activities.AddFriendsActivity;
+import com.example.exercisetracker.activities.MainActivity;
 import com.example.exercisetracker.activities.RunningActivity;
 import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.User;
@@ -56,13 +57,21 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         view.findViewById(R.id.navigateToFriendsActivity).setOnClickListener(this);
         table = view.findViewById(R.id.table_main);
+
         //by default, leaderboard set to public leaderboard at 24Hr
         timeframe = 1;
-        userScores = getPublicLeaderboard();
-        isPublic = true;
-        if (userScores!=null) {
-            createTable(userScores);
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                userScores = getPublicLeaderboard();
+                isPublic = true;
+                if (userScores!=null) {
+                    createTable(userScores);
+                }
+            }
+        });
+
+
         RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
         publicPrivateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -124,20 +133,27 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     }
 
     private void updateTable(Map<String, Integer> newScores){
-        table.removeAllViews();
-        if (userScores!= null) {
-            userScores.clear();
-        }
-        userScores = newScores;
-        if (newScores!=null) {
-            createTable(newScores);
-        }
-        else{
-            Toast.makeText(getContext(), "No Activities stored", Toast.LENGTH_SHORT).show();
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                table.removeAllViews();
+                if (userScores!= null) {
+                    userScores.clear();
+                }
+                userScores = newScores;
+                if (newScores!=null) {
+                    createTable(newScores);
+                }
+                else{
+                    Toast.makeText(getContext(), "No Activities stored", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
     private Map<String, Integer> getPublicLeaderboard() {
+
         //getting all activities from database, and performing calculations
         //for top most active users
         DBhelper helper = new DBhelper(getContext());
@@ -191,6 +207,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
         }
         LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
+        //getting activities of friends
         if (helper.getFriendsActivities(timeframe, User.getFriendsList())) {
             for (String string : helper.getResult()) {
                 String[] row = string.split(" ");
@@ -306,13 +323,12 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v.getId()==R.id.navigateToFriendsActivity){
+            Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
             loadingDialog = new ProgressDialog(getContext());
             loadingDialog.setMessage("Loading..");
             loadingDialog.setTitle("Retrieving Your Friends List");
-            loadingDialog.setIndeterminate(false);
-            loadingDialog.setCancelable(true);
+            loadingDialog.setIndeterminate(true);
             loadingDialog.show();
-            Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
             startActivity(intent1);
 
         }

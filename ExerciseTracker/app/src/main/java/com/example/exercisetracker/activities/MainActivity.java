@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -42,10 +43,12 @@ public class MainActivity extends AppCompatActivity{
 
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
                 Fragment fragment = new ExerciseFragment();;
                 switch(item.getItemId()){
                     case(R.id.page_1):
                         fragment = new ExerciseFragment();
+
                         break;
                     case(R.id.page_2):
                         fragment = new HistoryFragment();

@@ -86,12 +86,7 @@ public class HistoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        loadingDialog = new ProgressDialog(getContext());
-        loadingDialog.setMessage("Loading..");
-        loadingDialog.setTitle("Retrieving Your Friends List");
-        loadingDialog.setIndeterminate(false);
-        loadingDialog.setCancelable(true);
-        loadingDialog.show();
+
         View view = inflater.inflate(R.layout.fragment_history,container,false);
         historyRV = view.findViewById(R.id.HistoryRV);
         activityArr = new ArrayList<>();
