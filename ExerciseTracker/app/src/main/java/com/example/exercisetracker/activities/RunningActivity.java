@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -23,6 +24,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -52,6 +54,7 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 
 public class RunningActivity extends AppCompatActivity {
     //Sensors
@@ -81,6 +84,12 @@ public class RunningActivity extends AppCompatActivity {
     private Date date;
     private double pace;
     private StepCounter stepCounter;
+
+    //audio
+    private TextToSpeech tts;
+    private int currquote;
+    private String[] quotes;
+
 
     //notification and services
     private NotificationManagerCompat notificationManagerCompat;
@@ -144,6 +153,11 @@ public class RunningActivity extends AppCompatActivity {
         startStopBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
         df = new DecimalFormat("#.##");
+
+        //quotes from resources
+        Resources res = getResources();
+        quotes = res.getStringArray(R.array.quotes);
+
 
         //CUSTOM JAVA CLASSES
         stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
@@ -268,6 +282,22 @@ public class RunningActivity extends AppCompatActivity {
         }
     }
 
+    private void handleQuotes(){
+        //starting with random quote for text to speech
+        Random r = new Random();
+        currquote = r.nextInt(quotes.length);
+        if (seconds % 60 == 0) {
+            //every 60 seconds a quote is spoken to help motivate the user
+            if (currquote > quotes.length) {
+                //moving to front of quote array
+                currquote = 0;
+            }
+            //speaking quote, and moving to next quote
+            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+            currquote++;
+        }
+    }
+
     private void createTimer() {
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -289,7 +319,8 @@ public class RunningActivity extends AppCompatActivity {
                     if ((seconds % 5) == 0) {
                         stepCounter.setHasProcessed(Boolean.FALSE);
                     }
-                    //updating notification every second
+                    //updating audio
+                    handleQuotes();
 
                 }
 
@@ -384,6 +415,10 @@ public class RunningActivity extends AppCompatActivity {
     private void finishRunning() {
         isRunning = false;
         sensorManager.unregisterListener(listener);
+        //audio text to speech to congratulate user
+        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps,distance),
+                TextToSpeech.QUEUE_FLUSH, null);
+
         if (locationManager != null && timeStarted != null) {
             locationManager.removeUpdates(locationListener);
             //exiting the running activity and saving data to database

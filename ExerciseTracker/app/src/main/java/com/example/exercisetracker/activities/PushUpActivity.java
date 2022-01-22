@@ -82,6 +82,7 @@ public class PushUpActivity extends AppCompatActivity {
     private TextToSpeech tts;
     private int currquote;
     private String[] quotes;
+
     //notification
     private NotificationManagerCompat notificationManagerCompat;
     private Notification notification;
@@ -170,7 +171,7 @@ public class PushUpActivity extends AppCompatActivity {
         frameLayout = findViewById(R.id.framelayout);
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
-        //uncertainty is 1/15 of the screen height
+        //uncertainty is 1/10 of the screen height
         repcounter = new RepCounter(this, poseIndicatorTV,debug,displaySize.getHeight()/15f,displaySize.getHeight()/5f);
 
         //getting current date and time
@@ -336,10 +337,6 @@ public class PushUpActivity extends AppCompatActivity {
 
     private void processLandmarks(List<PoseLandmark> allLandmarks) {
         //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
-//        List<PointF3D> landmarks = new ArrayList<>();
-//        for (PoseLandmark landmark : allLandmarks) {
-//            landmarks.add(landmark.getPosition3D());
-//        }
         if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood()>0.9f
                 && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood()>0.9f &&
                 allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood()>0.9f) {

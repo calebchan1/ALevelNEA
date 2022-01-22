@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -38,6 +39,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.Random;
 
 public class TreadmillActivity extends AppCompatActivity {
     //Sensors
@@ -70,6 +72,9 @@ public class TreadmillActivity extends AppCompatActivity {
 
     //audio
     private TextToSpeech tts;
+    private int currquote;
+    private String[] quotes;
+
 
     //Permissions
     private String[] PERMISSIONS;
@@ -112,6 +117,11 @@ public class TreadmillActivity extends AppCompatActivity {
         paceText = findViewById(R.id.paceText);
         calorieText = findViewById(R.id.calText);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        //quotes from resources
+        Resources res = getResources();
+        quotes = res.getStringArray(R.array.quotes);
+
 
         //CUSTOM JAVA CLASSES
         stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
@@ -188,6 +198,23 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
+
+    private void handleQuotes(){
+        //starting with random quote for text to speech
+        Random r = new Random();
+        currquote = r.nextInt(quotes.length);
+        if (seconds % 60 == 0) {
+            //every 60 seconds a quote is spoken to help motivate the user
+            if (currquote > quotes.length) {
+                //moving to front of quote array
+                currquote = 0;
+            }
+            //speaking quote, and moving to next quote
+            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+            currquote++;
+        }
+    }
+
 
 
     private void createTimer() {
