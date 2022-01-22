@@ -146,22 +146,32 @@ public class PushUpActivity extends AppCompatActivity {
     }
 
     private void init() {
+        //instantiating all variables
+        //getting display size for graphic
+        Display display = getWindowManager().getDefaultDisplay();
+        Point temp = new Point();
+        display.getSize(temp);
+        displaySize = new Size(temp.x, temp.y);
+
         isTracking = Boolean.TRUE;
         seconds = 0;
         calories = 0;
         reps = 0;
-        //instantiating all variables
+
         startBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
         timerText = findViewById(R.id.timerText);
         repText = findViewById(R.id.repText);
         calText = findViewById(R.id.calText);
         poseIndicatorTV = findViewById(R.id.PoseIndicator);
+        //getting met from string values
         MET = Float.parseFloat(getString(R.string.met_pushup));
         tv = findViewById(R.id.tv);
         frameLayout = findViewById(R.id.framelayout);
         TextView debug = findViewById(R.id.debugTV);
-        repcounter = new RepCounter(this, poseIndicatorTV,debug,10f,100f);
+        //min distance is by a fifth of the screen height
+        //uncertainty is 1/15 of the screen height
+        repcounter = new RepCounter(this, poseIndicatorTV,debug,displaySize.getHeight()/15f,displaySize.getHeight()/5f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -184,12 +194,6 @@ public class PushUpActivity extends AppCompatActivity {
                 }
             }
         });
-
-        //getting display size for graphic
-        Display display = getWindowManager().getDefaultDisplay();
-        Point temp = new Point();
-        display.getSize(temp);
-        displaySize = new Size(temp.x, temp.y);
     }
 
     private void startTracking() {

@@ -145,7 +145,6 @@ public class HistoryFragment extends Fragment {
     }
 
 
-
     //handling dynamic card production using recycler views
     public static class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Viewholder> {
 

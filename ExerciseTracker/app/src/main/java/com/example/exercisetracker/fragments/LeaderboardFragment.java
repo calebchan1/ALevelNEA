@@ -58,17 +58,15 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
         //by default, leaderboard set to public leaderboard at 24Hr
         timeframe = 1;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                userScores = getPublicLeaderboard();
-                isPublic = true;
-                if (userScores != null) {
-                    createTable(userScores);
-                }
-            }
-        });
-
+        userScores = getPublicLeaderboard();
+        isPublic = true;
+        if (userScores != null) {
+            createTable(userScores);
+        }
+        else{
+            //table was empty, disclaimer shown to user
+            noLeaderboard.setVisibility(View.VISIBLE);
+        }
 
         RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
         publicPrivateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

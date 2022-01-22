@@ -56,7 +56,6 @@ public class RepCounter {
 
     private void reset(){
         countedRep = false;
-        duration = 0;
         pushedDown = false;
         returnedToPosition = false;
 
@@ -80,6 +79,7 @@ public class RepCounter {
             }
             else{
                 reset();
+                duration = 0;
                 debugTV.setText("0\n0\n0");
             }
             updateIndicator();
