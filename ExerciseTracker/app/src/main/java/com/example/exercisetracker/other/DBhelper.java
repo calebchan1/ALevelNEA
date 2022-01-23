@@ -319,9 +319,6 @@ public class DBhelper {
             resultset.beforeFirst();
             //dealing with multiple rows
             addResult(resultset,2);
-            for (String string:this.result) {
-                Toast.makeText(this.context, string, Toast.LENGTH_SHORT).show();
-            }
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {

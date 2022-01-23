@@ -19,6 +19,7 @@
         <item name="android:navigationBarColor">@color/main_colour</item>
         <item name="buttonTint">@color/main_colour_on_primary</item>
         <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
+        <item name ="android:indeterminateTint">@color/main_colour_on_primary</item>
 
 
     </style>

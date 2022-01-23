@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -13,12 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.login.LogInScreen;
@@ -33,6 +36,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener {
@@ -44,12 +48,106 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     private TextInputLayout surnameField;
     private TextInputLayout heightField;
     private SharedPreferences sp;
+    private ProgressBar progressBar;
+    private android.app.Activity mcontext;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        //saving the attached activity to preserve lifecycle of fragment
+        //ensures that UI thread runs on an instance of an activity
+        if (context instanceof android.app.Activity){
+            mcontext =(android.app.Activity) context;
+        }
+    }
+
+
+    //using async task to load user details
+    private class GetSettings extends AsyncTask<Boolean, Integer, ArrayList<String>> {
+        protected ArrayList<String> doInBackground(Boolean... isPublic) {
+            ArrayList<String> arr = new ArrayList<>();
+            //loading user data presets
+            arr.add(User.getUsername());
+            arr.add(User.getPassword());
+            arr.add(User.getWeight().toString());
+            arr.add(User.getHeight().toString());
+            arr.add(User.getForename());
+            arr.add(User.getSurname());
+            return arr;
+        }
+
+        protected void onProgressUpdate(Integer... progress) {
+        }
+
+        protected void onPostExecute(ArrayList<String> queryResults) {
+
+            mcontext.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //loading user data presets
+                    usernameField.getEditText().setText(queryResults.get(0));
+                    passwordField.getEditText().setText(queryResults.get(1));
+                    weightField.getEditText().setText(queryResults.get(2));
+                    heightField.getEditText().setText(queryResults.get(3));
+                    forenameField.getEditText().setText(queryResults.get(4));
+                    surnameField.getEditText().setText(queryResults.get(5));
+                    //hiding progress bar
+                    progressBar.setVisibility(View.GONE);
+//handling date of birth
+                    Date dob = User.getDateOfBirth();
+                    EditText dobText = DOBField.getEditText();
+
+                    //date of birth, date picker
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    String strdob = df.format(dob);
+                    dobText.setText(strdob);
+                    dobText.setInputType(InputType.TYPE_NULL);
+                    dobText.setKeyListener(null);
+
+                    //date of birth picker constraints, must be at least 10 yrs old to register account
+                    CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds()-315569260000L));
+                    MaterialDatePicker.Builder<Long> datepickerBuilder = MaterialDatePicker.Builder.datePicker();
+                    //by default starts picker on min age
+                    datepickerBuilder.setCalendarConstraints(constraints.build()).setSelection(MaterialDatePicker.todayInUtcMilliseconds()-315569260000L);
+                    MaterialDatePicker datepicker = datepickerBuilder.build();
+
+                    //when date of birth is touched
+                    dobText.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            if (event.getAction() == MotionEvent.ACTION_UP) {
+                                datepicker.show(getActivity().getSupportFragmentManager(), "Date Picker");
+                            }
+                            return false;
+                        }
+                    });
+
+                    datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
+                        @Override
+                        public void onPositiveButtonClick(Object selection) {
+                            //saving the entered date and formatting date
+                            dobText.setText(df.format(datepicker.getSelection()));
+                            java.sql.Date date = new java.sql.Date((Long) datepicker.getSelection());
+                            User.setDateOfBirth(date);
+                            datepicker.dismiss();
+                        }
+                    });
+                    datepicker.addOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            datepicker.dismiss();
+                        }
+                    });
+                }
+            });
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        sp = getActivity().getSharedPreferences("userprefs", Context.MODE_PRIVATE);
+        sp = mcontext.getSharedPreferences("userprefs", Context.MODE_PRIVATE);
         usernameField = view.findViewById(R.id.settings_usernameField);
         passwordField = view.findViewById(R.id.settings_passwordField);
         weightField = view.findViewById(R.id.weightField);
@@ -58,60 +156,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         DOBField = view.findViewById(R.id.DOBfield);
         heightField = view.findViewById(R.id.heightField);
 
+        progressBar = view.findViewById(R.id.progressBar);
 
-        //loading user data presets
-        usernameField.getEditText().setText(User.getUsername());
-        passwordField.getEditText().setText(User.getPassword());
-        weightField.getEditText().setText(User.getWeight().toString());
-        heightField.getEditText().setText(User.getHeight().toString());
-        forenameField.getEditText().setText(User.getForename());
-        surnameField.getEditText().setText(User.getSurname());
-
-        //handling date of birth
-        Date dob = User.getDateOfBirth();
-        EditText dobText = DOBField.getEditText();
-
-        //date of birth, date picker
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        String strdob = df.format(dob);
-        dobText.setText(strdob);
-        dobText.setInputType(InputType.TYPE_NULL);
-        dobText.setKeyListener(null);
-
-        //date of birth picker constraints, must be at least 10 yrs old to register account
-        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds()-315569260000L));
-        MaterialDatePicker.Builder<Long> datepickerBuilder = MaterialDatePicker.Builder.datePicker();
-        //by default starts picker on min age
-        datepickerBuilder.setCalendarConstraints(constraints.build()).setSelection(MaterialDatePicker.todayInUtcMilliseconds()-315569260000L);
-        MaterialDatePicker datepicker = datepickerBuilder.build();
-
-        //when date of birth is touched
-        dobText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    datepicker.show(getActivity().getSupportFragmentManager(), "Date Picker");
-                }
-                return false;
-            }
-        });
-
-        datepicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
-            @Override
-            public void onPositiveButtonClick(Object selection) {
-                //saving the entered date and formatting date
-                dobText.setText(df.format(datepicker.getSelection()));
-                java.sql.Date date = new java.sql.Date((Long) datepicker.getSelection());
-                User.setDateOfBirth(date);
-                datepicker.dismiss();
-            }
-        });
-        datepicker.addOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                datepicker.dismiss();
-            }
-        });
 
         //handling update and logout buttons
         Button updateButton = view.findViewById(R.id.UpdateButton);
@@ -120,7 +166,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         logoutBtn.setOnClickListener(this);
         Button deleteBtn = view.findViewById(R.id.deleteBtn);
         deleteBtn.setOnClickListener(this);
-
+        new GetSettings().execute(true);
         return view;
     }
 

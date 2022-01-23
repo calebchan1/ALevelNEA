@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,17 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     private Boolean isPublic;
     private ProgressDialog loadingDialog;
     private TextView noLeaderboard;
+    private android.app.Activity mcontext;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof android.app.Activity){
+            mcontext =(android.app.Activity) context;
+        }
+    }
+
 
     @Override
     public void onResume() {
@@ -52,20 +64,18 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         view.findViewById(R.id.navigateToFriendsActivity).setOnClickListener(this);
         table = view.findViewById(R.id.table_main);
         noLeaderboard = view.findViewById(R.id.noLeaderboard);
 
         //by default, leaderboard set to public leaderboard at 24Hr
-        timeframe = 1;
-        userScores = getPublicLeaderboard();
         isPublic = true;
-        if (userScores != null) {
-            createTable(userScores);
-        } else {
-            //table was empty, disclaimer shown to user
-            noLeaderboard.setVisibility(View.VISIBLE);
+        timeframe = 1;
+        if (getActivity() != null) {
+            new GetLeaderboardTask().execute(isPublic);
         }
 
         RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
@@ -288,9 +298,9 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         int pos = 1;
         //creating table headers
         String[] arr = {"Pos. ", "User ", "Score"};
-        TableRow row = new TableRow(getContext());
+        TableRow row = new TableRow(mcontext);
         for (String string : arr) {
-            TextView tv = new TextView(getContext());
+            TextView tv = new TextView(mcontext);
             handleViews(tv, string, true, 30);
             row.addView(tv);
         }
@@ -301,14 +311,14 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             String name = entry.getKey();
             Integer score = entry.getValue();
             //creating a row
-            row = new TableRow(getContext());
+            row = new TableRow(mcontext);
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
-            TextView posTV = new TextView(getContext());
+            TextView posTV = new TextView(mcontext);
             handleViews(posTV, Integer.toString(pos) + ". ", false, fontsize);
-            TextView nameTV = new TextView(getContext());
+            TextView nameTV = new TextView(mcontext);
             handleViews(nameTV, name, false, fontsize);
-            TextView scoreTV = new TextView(getContext());
+            TextView scoreTV = new TextView(mcontext);
             handleViews(scoreTV, score.toString(), false, fontsize);
             row.addView(posTV);
             row.addView(nameTV);
@@ -320,12 +330,12 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
     private void handleViews(TextView view, String text, Boolean bold, Integer fontsize) {
         if (bold) {
-            Typeface face = ResourcesCompat.getFont(getContext(), R.font.gothicbb);
+            Typeface face = ResourcesCompat.getFont(mcontext, R.font.gothicbb);
             view.setTypeface(face);
             view.setText(text + " ");
             view.setTextSize(fontsize);
         } else {
-            Typeface face = ResourcesCompat.getFont(getContext(), R.font.gothic);
+            Typeface face = ResourcesCompat.getFont(mcontext, R.font.gothic);
             view.setTypeface(face);
             view.setText(text + " ");
             view.setTextSize(fontsize);
@@ -345,7 +355,43 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             startActivity(intent1);
 
 
+        }
+    }
 
+    //using async task to retrieve data from database
+    private class GetLeaderboardTask extends AsyncTask<Boolean, Integer, Map<String, Integer>> {
+        protected Map<String, Integer> doInBackground(Boolean... isPublic) {
+            Boolean bool = isPublic[0];
+            if (bool) {
+                if (isCancelled()) return null;
+                return getPublicLeaderboard();
+            } else {
+                if (isCancelled()) return null;
+                return getPrivateLeaderboard();
+            }
+        }
+
+        protected void onProgressUpdate(Integer... progress) {
+
+        }
+
+        protected void onPostExecute(Map<String, Integer> result) {
+
+            mcontext.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    userScores = result;
+                    if (userScores != null) {
+                        //creating table
+                        createTable(userScores);
+                        //hiding progress bar
+                        mcontext.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    } else {
+                        //table was empty, disclaimer shown to user
+                        noLeaderboard.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         }
     }
 }

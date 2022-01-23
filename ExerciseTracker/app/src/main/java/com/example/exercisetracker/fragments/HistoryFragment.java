@@ -1,16 +1,15 @@
 package com.example.exercisetracker.fragments;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,77 +35,41 @@ public class HistoryFragment extends Fragment {
     private RecyclerView historyRV;
     private LinearLayoutManager linearLayoutManager;
     private TextView noHistory;
-    private ProgressDialog loadingDialog;
-
-
+    private ProgressBar progressBar;
+    private android.app.Activity mcontext;
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (loadingDialog!=null){
-            loadingDialog.dismiss();
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        //saving the attached activity to preserve lifecycle of fragment
+        //ensures that UI thread runs on an instance of an activity
+        if (context instanceof android.app.Activity){
+            mcontext =(android.app.Activity) context;
         }
-        new Thread(){
-            public void run() {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                            DBhelper helper = new DBhelper(getContext());
-                            if (helper.readActivities()) {
-                                //if activities was read successfully from database
-                                ArrayList<String> queryResults = helper.getResult();
-
-                                //RecyclerView allows us to dynamically produce card views as a list
-                                // Arraylist for storing data
-                                activityArr = new ArrayList<>();
-                                for (String query : queryResults) {
-                                    activityArr.add(handleQuery(query));
-                                }
-                                // we are initializing our adapter class and passing our arraylist to it.
-                                courseAdapter = new ActivityAdapter(getContext(), activityArr);
-                                //setting a layout manager for our recycler view.
-                                // creating vertical list
-                                linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-                                // setting layout manager and adapter to our recycler view.
-                                historyRV.setLayoutManager(linearLayoutManager);
-                                historyRV.setAdapter(courseAdapter);
-
-                            } else {
-                                //activity was not read successfully, recycler view not created
-                                //show disclaimer text view on screen
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        noHistory.setVisibility(View.VISIBLE);
-                                    }
-                                });
-                            }
-
-
-
-                    }
-                });
-            }
-        }.start();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_history,container,false);
+        View view = inflater.inflate(R.layout.fragment_history, container, false);
         noHistory = view.findViewById(R.id.noExercises);
         historyRV = view.findViewById(R.id.HistoryRV);
         activityArr = new ArrayList<>();
         courseAdapter = new ActivityAdapter(getContext(), activityArr);
         linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        progressBar = view.findViewById(R.id.progressBar);
+
+
         // setting layout manager and adapter to our recycler view.
         historyRV.setLayoutManager(linearLayoutManager);
         historyRV.setAdapter(courseAdapter);
+
+        //EXECUTING ASYNC TASK to retrieve data history from database
+        new GetHistory().execute(true);
         return view;
     }
 
-    private Activity handleQuery(String query){
+    private Activity handleQuery(String query) {
         //method to handle query
         String[] arr = query.split(" ");
         int id = Integer.parseInt(arr[0]);
@@ -114,7 +77,7 @@ public class HistoryFragment extends Fragment {
         //description consisting of date and time
         String[] desc = Arrays.copyOfRange(arr, 2, arr.length);
         String description = "";
-        for (String string : desc){
+        for (String string : desc) {
             description = description + string + " ";
         }
         int img = -1;
@@ -137,13 +100,13 @@ public class HistoryFragment extends Fragment {
                 name = "Push Up";
                 break;
         }
-        if (img!=-1){return new Activity(name,description,img,id);}
-        else{
+        if (img != -1) {
+            return new Activity(name, description, img, id);
+        } else {
             return null;
         }
 
     }
-
 
     //handling dynamic card production using recycler views
     public static class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Viewholder> {
@@ -171,7 +134,7 @@ public class HistoryFragment extends Fragment {
             //providing details for the holder views
             Activity activity = ActivityArr.get(position);
             holder.exerciseNameTV.setText(activity.getName());
-            holder.exerciseDescTV.setText(activity.getDate().toString() + " " +activity.getTimeStarted());
+            holder.exerciseDescTV.setText(activity.getDate().toString() + " " + activity.getTimeStarted());
             holder.exerciseIV.setImageResource(activity.getImg());
             holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -182,10 +145,9 @@ public class HistoryFragment extends Fragment {
                         Toast.makeText(context.getApplicationContext(), "Activity Deleted", Toast.LENGTH_SHORT).show();
                         ActivityArr.remove(activity);
                         notifyItemRemoved(holder.getAdapterPosition());
-                        notifyItemRangeChanged(holder.getAdapterPosition(),getItemCount());
+                        notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
 
-                    }
-                    else{
+                    } else {
                         Toast.makeText(context.getApplicationContext(), "Delete Failed", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -195,7 +157,7 @@ public class HistoryFragment extends Fragment {
                 public void onClick(View v) {
                     //handling when more details button is pressed
                     //displays as a dialogue the full stats of a workout
-                    createDialogBuilder(holder.exerciseNameTV.getText().toString(),activity);
+                    createDialogBuilder(holder.exerciseNameTV.getText().toString(), activity);
                 }
             });
         }
@@ -203,6 +165,38 @@ public class HistoryFragment extends Fragment {
         @Override
         public int getItemCount() {
             return ActivityArr.size();
+        }
+
+        private void createDialogBuilder(String title, Activity activity) {
+            //creating the alert dialog to show stats to user from a previous exercise
+            int hours = activity.getDuration() / 3600;
+            int minutes = (activity.getDuration() % 3600) / 60;
+            int secs = activity.getDuration() % 60;
+            String time = String.format(Locale.getDefault(), "%dh:%02dm:%02ds", hours, minutes, secs);
+            String message = "";
+            if (activity.getName().equals("Running") || activity.getName().equals("Walking") || activity.getName().equals("Treadmill")) {
+                message =
+                        String.format(Locale.getDefault(), "Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm",
+                                time, activity.getCalories(), activity.getSteps(), activity.getDistance());
+            } else if (activity.getName().equals("Push Up")) {
+                message =
+                        String.format(Locale.getDefault(), "Duration: %s\nCalories Burnt: %d\nReps: %d",
+                                time, activity.getCalories(), activity.getReps());
+            }
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this.context);
+            builder.setNegativeButton("dismiss", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            })
+            ;
+            builder.setTitle(title)
+                    .setMessage(message)
+            ;
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         // View holder class for initializing of views such as TextView and Imageview.
@@ -224,39 +218,61 @@ public class HistoryFragment extends Fragment {
             }
         }
 
-        private void createDialogBuilder(String title, Activity activity){
-            //creating the alert dialog to show stats to user from a previous exercise
-            int hours = activity.getDuration() / 3600;
-            int minutes = (activity.getDuration() % 3600) / 60;
-            int secs = activity.getDuration() % 60;
-            String time = String.format(Locale.getDefault(), "%dh:%02dm:%02ds", hours, minutes, secs);
-            String message = "";
-            if (activity.getName().equals("Running") || activity.getName().equals("Walking") || activity.getName().equals("Treadmill")){
-                message =
-                        String.format(Locale.getDefault(),"Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm",
-                                time,activity.getCalories(),activity.getSteps(),activity.getDistance());
-            }
-            else  if (activity.getName().equals("Push Up")){
-                message =
-                        String.format(Locale.getDefault(),"Duration: %s\nCalories Burnt: %d\nReps: %d",
-                                time,activity.getCalories(),activity.getReps());
-            }
+    }
 
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this.context);
-            builder.setNegativeButton("dismiss", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            })
-            ;
-            builder.setTitle(title)
-            .setMessage(message)
-            ;
-            AlertDialog dialog = builder.create();
-            dialog.show();
+    //using async task to retrieve data from database
+    private class GetHistory extends AsyncTask<Boolean, Integer, ArrayList<String>> {
+        protected ArrayList<String> doInBackground(Boolean... isPublic) {
+            DBhelper helper = new DBhelper(getContext());
+            if (helper.readActivities()) {
+                if (isCancelled()) return null;
+                //if activities was read successfully from database
+                ArrayList<String> queryResults = helper.getResult();
+                return queryResults;
+            } else {
+                //activity was not read successfully, recycler view not created
+                //show disclaimer text view on screen
+                mcontext.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        noHistory.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+            return null;
         }
 
+        protected void onProgressUpdate(Integer... progress) {
+        }
+
+        protected void onPostExecute(ArrayList<String> queryResults) {
+
+            mcontext.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //RecyclerView allows us to dynamically produce card views as a list
+                    // Arraylist for storing data
+                    activityArr = new ArrayList<>();
+                    for (String query : queryResults) {
+                        activityArr.add(handleQuery(query));
+                    }
+                    // we are initializing our adapter class and passing our arraylist to it.
+                    courseAdapter = new ActivityAdapter(getContext(), activityArr);
+                    //setting a layout manager for our recycler view.
+                    // creating vertical list
+                    linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                    // setting layout manager and adapter to our recycler view.
+                    historyRV.setLayoutManager(linearLayoutManager);
+                    historyRV.setAdapter(courseAdapter);
+
+                    //hiding progress bar
+                    progressBar.setVisibility(View.GONE);
+
+                }
+            });
+        }
     }
+
+
 }
 
