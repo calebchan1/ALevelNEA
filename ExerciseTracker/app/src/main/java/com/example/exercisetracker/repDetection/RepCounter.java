@@ -106,7 +106,7 @@ public class RepCounter {
             else {
                 //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
                 if (!returnedToPosition) {
-                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() - uncertainty;
+                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY();
                 }
             }
             if (pushedDown) {
