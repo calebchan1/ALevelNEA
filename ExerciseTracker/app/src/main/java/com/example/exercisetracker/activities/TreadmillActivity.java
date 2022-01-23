@@ -294,11 +294,11 @@ public class TreadmillActivity extends AppCompatActivity {
         isRunning = false;
         sensorManager.unregisterListener(listener);
 
-        //audio text to speech to congratulate user
-        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
-
         //exiting the running activity and saving data to database
         if (seconds > 60) {
+            //audio text to speech to congratulate user
+            tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
+
             DBhelper helper = new DBhelper(TreadmillActivity.this);
             if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                 Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();

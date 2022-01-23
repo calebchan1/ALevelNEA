@@ -337,9 +337,9 @@ public class PushUpActivity extends AppCompatActivity {
 
     private void processLandmarks(List<PoseLandmark> allLandmarks) {
         //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
-        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood()>0.9f
-                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood()>0.9f &&
-                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood()>0.9f) {
+        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood()>0.8f
+                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood()>0.8f &&
+                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood()>0.8f) {
             repcounter.addEntry(allLandmarks);
         }
     }
@@ -382,10 +382,11 @@ public class PushUpActivity extends AppCompatActivity {
     private void finishTracking() {
         //handles the safe closing of the activity, and presenting any information to the user
         isTracking = false;
-        //audio text to speech to congratulate user
-        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps), TextToSpeech.QUEUE_FLUSH, null);
-
         if (seconds > 60) {
+            //audio text to speech to congratulate user
+            tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps),
+                    TextToSpeech.QUEUE_FLUSH, null);
+
             //saving activity results to database, as long as activity lasted for more than a minute
             DBhelper helper = new DBhelper(PushUpActivity.this);
             if (helper.saveActivity("pushup", date.toString(), timeStarted, seconds.toString(), calories.toString(), null, null, reps.toString())) {

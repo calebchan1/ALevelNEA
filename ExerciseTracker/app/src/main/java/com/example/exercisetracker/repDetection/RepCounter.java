@@ -27,13 +27,13 @@ public class RepCounter {
     private int reps;
     private Context context;
     //calculations
-    private int duration;
+    private int duration; //duration of n samples lapsed since entered pose
     private boolean countedRep;
     private boolean pushedDown;
     private boolean returnedToPosition;
     private Map<Integer, PointF3D> startPoint;
-    private Float uncertainty;
-    private Float minDistance;
+    private final Float uncertainty;
+    private final Float minDistance;
 
     public int getReps() {
         return reps;
@@ -67,7 +67,6 @@ public class RepCounter {
             //Z value decreases as you move close to the phone
             //Using Z value from ML KIT, determining if body is laying down horizontally
             //i.e. Lower body has a LARGER z value than upper body
-
             enteredPose =
                     relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.NOSE).getZ()
                             && relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ()
@@ -96,23 +95,29 @@ public class RepCounter {
         //when user first initially enters pose, the position is recorded
         //user has to then push down by at least x amount and return to original position for a rep to be counted
         if (countedRep){
+            //instance of the rep was already counted previously, thus all boolean variables must reset
             reset();
         }
         else {
             if (!pushedDown) {
+                //checking to see if user has pushed down by tracking movement of nose
                 pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() >= startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
             }
-            if (!returnedToPosition) {
-                returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() - uncertainty;
+            else {
+                //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
+                if (!returnedToPosition) {
+                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() - uncertainty;
+                }
             }
             if (pushedDown) {
                 //checking whether user has pushed down
                 if (returnedToPosition) {
+                    //if user pushed down AND returned to position
                     if (!countedRep) {
+                        //if that instance of rep was not counted yet
                         Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
                         reps++;
                         countedRep = true;
-
                     }
                     else{
                         duration++;

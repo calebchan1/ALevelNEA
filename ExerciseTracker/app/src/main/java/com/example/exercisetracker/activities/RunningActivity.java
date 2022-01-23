@@ -415,15 +415,16 @@ public class RunningActivity extends AppCompatActivity {
     private void finishRunning() {
         isRunning = false;
         sensorManager.unregisterListener(listener);
-        //audio text to speech to congratulate user
-        tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps,distance),
-                TextToSpeech.QUEUE_FLUSH, null);
 
         if (locationManager != null && timeStarted != null) {
             locationManager.removeUpdates(locationListener);
             //exiting the running activity and saving data to database
             //will only save activities which last longer than 60s
             if (seconds > 60) {
+                //audio text to speech to congratulate user
+                tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps,distance),
+                        TextToSpeech.QUEUE_FLUSH, null);
+
                 DBhelper helper = new DBhelper(RunningActivity.this);
                 if (helper.saveActivity("running", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                     Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
