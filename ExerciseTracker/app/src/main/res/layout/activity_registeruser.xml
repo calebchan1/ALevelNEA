@@ -119,6 +119,8 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                app:boxStrokeColor="@color/black"
+                app:hintTextColor="@color/black"
                 android:id="@+id/DOBfield"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="350dp"
@@ -141,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
-                android:hint="Weight (Optional):"
+                android:hint="Weight:"
                 app:boxStrokeColor="@color/black"
                 app:hintTextColor="@color/black">
 
@@ -159,7 +161,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
-                android:hint="Height (Optional):"
+                android:hint="Height:"
                 app:boxStrokeColor="@color/black"
                 app:hintTextColor="@color/black">
 

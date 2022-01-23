@@ -120,7 +120,7 @@ public class LogInScreen extends AppCompatActivity {
         User.setHeight(Integer.valueOf(results[5]));
     }
 
-    public void saveToSharedPreferences(String[] results, String username, String password) {
+    private void saveToSharedPreferences(String[] results, String username, String password) {
         //saving to SharedPreferences
         // results received in format ID, forename, surname, DOB, weight, height
         SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
@@ -136,7 +136,7 @@ public class LogInScreen extends AppCompatActivity {
         editor.apply();
     }
 
-    private boolean getUserSP() {
+    public boolean getUserSP() {
         // getting saved user details from shared preferences
         // handles saving user details to User class from shared preferences
         SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);

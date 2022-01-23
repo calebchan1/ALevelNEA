@@ -38,12 +38,15 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
+        app:boxStrokeColor="@color/main_colour_on_primary"
+        app:hintTextColor="@color/main_colour_on_primary"
         android:id="@+id/searchView"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"
         android:hint="Find A User:"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/searchBtn"
@@ -58,17 +61,33 @@
             android:textSize="20sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+
     <com.google.android.material.button.MaterialButton
+        android:background="@drawable/round_button"
         android:layout_marginEnd="20dp"
         android:id="@+id/searchBtn"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="@drawable/search"
-        app:backgroundTint="@color/black"
+        android:foreground="@drawable/search"
+        app:rippleColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/searchView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/searchView"
         app:layout_constraintTop_toTopOf="@+id/searchView" />
+
+    <TextView
+        android:id="@+id/noFriendsTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Friends List is empty :(\nGo to \'Find a user' to add one!"
+        android:textAlignment="center"
+        android:textColor="@color/main_colour_on_primary"
+        android:textSize="17sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 

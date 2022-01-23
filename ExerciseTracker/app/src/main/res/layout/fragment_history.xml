@@ -7,13 +7,13 @@
 
 
     <TextView
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginTop="70dp"
-        android:text="Activity History"
-        app:layout_constraintVertical_weight="0"
         android:fontFamily="@font/gothicbb"
+        android:text="Activity History"
         android:textAlignment="center"
         android:textSize="40dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
@@ -21,7 +21,8 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.126" />
+        app:layout_constraintVertical_bias="0.126"
+        app:layout_constraintVertical_weight="0" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
@@ -33,25 +34,26 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/HistoryRV"
-        app:layout_constraintTop_toTopOf="@id/guideline2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0"
         android:layout_width="match_parent"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline2"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="0dp" />
 
     <TextView
         android:id="@+id/noExercises"
-        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="No Activities have been recorded\nGo to \'Exercise' to start one!"
         android:textAlignment="center"
         android:textColor="@color/main_colour_on_primary"
         android:textSize="17sp"
-        android:text="No Activities have been recorded\nGo to \'Exercise' to start one!"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline2"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 

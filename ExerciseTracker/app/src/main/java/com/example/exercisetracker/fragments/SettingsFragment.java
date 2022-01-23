@@ -77,14 +77,16 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         dobText.setText(strdob);
         dobText.setInputType(InputType.TYPE_NULL);
         dobText.setKeyListener(null);
-        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds()));
+
+        //date of birth picker constraints, must be at least 10 yrs old to register account
+        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds()-315569260000L));
         MaterialDatePicker.Builder<Long> datepickerBuilder = MaterialDatePicker.Builder.datePicker();
-        datepickerBuilder.setCalendarConstraints(constraints.build());
+        //by default starts picker on min age
+        datepickerBuilder.setCalendarConstraints(constraints.build()).setSelection(MaterialDatePicker.todayInUtcMilliseconds()-315569260000L);
         MaterialDatePicker datepicker = datepickerBuilder.build();
 
         //when date of birth is touched
         dobText.setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {

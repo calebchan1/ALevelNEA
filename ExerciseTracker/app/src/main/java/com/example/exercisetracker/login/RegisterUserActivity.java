@@ -67,10 +67,13 @@ public class RegisterUserActivity extends AppCompatActivity {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         EditText dobText = DOBField.getEditText();
         dobText.setInputType(InputType.TYPE_NULL);
+
         dobText.setKeyListener(null);
-        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds()));
+        //date of birth picker constraints, must be at least 10 yrs old to register account
+        CalendarConstraints.Builder constraints = new CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.before(MaterialDatePicker.todayInUtcMilliseconds() - 315569260000L));
         MaterialDatePicker.Builder<Long> datepickerBuilder = MaterialDatePicker.Builder.datePicker();
-        datepickerBuilder.setCalendarConstraints(constraints.build());
+        //by default starts picker on min age
+        datepickerBuilder.setCalendarConstraints(constraints.build()).setSelection(MaterialDatePicker.todayInUtcMilliseconds() - 315569260000L);
         MaterialDatePicker datepicker = datepickerBuilder.build();
 
         //when date of birth is touched
@@ -78,10 +81,10 @@ public class RegisterUserActivity extends AppCompatActivity {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     datepicker.show(getSupportFragmentManager(), "Date Picker");
                 }
-                return  false;
+                return false;
             }
         });
 
@@ -105,22 +108,36 @@ public class RegisterUserActivity extends AppCompatActivity {
         createbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //all fields are required in order for user to create an account
                 //passing details to database
                 String username = Objects.requireNonNull(usernameField.getEditText()).getText().toString();
                 String passsword = Objects.requireNonNull(passwordField.getEditText()).getText().toString();
                 String forename = Objects.requireNonNull(forenameField.getEditText()).getText().toString();
                 String surname = Objects.requireNonNull(surnameField.getEditText()).getText().toString();
                 String DOB = Objects.requireNonNull(DOBField.getEditText()).getText().toString();
-                String weight = weightField.getEditText().getText().toString();
-                String height = heightField.getEditText().getText().toString();
-                DBhelper helper = new DBhelper(RegisterUserActivity.this);
-                if (helper.registerUser(username, passsword, forename, surname, DOB, weight, height)) {
-                    //if user was successfully added to database, enter the app
-                    finish();
-                }
-                else{
-                    //user was not successfully added to database, error shown to user
-                    Toast.makeText(RegisterUserActivity.this, "Could not create account", Toast.LENGTH_SHORT).show();
+                String weight = Objects.requireNonNull(weightField.getEditText()).getText().toString();
+                String height = Objects.requireNonNull(heightField.getEditText()).getText().toString();
+                //username and password must be bigger than 8 characters conditions
+                boolean condition = username.length() >= 8 && passsword.length() >= 8;
+                //if one field is empty, cannot create account
+                boolean isEmpty = username.isEmpty() || passsword.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty() || weight.isEmpty() || height.isEmpty();
+                if (!isEmpty) {
+                    if (condition) {
+                        DBhelper helper = new DBhelper(RegisterUserActivity.this);
+                        if (helper.registerUser(username, passsword, forename, surname, DOB, weight, height)) {
+                            //if user was successfully added to database, enter the app
+                            finish();
+                        } else {
+                            //user was not successfully added to database, error shown to user
+                            Toast.makeText(RegisterUserActivity.this, "Could not create account", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else{
+                        //User did not meet required number of chars for username and password
+                        Toast.makeText(RegisterUserActivity.this, "Username and password must contain at least 8 characters", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(RegisterUserActivity.this, "You have not entered all the required fields", Toast.LENGTH_SHORT).show();
                 }
             }
         });

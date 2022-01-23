@@ -2,6 +2,9 @@ package com.example.exercisetracker.activities;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.method.KeyListener;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +38,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView recyclerView;
     private ArrayList<Friend> friendArr;
+    private TextView noFriends;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -56,12 +60,12 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
-        getWindow().setNavigationBarColor(getResources().getColor(R.color.white));
 
         //setting on click listener to class
         findViewById(R.id.searchBtn).setOnClickListener(this);
         TextInputLayout input = findViewById(R.id.searchView);
         searchEditText = input.getEditText();
+        noFriends = findViewById(R.id.noFriendsTV);
 
         //recycler views
         recyclerView = findViewById(R.id.friendsRV);
@@ -89,6 +93,8 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 if (!searchEditText.getText().toString().equals("")) {
                     helper.clearResults();
                     if (helper.getUsers(searchEditText.getText().toString())){
+                        noFriends.setVisibility(View.INVISIBLE);
+
                         //list of users passed to recycler view
                         //resetting friendArr for new query
                         friendArr.clear();
@@ -117,6 +123,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private void loadFriendsList(){
         DBhelper helper = new DBhelper(this);
         if (helper.getFriends()){
+            noFriends.setVisibility(View.INVISIBLE);
             User.clearFriendsList();
             friendArr.clear();
             courseAdapter.notifyDataSetChanged();
@@ -132,6 +139,9 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             helper.clearResults();
         }
         else{
+
+            //no friends found, disclaimer shown to user
+            noFriends.setVisibility(View.VISIBLE);
             Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
         }
     }
