@@ -74,12 +74,12 @@ public class RepCounter {
                             && relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ();
             if (enteredPose){
                 detectReps(relevantLandmarks);
-                debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY()+"\n Start pos:"+startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: "+duration);
+                //debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY()+"\n Start pos:"+startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: "+duration);
             }
             else{
                 reset();
                 duration = 0;
-                debugTV.setText("0\n0\n0");
+                //debugTV.setText("0\n0\n0");
             }
             updateIndicator();
 
@@ -115,7 +115,7 @@ public class RepCounter {
                     //if user pushed down AND returned to position
                     if (!countedRep) {
                         //if that instance of rep was not counted yet
-                        Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
                         reps++;
                         countedRep = true;
                     }

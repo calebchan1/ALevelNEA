@@ -111,25 +111,32 @@ public class RegisterUserActivity extends AppCompatActivity {
                 //all fields are required in order for user to create an account
                 //passing details to database
                 String username = Objects.requireNonNull(usernameField.getEditText()).getText().toString();
-                String passsword = Objects.requireNonNull(passwordField.getEditText()).getText().toString();
+                String password = Objects.requireNonNull(passwordField.getEditText()).getText().toString();
                 String forename = Objects.requireNonNull(forenameField.getEditText()).getText().toString();
                 String surname = Objects.requireNonNull(surnameField.getEditText()).getText().toString();
                 String DOB = Objects.requireNonNull(DOBField.getEditText()).getText().toString();
                 String weight = Objects.requireNonNull(weightField.getEditText()).getText().toString();
                 String height = Objects.requireNonNull(heightField.getEditText()).getText().toString();
                 //username and password must be bigger than 8 characters conditions
-                boolean condition = username.length() >= 8 && passsword.length() >= 8;
+                boolean minLength = username.length() >= 8 && password.length() >= 8;
+                boolean containsSpace = username.contains(" ") || password.contains(" ");
                 //if one field is empty, cannot create account
-                boolean isEmpty = username.isEmpty() || passsword.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty() || weight.isEmpty() || height.isEmpty();
+                boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty() || weight.isEmpty() || height.isEmpty();
                 if (!isEmpty) {
-                    if (condition) {
-                        DBhelper helper = new DBhelper(RegisterUserActivity.this);
-                        if (helper.registerUser(username, passsword, forename, surname, DOB, weight, height)) {
-                            //if user was successfully added to database, enter the app
-                            finish();
-                        } else {
-                            //user was not successfully added to database, error shown to user
-                            Toast.makeText(RegisterUserActivity.this, "Could not create account", Toast.LENGTH_SHORT).show();
+                    if (minLength) {
+                        if (!containsSpace) {
+                            DBhelper helper = new DBhelper(RegisterUserActivity.this);
+                            if (helper.registerUser(username, password, forename, surname, DOB, weight, height)) {
+                                //if user was successfully added to database, enter the app
+                                finish();
+                            } else {
+                                //user was not successfully added to database, error shown to user
+                                Toast.makeText(RegisterUserActivity.this, "Could not create account", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        else{
+                            //User entered a space in the username or password
+                            Toast.makeText(RegisterUserActivity.this, "Username and password must not contain any spaces", Toast.LENGTH_SHORT).show();
                         }
                     }
                     else{

@@ -73,6 +73,7 @@ public class WalkingActivity extends AppCompatActivity{
     private String timeStarted;
     private Date date;
     private StepCounter stepCounter;
+    private Float pace;
 
     //audio
     private TextToSpeech tts;
@@ -116,6 +117,7 @@ public class WalkingActivity extends AppCompatActivity{
         isWalking = true;
         seconds = 0;
         steps = 0;
+        pace = 0f;
         distance = 0f;
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
@@ -197,6 +199,7 @@ public class WalkingActivity extends AppCompatActivity{
                     Double[] entry = {latitude, longitude};
                     System.out.println(entry);
                     route.addRoute(entry);
+                    pace = location.getSpeed();
                 }
             }
 
@@ -349,7 +352,7 @@ public class WalkingActivity extends AppCompatActivity{
         stepText.setText(String.format("Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
-        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
+        paceText.setText(Html.fromHtml("Pace:\n" + df.format(pace) + "ms<sup>-1</sup"));
     }
 
     //handling live notification bar

@@ -25,6 +25,7 @@ import com.example.exercisetracker.activities.Activity;
 import com.example.exercisetracker.other.DBhelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -172,12 +173,15 @@ public class HistoryFragment extends Fragment {
             int hours = activity.getDuration() / 3600;
             int minutes = (activity.getDuration() % 3600) / 60;
             int secs = activity.getDuration() % 60;
+            Float pace = Float.valueOf(activity.getDistance()) / Float.valueOf(activity.getDuration());
+            pace = pace*3.6f; //converting from m/s to km/hr
+            DecimalFormat df = new DecimalFormat("#.##");
             String time = String.format(Locale.getDefault(), "%dh:%02dm:%02ds", hours, minutes, secs);
             String message = "";
             if (activity.getName().equals("Running") || activity.getName().equals("Walking") || activity.getName().equals("Treadmill")) {
                 message =
-                        String.format(Locale.getDefault(), "Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm",
-                                time, activity.getCalories(), activity.getSteps(), activity.getDistance());
+                        String.format(Locale.getDefault(), "Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm\nAvg. Pace: %skm/hr",
+                                time, activity.getCalories(), activity.getSteps(), activity.getDistance(),df.format(pace));
             } else if (activity.getName().equals("Push Up")) {
                 message =
                         String.format(Locale.getDefault(), "Duration: %s\nCalories Burnt: %d\nReps: %d",
