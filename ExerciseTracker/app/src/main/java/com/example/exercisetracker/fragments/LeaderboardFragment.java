@@ -353,8 +353,6 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             loadingDialog.show();
             Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
             startActivity(intent1);
-
-
         }
     }
 
@@ -363,20 +361,13 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         protected Map<String, Integer> doInBackground(Boolean... isPublic) {
             Boolean bool = isPublic[0];
             if (bool) {
-                if (isCancelled()) return null;
                 return getPublicLeaderboard();
             } else {
-                if (isCancelled()) return null;
                 return getPrivateLeaderboard();
             }
         }
 
-        protected void onProgressUpdate(Integer... progress) {
-
-        }
-
         protected void onPostExecute(Map<String, Integer> result) {
-
             mcontext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -385,11 +376,11 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         //creating table
                         createTable(userScores);
                         //hiding progress bar
-                        mcontext.findViewById(R.id.progressBar).setVisibility(View.GONE);
                     } else {
                         //table was empty, disclaimer shown to user
                         noLeaderboard.setVisibility(View.VISIBLE);
                     }
+                    mcontext.findViewById(R.id.progressBar).setVisibility(View.GONE);
                 }
             });
         }

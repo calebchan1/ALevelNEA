@@ -73,6 +73,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             arr.add(User.getHeight().toString());
             arr.add(User.getForename());
             arr.add(User.getSurname());
+            Date dob = User.getDateOfBirth();
+            //date of birth, date picker
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            String strdob = df.format(dob);
+            arr.add(strdob);
             return arr;
         }
 
@@ -91,15 +96,12 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                     heightField.getEditText().setText(queryResults.get(3));
                     forenameField.getEditText().setText(queryResults.get(4));
                     surnameField.getEditText().setText(queryResults.get(5));
+                    String strdob = queryResults.get(6);
                     //hiding progress bar
                     progressBar.setVisibility(View.GONE);
-//handling date of birth
-                    Date dob = User.getDateOfBirth();
-                    EditText dobText = DOBField.getEditText();
 
-                    //date of birth, date picker
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                    String strdob = df.format(dob);
+                    //handling date of birth
+                    EditText dobText = DOBField.getEditText();
                     dobText.setText(strdob);
                     dobText.setInputType(InputType.TYPE_NULL);
                     dobText.setKeyListener(null);
@@ -126,6 +128,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                         @Override
                         public void onPositiveButtonClick(Object selection) {
                             //saving the entered date and formatting date
+                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                             dobText.setText(df.format(datepicker.getSelection()));
                             java.sql.Date date = new java.sql.Date((Long) datepicker.getSelection());
                             User.setDateOfBirth(date);
@@ -138,6 +141,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             datepicker.dismiss();
                         }
                     });
+
                 }
             });
         }
