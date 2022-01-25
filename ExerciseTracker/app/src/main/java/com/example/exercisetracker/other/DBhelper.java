@@ -264,6 +264,8 @@ public class DBhelper {
         for (Integer id: friendsList){
             sqlCondition.append(String.format(Locale.getDefault(), "'%d',", id));
         }
+        //including user's own UserID to show where their relative position is on leaderboard
+        sqlCondition.append(String.format(Locale.getDefault(), "'%d',", User.getUserID()));
         sqlCondition.deleteCharAt(sqlCondition.length()-1);
         sqlCondition.append(") ");
 

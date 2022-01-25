@@ -3,10 +3,12 @@ package com.example.exercisetracker.login;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -58,6 +60,8 @@ public class LogInScreen extends AppCompatActivity {
         Button createbtn = findViewById(R.id.createaccount);
         Button loginbtn = findViewById(R.id.loginbtn);
         remember = findViewById(R.id.rememberBox);
+        TextView repo = findViewById(R.id.githubRepo);
+        repo.setText(Html.fromHtml("<a href='https://github.com/calebchan1/ALevelNEA'> github.com/calebchan1/ALevelNEA </a>"));
         loginbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

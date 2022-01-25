@@ -340,6 +340,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             view.setText(text + " ");
             view.setTextSize(fontsize);
         }
+
     }
 
     @Override

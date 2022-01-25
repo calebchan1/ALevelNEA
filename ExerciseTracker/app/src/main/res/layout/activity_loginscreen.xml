@@ -121,13 +121,18 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/githubRepo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:fontFamily="@font/gothicbb"
-        android:text="https://github.com/calebchan1/ALevelNEA"
         android:textAlignment="center"
-        android:textSize="15dp"
+        android:textSize="15sp"
+        android:autoLink="web"
+        android:linksClickable="true"
+        android:clickable="true"
+        android:textColorLink="@color/main_colour_on_primary"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
