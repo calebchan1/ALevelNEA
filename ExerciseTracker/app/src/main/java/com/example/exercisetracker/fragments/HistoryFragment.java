@@ -141,16 +141,37 @@ public class HistoryFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     //handling when delete button is pressed (deleting activity record on database)
-                    DBhelper helper = new DBhelper(context.getApplicationContext());
-                    if (helper.deleteActivity(activity.getId())) {
-                        Toast.makeText(context.getApplicationContext(), "Activity Deleted", Toast.LENGTH_SHORT).show();
-                        ActivityArr.remove(activity);
-                        notifyItemRemoved(holder.getAdapterPosition());
-                        notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
+                    //first show dialog to user to confirm if they really want to delete the activity from history
+                    String title = "Delete Activity?";
+                    String message = "Are you sure you want to delete this activity?";
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+                    builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            DBhelper helper = new DBhelper(context.getApplicationContext());
+                            if (helper.deleteActivity(activity.getId())) {
+                                Toast.makeText(context.getApplicationContext(), "Activity Deleted", Toast.LENGTH_SHORT).show();
+                                ActivityArr.remove(activity);
+                                notifyItemRemoved(holder.getAdapterPosition());
+                                notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
 
-                    } else {
-                        Toast.makeText(context.getApplicationContext(), "Delete Failed", Toast.LENGTH_SHORT).show();
-                    }
+                            } else {
+                                Toast.makeText(context.getApplicationContext(), "Delete Failed", Toast.LENGTH_SHORT).show();
+                            }
+                            dialog.cancel();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.cancel();
+                        }
+                    });
+                    builder.setTitle(title)
+                            .setMessage(message);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
                 }
             });
             holder.moreDetailsBtn.setOnClickListener(new View.OnClickListener() {
