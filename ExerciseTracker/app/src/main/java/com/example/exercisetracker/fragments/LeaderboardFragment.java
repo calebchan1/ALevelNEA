@@ -102,11 +102,11 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
                     }
 
-                    updateTable(getPrivateLeaderboard());
+                    createTable(getPrivateLeaderboard());
                 } else if (checkedId == R.id.allUsersBtn) {
                     isPublic = true;
                     //when user selects all users radio button, public leaderboard is shown
-                    updateTable(getPublicLeaderboard());
+                    createTable(getPublicLeaderboard());
                 }
             }
         });
@@ -120,27 +120,28 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                     case R.id.oneDay:
                         timeframe = 1;
                         if (isPublic) {
-                            updateTable(getPublicLeaderboard());
+                            createTable(getPublicLeaderboard());
                         } else {
-                            updateTable(getPrivateLeaderboard());
+                            createTable(getPrivateLeaderboard());
                         }
                         //period of the last 24 hrs
                         break;
                     case R.id.oneMonth:
                         timeframe = 30;
                         if (isPublic) {
-                            updateTable(getPublicLeaderboard());
+                            createTable(getPublicLeaderboard());
                         } else {
-                            updateTable(getPrivateLeaderboard());
+                            createTable(getPrivateLeaderboard());
                         }
                         //period of the last 30 days
                         break;
                     case R.id.allTime:
                         timeframe = 0;
+
                         if (isPublic) {
-                            updateTable(getPublicLeaderboard());
+                            createTable(getPublicLeaderboard());
                         } else {
-                            updateTable(getPrivateLeaderboard());
+                            createTable(getPrivateLeaderboard());
                         }
                         //period of all time
                         break;
@@ -152,26 +153,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         return view;
     }
 
-    private void updateTable(Map<String, Integer> newScores) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                table.removeAllViews();
-                if (userScores != null) {
-                    userScores.clear();
-                }
-                userScores = newScores;
-                if (newScores != null) {
-                    noLeaderboard.setVisibility(View.INVISIBLE);
-                    createTable(newScores);
-                } else {
-                    //show message to user that no activities found during this period on leaderboard
-                    noLeaderboard.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
-    }
 
     private Map<String, Integer> getPublicLeaderboard() {
 
@@ -294,38 +276,51 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     }
 
     private void createTable(Map<String, Integer> hashMap) {
-        //method to create TableLayout view graphic, to display leaderboard
-        int pos = 1;
-        //creating table headers
-        String[] arr = {"Pos. ", "User ", "Score"};
-        TableRow row = new TableRow(mcontext);
-        for (String string : arr) {
-            TextView tv = new TextView(mcontext);
-            handleViews(tv, string, true, 30);
-            row.addView(tv);
+        if (userScores != null) {
+            //resetting previous table/user scores if previously created
+            userScores.clear();
+            table.removeAllViews();
         }
-        table.addView(row);
-        for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
-            //getting values from sorted hash map
-            Integer fontsize = 20;
-            String name = entry.getKey();
-            Integer score = entry.getValue();
-            //creating a row
-            row = new TableRow(mcontext);
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            row.setLayoutParams(lp);
-            TextView posTV = new TextView(mcontext);
-            handleViews(posTV, Integer.toString(pos) + ". ", false, fontsize);
-            TextView nameTV = new TextView(mcontext);
-            handleViews(nameTV, name, false, fontsize);
-            TextView scoreTV = new TextView(mcontext);
-            handleViews(scoreTV, score.toString(), false, fontsize);
-            row.addView(posTV);
-            row.addView(nameTV);
-            row.addView(scoreTV);
+        userScores = hashMap;
+        if (hashMap != null) {
+            noLeaderboard.setVisibility(View.INVISIBLE);
+            //method to create TableLayout view graphic, to display leaderboard
+            int pos = 1;
+            //creating table headers
+            String[] arr = {"Pos. ", "User ", "Score"};
+            TableRow row = new TableRow(mcontext);
+            for (String string : arr) {
+                TextView tv = new TextView(mcontext);
+                handleViews(tv, string, true, 30);
+                row.addView(tv);
+            }
             table.addView(row);
-            pos++;
+            for (Map.Entry<String, Integer> entry : hashMap.entrySet()) {
+                //getting values from sorted hash map
+                Integer fontsize = 20;
+                String name = entry.getKey();
+                Integer score = entry.getValue();
+                //creating a row
+                row = new TableRow(mcontext);
+                TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+                row.setLayoutParams(lp);
+                TextView posTV = new TextView(mcontext);
+                handleViews(posTV, Integer.toString(pos) + ". ", false, fontsize);
+                TextView nameTV = new TextView(mcontext);
+                handleViews(nameTV, name, false, fontsize);
+                TextView scoreTV = new TextView(mcontext);
+                handleViews(scoreTV, score.toString(), false, fontsize);
+                row.addView(posTV);
+                row.addView(nameTV);
+                row.addView(scoreTV);
+                table.addView(row);
+                pos++;
+            }
+        } else {
+            //show message to user that no activities found during this period on leaderboard
+            noLeaderboard.setVisibility(View.VISIBLE);
         }
+
     }
 
     private void handleViews(TextView view, String text, Boolean bold, Integer fontsize) {

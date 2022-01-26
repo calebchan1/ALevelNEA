@@ -187,17 +187,18 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         try {
-                            String username = String.valueOf(usernameField.getEditText().getText());
+                            // use of .replaceAll to sanatise inputs given by user, to remove any whitespaces
+                            String username = String.valueOf(usernameField.getEditText().getText()).replaceAll("\\s","");
                             User.setUsername(username);
-                            String password = String.valueOf(passwordField.getEditText().getText());
+                            String password = String.valueOf(passwordField.getEditText().getText()).replaceAll("\\s","");
                             User.setPassword(password);
-                            Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()));
+                            Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()).replaceAll("\\s",""));
                             User.setWeight(weight);
-                            Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()));
+                            Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()).replaceAll("\\s",""));
                             User.setHeight(height);
-                            String forename = String.valueOf(forenameField.getEditText().getText());
+                            String forename = String.valueOf(forenameField.getEditText().getText()).replaceAll("\\s","");
                             User.setForename(forename);
-                            String surname = String.valueOf(surnameField.getEditText().getText());
+                            String surname = String.valueOf(surnameField.getEditText().getText()).replaceAll("\\s","");
                             User.setSurname(surname);
 
                             DBhelper helper = new DBhelper(getContext());

@@ -212,7 +212,6 @@ public class DBhelper {
             );
 
             if (!resultset.next()) {
-                Toast.makeText(this.context, "No Activities Stored", Toast.LENGTH_SHORT).show();
                 return false;
             }
             resultset.beforeFirst();

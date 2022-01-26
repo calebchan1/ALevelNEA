@@ -227,7 +227,7 @@ public class HistoryFragment extends Fragment {
     //using async task to retrieve data from database
     private class GetHistory extends AsyncTask<Boolean, Integer, ArrayList<String>> {
         protected ArrayList<String> doInBackground(Boolean... isPublic) {
-            DBhelper helper = new DBhelper(getContext());
+            DBhelper helper = new DBhelper(mcontext);
             if (helper.readActivities()) {
                 if (isCancelled()) return null;
                 //if activities was read successfully from database
@@ -250,30 +250,29 @@ public class HistoryFragment extends Fragment {
         }
 
         protected void onPostExecute(ArrayList<String> queryResults) {
-
-            mcontext.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //RecyclerView allows us to dynamically produce card views as a list
-                    // Arraylist for storing data
-                    activityArr = new ArrayList<>();
-                    for (String query : queryResults) {
-                        activityArr.add(handleQuery(query));
+            if (queryResults!=null) {
+                mcontext.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //RecyclerView allows us to dynamically produce card views as a list
+                        // Arraylist for storing data
+                        activityArr = new ArrayList<>();
+                        for (String query : queryResults) {
+                            activityArr.add(handleQuery(query));
+                        }
+                        // we are initializing our adapter class and passing our arraylist to it.
+                        courseAdapter = new ActivityAdapter(getContext(), activityArr);
+                        //setting a layout manager for our recycler view.
+                        // creating vertical list
+                        linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                        // setting layout manager and adapter to our recycler view.
+                        historyRV.setLayoutManager(linearLayoutManager);
+                        historyRV.setAdapter(courseAdapter);
                     }
-                    // we are initializing our adapter class and passing our arraylist to it.
-                    courseAdapter = new ActivityAdapter(getContext(), activityArr);
-                    //setting a layout manager for our recycler view.
-                    // creating vertical list
-                    linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-                    // setting layout manager and adapter to our recycler view.
-                    historyRV.setLayoutManager(linearLayoutManager);
-                    historyRV.setAdapter(courseAdapter);
-
-                    //hiding progress bar
-                    progressBar.setVisibility(View.GONE);
-
-                }
-            });
+                });
+            }
+            //hiding progress bar
+            progressBar.setVisibility(View.GONE);
         }
     }
 
