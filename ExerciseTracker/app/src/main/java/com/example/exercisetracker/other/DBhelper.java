@@ -282,7 +282,7 @@ public class DBhelper {
                 //executing SQL statement
                 //requesting leaderboard of all time
                 resultset = statement.executeQuery(
-                        "SELECT User.firstname, Activity.calories " +
+                        "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition +
                                 "ORDER BY Activity.Date DESC;"
@@ -294,7 +294,7 @@ public class DBhelper {
                 long millis = System.currentTimeMillis();
                 Date date = new java.sql.Date(millis);
                 resultset = statement.executeQuery(
-                        "SELECT User.firstname, Activity.calories " +
+                        "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition + "AND " +
                                 String.format("Activity.Date = '%s' ",date.toString()) +
@@ -307,7 +307,7 @@ public class DBhelper {
                 millis = millis - 2592000000L;
                 Date date = new java.sql.Date(millis);
                 resultset = statement.executeQuery(
-                        "SELECT User.firstname, Activity.calories " +
+                        "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition + "AND " +
                                 String.format("Activity.Date >= '%s' ",date.toString()) +
@@ -346,7 +346,7 @@ public class DBhelper {
                 //executing SQL statement
                 //requesting leaderboard of all time
                 resultset = statement.executeQuery(
-                        "SELECT User.firstname, Activity.calories " +
+                        "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID " +
                                 "ORDER BY Activity.Date DESC;"
@@ -358,7 +358,7 @@ public class DBhelper {
                 long millis = System.currentTimeMillis();
                 Date date = new java.sql.Date(millis);
                 resultset = statement.executeQuery(
-                        "SELECT User.firstname, Activity.calories " +
+                        "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND " +
                                 String.format("Activity.Date = '%s' ",date.toString()) +
@@ -371,7 +371,7 @@ public class DBhelper {
                 millis = millis - 2592000000L;
                 Date date = new java.sql.Date(millis);
                 resultset = statement.executeQuery(
-                        "SELECT User.firstname, Activity.calories " +
+                        "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND " +
                                 String.format("Activity.Date >= '%s' ",date.toString()) +

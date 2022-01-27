@@ -179,10 +179,10 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             ArrayList<String> listOfKeys = new ArrayList<>();
             ArrayList<Integer> listOfValues = new ArrayList<>();
             for (Map.Entry<String, Integer> entry : userScoresHashMap.entrySet()) {
-                String name = entry.getKey();
+                String username = entry.getKey();
                 Integer calories = entry.getValue();
                 //parsing to arraylists
-                listOfKeys.add(name);
+                listOfKeys.add(username);
                 listOfValues.add(calories);
             }
             //returning the sorted hash map rather than converting to array then sorting
@@ -230,10 +230,10 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 ArrayList<String> listOfKeys = new ArrayList<>();
                 ArrayList<Integer> listOfValues = new ArrayList<>();
                 for (Map.Entry<String, Integer> entry : userScoresHashMap.entrySet()) {
-                    String name = entry.getKey();
+                    String username = entry.getKey();
                     Integer calories = entry.getValue();
                     //parsing to arraylists
-                    listOfKeys.add(name);
+                    listOfKeys.add(username);
                     listOfValues.add(calories);
                 }
                 //returning the sorted hash map rather than converting to array then sorting
@@ -310,6 +310,13 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 handleViews(nameTV, name, false, fontsize);
                 TextView scoreTV = new TextView(mcontext);
                 handleViews(scoreTV, score.toString(), false, fontsize);
+                //if the corresponding name corresponds to the current user's username
+                //change colour to green to highlight their place on the leaderboard
+                if (name.equals(User.getUsername())){
+                    posTV.setTextColor(getResources().getColor(R.color.green));
+                    scoreTV.setTextColor(getResources().getColor(R.color.green));
+                    nameTV.setTextColor(getResources().getColor(R.color.green));
+                }
                 row.addView(posTV);
                 row.addView(nameTV);
                 row.addView(scoreTV);
