@@ -30,8 +30,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.DBhelper;
+import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
@@ -199,7 +199,7 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    private void handleQuotes(){
+    private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
         currquote = r.nextInt(quotes.length);
@@ -214,7 +214,6 @@ public class TreadmillActivity extends AppCompatActivity {
             currquote++;
         }
     }
-
 
 
     private void createTimer() {
@@ -253,9 +252,9 @@ public class TreadmillActivity extends AppCompatActivity {
         timerText.setText(time);
         //changing calorie text view
         calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-        calorieText.setText(String.format(Locale.getDefault(),"Calories:\n%d", calories));
+        calorieText.setText(String.format(Locale.getDefault(), "Calories:\n%d", calories));
         //changing step text view
-        stepText.setText(String.format(Locale.getDefault(),"Steps:\n%d", steps));
+        stepText.setText(String.format(Locale.getDefault(), "Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
         paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
@@ -297,7 +296,7 @@ public class TreadmillActivity extends AppCompatActivity {
         //exiting the running activity and saving data to database
         if (seconds > 60) {
             //audio text to speech to congratulate user
-            tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
+            tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
 
             DBhelper helper = new DBhelper(TreadmillActivity.this);
             if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {

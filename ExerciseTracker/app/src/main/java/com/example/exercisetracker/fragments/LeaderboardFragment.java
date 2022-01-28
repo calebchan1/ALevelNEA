@@ -46,8 +46,8 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof android.app.Activity){
-            mcontext =(android.app.Activity) context;
+        if (context instanceof android.app.Activity) {
+            mcontext = (android.app.Activity) context;
         }
     }
 
@@ -152,7 +152,6 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
         return view;
     }
-
 
 
     private Map<String, Integer> getPublicLeaderboard() {
@@ -312,7 +311,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 handleViews(scoreTV, score.toString(), false, fontsize);
                 //if the corresponding name corresponds to the current user's username
                 //change colour to green to highlight their place on the leaderboard
-                if (name.equals(User.getUsername())){
+                if (name.equals(User.getUsername())) {
                     posTV.setTextColor(getResources().getColor(R.color.green));
                     scoreTV.setTextColor(getResources().getColor(R.color.green));
                     nameTV.setTextColor(getResources().getColor(R.color.green));

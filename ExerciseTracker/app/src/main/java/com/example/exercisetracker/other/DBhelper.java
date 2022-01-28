@@ -29,7 +29,7 @@ public class DBhelper {
     }
 
     /**
-     *  FOLLOWING METHODS DEAL WITH THE ACTUAL USER OF TEH APP
+     * FOLLOWING METHODS DEAL WITH THE ACTUAL USER OF TEH APP
      */
     public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
@@ -76,7 +76,7 @@ public class DBhelper {
                 return false;
             }
             resultset.beforeFirst();
-            addResult(resultset,6);
+            addResult(resultset, 6);
             Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
 
             return true;
@@ -131,7 +131,7 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    String.format(Locale.getDefault(),"DELETE FROM User WHERE UserID = '%d'", userID)
+                    String.format(Locale.getDefault(), "DELETE FROM User WHERE UserID = '%d'", userID)
             );
             if (resultset == 0) {
                 //could not delete account
@@ -149,7 +149,7 @@ public class DBhelper {
     }
 
     /**
-     *  FOLLOWING METHODS DEAL WITH HANDLING ACTIVITIES
+     * FOLLOWING METHODS DEAL WITH HANDLING ACTIVITIES
      */
     public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance, String reps) {
         Connection conn = null;
@@ -158,7 +158,7 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             int resultset = 0;
             //executing SQL statement
-            if (reps==null) {
+            if (reps == null) {
                 //activity is either walking, running or treadmill
                 resultset = statement.executeUpdate(
                         "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories,steps,distance) " +
@@ -168,8 +168,7 @@ public class DBhelper {
                                         currDate, timestarted, duration, calories, steps, distance)
                 );
 
-            }
-            else{
+            } else {
                 //activity is either walking, running or treadmill
                 resultset = statement.executeUpdate(
                         "INSERT INTO Activity (ExerciseID, UserID,Date,timeStarted,duration,calories,reps) " +
@@ -215,7 +214,7 @@ public class DBhelper {
                 return false;
             }
             resultset.beforeFirst();
-            addResult(resultset,9);
+            addResult(resultset, 9);
             //activities read in form:
             //"exercise name", "date", "time", "duration", "calories","steps","distance","reps"
             return true;
@@ -238,7 +237,7 @@ public class DBhelper {
             Statement statement = conn.createStatement();
             //executing SQL statement
             int resultset = statement.executeUpdate(
-                    String.format(Locale.getDefault(),"DELETE FROM Activity WHERE ActivityID = '%d'", ActivityID)
+                    String.format(Locale.getDefault(), "DELETE FROM Activity WHERE ActivityID = '%d'", ActivityID)
             );
             if (resultset == 0) {
                 //could not delete activity
@@ -255,17 +254,17 @@ public class DBhelper {
         }
     }
 
-    public boolean getFriendsActivities(Integer duration, Set<Integer> friendsList){
+    public boolean getFriendsActivities(Integer duration, Set<Integer> friendsList) {
 
         //by using WHERE IN VALUES(), we can limit which activities are requested
         // in format ('id1','id2',....)
         StringBuilder sqlCondition = new StringBuilder("(");
-        for (Integer id: friendsList){
+        for (Integer id : friendsList) {
             sqlCondition.append(String.format(Locale.getDefault(), "'%d',", id));
         }
         //including user's own UserID to show where their relative position is on leaderboard
         sqlCondition.append(String.format(Locale.getDefault(), "'%d',", User.getUserID()));
-        sqlCondition.deleteCharAt(sqlCondition.length()-1);
+        sqlCondition.deleteCharAt(sqlCondition.length() - 1);
         sqlCondition.append(") ");
 
         System.out.println(sqlCondition);
@@ -278,7 +277,7 @@ public class DBhelper {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
-            if (duration==0) {
+            if (duration == 0) {
                 //executing SQL statement
                 //requesting leaderboard of all time
                 resultset = statement.executeQuery(
@@ -287,8 +286,7 @@ public class DBhelper {
                                 "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition +
                                 "ORDER BY Activity.Date DESC;"
                 );
-            }
-            else if (duration == 1){
+            } else if (duration == 1) {
                 //executing SQL statement
                 //requesting leaderboard from past day
                 long millis = System.currentTimeMillis();
@@ -297,11 +295,10 @@ public class DBhelper {
                         "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition + "AND " +
-                                String.format("Activity.Date = '%s' ",date.toString()) +
+                                String.format("Activity.Date = '%s' ", date.toString()) +
                                 "ORDER BY Activity.Date DESC;"
                 );
-            }
-            else if (duration == 30){
+            } else if (duration == 30) {
                 //requesting leaderboard from past 30 days
                 long millis = System.currentTimeMillis();
                 millis = millis - 2592000000L;
@@ -310,7 +307,7 @@ public class DBhelper {
                         "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND Activity.UserID IN " + sqlCondition + "AND " +
-                                String.format("Activity.Date >= '%s' ",date.toString()) +
+                                String.format("Activity.Date >= '%s' ", date.toString()) +
                                 "ORDER BY Activity.Date DESC;"
                 );
             }
@@ -319,7 +316,7 @@ public class DBhelper {
             }
             resultset.beforeFirst();
             //dealing with multiple rows
-            addResult(resultset,2);
+            addResult(resultset, 2);
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -333,7 +330,7 @@ public class DBhelper {
     }
 
 
-    public boolean getAllActivities(Integer duration){
+    public boolean getAllActivities(Integer duration) {
         Connection conn = null;
         //get request to database for all activities done for public leaderboard
         //includes userID, and first name corresponding to each activity
@@ -342,7 +339,7 @@ public class DBhelper {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
-            if (duration==0) {
+            if (duration == 0) {
                 //executing SQL statement
                 //requesting leaderboard of all time
                 resultset = statement.executeQuery(
@@ -351,8 +348,7 @@ public class DBhelper {
                                 "WHERE Activity.UserID = User.UserID " +
                                 "ORDER BY Activity.Date DESC;"
                 );
-            }
-            else if (duration == 1){
+            } else if (duration == 1) {
                 //executing SQL statement
                 //requesting leaderboard from past day
                 long millis = System.currentTimeMillis();
@@ -361,11 +357,10 @@ public class DBhelper {
                         "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND " +
-                                String.format("Activity.Date = '%s' ",date.toString()) +
+                                String.format("Activity.Date = '%s' ", date.toString()) +
                                 "ORDER BY Activity.Date DESC;"
                 );
-            }
-            else if (duration == 30){
+            } else if (duration == 30) {
                 //requesting leaderboard from past 30 days
                 long millis = System.currentTimeMillis();
                 millis = millis - 2592000000L;
@@ -374,7 +369,7 @@ public class DBhelper {
                         "SELECT User.username, Activity.calories " +
                                 "FROM Activity, User " +
                                 "WHERE Activity.UserID = User.UserID AND " +
-                                String.format("Activity.Date >= '%s' ",date.toString()) +
+                                String.format("Activity.Date >= '%s' ", date.toString()) +
                                 "ORDER BY Activity.Date DESC;"
                 );
             }
@@ -383,7 +378,7 @@ public class DBhelper {
             }
             resultset.beforeFirst();
             //dealing with multiple rows
-            addResult(resultset,2);
+            addResult(resultset, 2);
             return true;
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -398,11 +393,11 @@ public class DBhelper {
 
 
     /**
-     *  FOLLOWING METHODS DEAL WITH FRIENDS SYSTEM IN THE APP
+     * FOLLOWING METHODS DEAL WITH FRIENDS SYSTEM IN THE APP
      */
-    public boolean getUsers(String name){
+    public boolean getUsers(String name) {
         Connection conn = null;
-        try{
+        try {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
@@ -412,37 +407,35 @@ public class DBhelper {
             resultset = statement.executeQuery(
                     "SELECT UserID, firstname, surname, username " +
                             "FROM User WHERE (firstname LIKE " +
-                            "'%"+name +"%' " +
-                            "OR surname LIKE "+   "'%"+name +"%') " +
-                            String.format(Locale.getDefault(),"AND UserID <> '%d' ",User.getUserID())
+                            "'%" + name + "%' " +
+                            "OR surname LIKE " + "'%" + name + "%') " +
+                            String.format(Locale.getDefault(), "AND UserID <> '%d' ", User.getUserID())
 
             );
             if (!resultset.next()) {
                 return false;
             }
             resultset.beforeFirst();
-            addResult(resultset,4);
+            addResult(resultset, 4);
             return true;
-        }
-        catch(Exception e){
-            return  false;
-        }
-        finally {
+        } catch (Exception e) {
+            return false;
+        } finally {
             closeConnection(conn);
         }
     }
 
-    public boolean getFriends(){
+    public boolean getFriends() {
         Connection conn = null;
-        try{
+        try {
             //checking both columns for any friendships between users
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             ResultSet resultset = null;
             resultset = statement.executeQuery(
                     "SELECT Friends.User2ID, User.firstname, User.surname, User.username " +
-                            "FROM Friends, User "+
-                            String.format(Locale.getDefault()," WHERE Friends.USER1ID = '%d' ",User.getUserID()) +
+                            "FROM Friends, User " +
+                            String.format(Locale.getDefault(), " WHERE Friends.USER1ID = '%d' ", User.getUserID()) +
                             "AND User.UserID = Friends.USER2ID"
             );
             if (!resultset.next()) {
@@ -450,28 +443,26 @@ public class DBhelper {
             }
             User.getFriendsList().clear();
             resultset.beforeFirst();
-            addResult(resultset,4);
+            addResult(resultset, 4);
             return true;
-        }
-        catch(Exception e){
-            return  false;
-        }
-        finally {
+        } catch (Exception e) {
+            return false;
+        } finally {
             closeConnection(conn);
         }
     }
 
-    public boolean addFriend(int user1, int user2){
+    public boolean addFriend(int user1, int user2) {
         //adding friend relationship to database
         //where user1 is user who initiated friendship
         Connection conn = null;
-        try{
+        try {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             int resultset = 0;
             resultset = statement.executeUpdate(
                     "INSERT INTO Friends " +
-                            String.format(Locale.getDefault(),"VALUES ('%d','%d');",user1,user2)
+                            String.format(Locale.getDefault(), "VALUES ('%d','%d');", user1, user2)
             );
             if (resultset == 0) {
                 return false;
@@ -479,27 +470,25 @@ public class DBhelper {
             //adding to User class set of friends
             User.addFriendsList(user2);
             return true;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
-            return  false;
-        }
-        finally {
+            return false;
+        } finally {
             closeConnection(conn);
         }
     }
 
-    public boolean removeFriend(int user1, int user2){
+    public boolean removeFriend(int user1, int user2) {
         //adding friend relationship to database
         //where user1 is user who initiated friendship
         Connection conn = null;
-        try{
+        try {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             int resultset = 0;
             resultset = statement.executeUpdate(
                     "DELETE FROM Friends " +
-                            String.format(Locale.getDefault(),"WHERE User1ID = '%d' AND User2ID = '%d'",user1,user2)
+                            String.format(Locale.getDefault(), "WHERE User1ID = '%d' AND User2ID = '%d'", user1, user2)
             );
             if (resultset == 0) {
                 return false;
@@ -507,12 +496,10 @@ public class DBhelper {
             //removing from User set of friends
             User.removeFriendsList(user2);
             return true;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
-            return  false;
-        }
-        finally {
+            return false;
+        } finally {
             closeConnection(conn);
         }
     }
@@ -522,7 +509,7 @@ public class DBhelper {
         return result;
     }
 
-    public void addResult(ResultSet resultset,int columns) throws SQLException {
+    public void addResult(ResultSet resultset, int columns) throws SQLException {
         //dealing with multiple rows
         while (resultset.next()) {
             String row = "";
@@ -546,7 +533,7 @@ public class DBhelper {
         return conn;
     }
 
-    private void closeConnection(Connection conn){
+    private void closeConnection(Connection conn) {
         try {
             if (conn != null) {
                 conn.close();
@@ -556,7 +543,7 @@ public class DBhelper {
         }
     }
 
-    public void clearResults(){
+    public void clearResults() {
         this.result.clear();
     }
 }

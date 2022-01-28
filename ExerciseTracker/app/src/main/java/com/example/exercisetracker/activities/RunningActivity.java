@@ -3,7 +3,6 @@ package com.example.exercisetracker.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.Sensor;
@@ -29,7 +28,6 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.other.DBhelper;
-import com.example.exercisetracker.other.ExerciseService;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.stepcounting.StepCounter;

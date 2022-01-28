@@ -9,10 +9,11 @@ import java.util.ArrayList;
  * StepCounter class encapsulates all methods and classes involving step detection.
  * Is used in activities requiring step detection from accelerometer and gravimeter
  * Currently, these activities include: RunningActivity, TreadmillActivity and WalkingActivity
- *
+ * <p>
  * Is composed of Detector and Filter classes
  */
 public class StepCounter {
+    private final DecimalFormat df;
     private Context context;
     private Detector detector;
     private Filter filter;
@@ -20,10 +21,19 @@ public class StepCounter {
     //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
     private ArrayList<Float[]> grav;
     private ArrayList<Float[]> accel;
-
-    private final DecimalFormat df;
     private Boolean hasProcessed;
 
+
+    public StepCounter(Context context, Integer stepDuration, Float DetectThresh, Float MinFilterThresh, Float MaxFilterThresh, DecimalFormat df) {
+        this.filter = new Filter(MinFilterThresh, MaxFilterThresh);
+        this.detector = new Detector(DetectThresh, stepDuration);
+        this.context = context;
+        this.df = df;
+        this.hasProcessed = Boolean.FALSE;
+        this.accel = new ArrayList<>();
+        this.grav = new ArrayList<>();
+        this.steps = 0;
+    }
 
     public Boolean getHasProcessed() {
         return hasProcessed;
@@ -37,44 +47,33 @@ public class StepCounter {
         return steps;
     }
 
-    public StepCounter(Context context, Integer stepDuration, Float DetectThresh, Float MinFilterThresh, Float MaxFilterThresh, DecimalFormat df){
-        this.filter = new Filter(MinFilterThresh,MaxFilterThresh);
-        this.detector = new Detector(DetectThresh, stepDuration);
-        this.context = context;
-        this.df = df;
-        this.hasProcessed = Boolean.FALSE;
-        this.accel = new ArrayList<>();
-        this.grav = new ArrayList<>();
-        this.steps = 0;
-    }
-
-    public void addEntry(Integer SensorType,Float x, Float y, Float z){
-        switch(SensorType){
+    public void addEntry(Integer SensorType, Float x, Float y, Float z) {
+        switch (SensorType) {
             case 0:
                 // when sensorType is 0, from accelerometer
-                Float[] entry = convertToEntry(x,y,z);
+                Float[] entry = convertToEntry(x, y, z);
                 System.out.println("acceleration:" + String.format("%f, %f, %f", entry[0], entry[1], entry[2]));
                 accel.add(entry);
                 this.accel.add(entry);
             case 1:
                 // when sensorType is 1, from gravimeter
-                Float[] entry1 = convertToEntry(x,y,z);
+                Float[] entry1 = convertToEntry(x, y, z);
                 System.out.println("gravity:" + String.format("%f, %f, %f", entry1[0], entry1[1], entry1[2]));
                 grav.add(entry1);
                 this.grav.add(entry1);
         }
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         //if grav and accel arraylists are empty
-        if (grav.isEmpty() && accel.isEmpty()){
+        if (grav.isEmpty() && accel.isEmpty()) {
             return true;
         }
         return false;
     }
 
-    public void countSteps(){
-        ArrayList<Float> results= processData();
+    public void countSteps() {
+        ArrayList<Float> results = processData();
         grav.clear();
         accel.clear();
         //hasProcessed to true to prevent small chunks of data being processed
@@ -87,12 +86,13 @@ public class StepCounter {
         this.steps += detector.detect(filter.getFiltered_data());
     }
 
-    public double calculatePace(Float x, Float y, Float z){
+    public double calculatePace(Float x, Float y, Float z) {
         //since change in second for acceleration in one second
         //working out magnitude of velocity
-        double pace = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));
+        double pace = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         return pace;
     }
+
     private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z) {
         Float x = Float.parseFloat(df.format(raw_x));
         Float y = Float.parseFloat(df.format(raw_y));
@@ -104,7 +104,7 @@ public class StepCounter {
         return entry;
     }
 
-    private ArrayList<Float> processData(){
+    private ArrayList<Float> processData() {
         ArrayList<Float> results = new ArrayList<Float>();
         //PRE-PROCESSING DATA
         //handling when grav array and accel array are unequal:

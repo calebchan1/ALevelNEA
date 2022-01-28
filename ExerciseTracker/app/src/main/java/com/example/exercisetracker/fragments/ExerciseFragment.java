@@ -1,7 +1,6 @@
 package com.example.exercisetracker.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,12 +15,12 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.activities.WalkingActivity;
 import com.example.exercisetracker.activities.PushUpActivity;
 import com.example.exercisetracker.activities.RunningActivity;
 import com.example.exercisetracker.activities.TreadmillActivity;
+import com.example.exercisetracker.activities.WalkingActivity;
 
-public class ExerciseFragment extends Fragment implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback{
+public class ExerciseFragment extends Fragment implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
     private String[] PERMISSIONS;
     //notification
     private NotificationManagerCompat notificationManagerCompat;
@@ -35,8 +34,7 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-
-        View view =  inflater.inflate(R.layout.fragment_exercise,container,false);
+        View view = inflater.inflate(R.layout.fragment_exercise, container, false);
         Button runBtn = (Button) view.findViewById(R.id.runBtn);
         Button walkBtn = (Button) view.findViewById(R.id.walkBtn);
         Button treadmillBtn = (Button) view.findViewById(R.id.treadmillBtn);
@@ -51,7 +49,7 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
     @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.runBtn:
                 //starting activity
                 Intent intent1 = new Intent(getContext(), RunningActivity.class);

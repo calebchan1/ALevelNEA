@@ -44,8 +44,8 @@ public class HistoryFragment extends Fragment {
         super.onAttach(context);
         //saving the attached activity to preserve lifecycle of fragment
         //ensures that UI thread runs on an instance of an activity
-        if (context instanceof android.app.Activity){
-            mcontext =(android.app.Activity) context;
+        if (context instanceof android.app.Activity) {
+            mcontext = (android.app.Activity) context;
         }
     }
 
@@ -195,14 +195,14 @@ public class HistoryFragment extends Fragment {
             int minutes = (activity.getDuration() % 3600) / 60;
             int secs = activity.getDuration() % 60;
             Float pace = Float.valueOf(activity.getDistance()) / Float.valueOf(activity.getDuration());
-            pace = pace*3.6f; //converting from m/s to km/hr
+            pace = pace * 3.6f; //converting from m/s to km/hr
             DecimalFormat df = new DecimalFormat("#.##");
             String time = String.format(Locale.getDefault(), "%dh:%02dm:%02ds", hours, minutes, secs);
             String message = "";
             if (activity.getName().equals("Running") || activity.getName().equals("Walking") || activity.getName().equals("Treadmill")) {
                 message =
                         String.format(Locale.getDefault(), "Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm\nAvg. Pace: %skm/hr",
-                                time, activity.getCalories(), activity.getSteps(), activity.getDistance(),df.format(pace));
+                                time, activity.getCalories(), activity.getSteps(), activity.getDistance(), df.format(pace));
             } else if (activity.getName().equals("Push Up")) {
                 message =
                         String.format(Locale.getDefault(), "Duration: %s\nCalories Burnt: %d\nReps: %d",
@@ -271,7 +271,7 @@ public class HistoryFragment extends Fragment {
         }
 
         protected void onPostExecute(ArrayList<String> queryResults) {
-            if (queryResults!=null) {
+            if (queryResults != null) {
                 mcontext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

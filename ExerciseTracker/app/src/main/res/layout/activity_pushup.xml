@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_colour"
-    >
+    android:background="@color/main_colour">
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
         android:layout_width="wrap_content"
@@ -16,8 +15,8 @@
 
 
     <FrameLayout
-        android:layout_width="match_parent"
         android:id="@+id/framelayout"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.camera.view.PreviewView
@@ -30,56 +29,55 @@
             android:id="@+id/nose"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/right_shoulder"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/left_shoulder"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/lelbow"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/relbow"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/left_hip"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/right_hip"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/right_knee"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
+
         <View
             android:id="@+id/left_knee"
             android:layout_width="5dp"
             android:layout_height="5dp"
-            android:background="@drawable/rectangle"
-            />
+            android:background="@drawable/rectangle" />
     </FrameLayout>
 
 
@@ -87,95 +85,93 @@
         android:id="@+id/timerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="80sp"
+        android:layout_marginBottom="40dp"
         android:fontFamily="@font/gothicbb"
+        android:gravity="center"
         android:text="00:00:00"
         android:textColor="@color/white"
-        app:layout_constraintVertical_bias="1"
+        android:textSize="80sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginBottom="40dp"/>
+        app:layout_constraintVertical_bias="1" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/timerText"
-        app:layout_constraintVertical_bias="1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Push-Up Tracker"
         android:padding="5dp"
+        android:text="Push-Up Tracker"
         android:textColor="@color/white"
         android:textSize="30sp"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/timerText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1" />
+
     <TextView
         android:id="@+id/PoseIndicator"
-        android:textAlignment="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/timerText"
-        app:layout_constraintBottom_toTopOf="@+id/finishBtn"
-        app:layout_constraintVertical_bias="1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Push Up Not Entered"
-        android:padding="5dp"
-        android:textColor="@color/red"
         android:fontFamily="@font/gothic"
+        android:padding="5dp"
+        android:text="Push Up Not Entered"
+        android:textAlignment="center"
+        android:textColor="@color/red"
         android:textSize="20dp"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/finishBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timerText"
+        app:layout_constraintVertical_bias="1" />
 
     <TextView
         android:id="@+id/debugTV"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/guideline3"
-        app:layout_constraintBottom_toTopOf="@+id/finishBtn"
-        app:layout_constraintVertical_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="debug"
-        android:padding="5dp"
-        android:textColor="@color/white"
         android:fontFamily="@font/gothicbb"
+        android:padding="5dp"
+        android:text="debug"
+        android:textColor="@color/white"
         android:textSize="20dp"
-        />
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/finishBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline3"
+        app:layout_constraintVertical_bias="0" />
 
     <LinearLayout
         android:id="@+id/row1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintVertical_bias="0"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timerText"
-        android:gravity="center_horizontal"
-        >
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/repText"
-            android:fontFamily="@font/gothic"
-            android:textColor="@color/white"
-            android:text="Reps:\n0"
-            android:textSize="20dp"
-            android:textAlignment="center" />
+        app:layout_constraintVertical_bias="0">
 
         <TextView
+            android:id="@+id/repText"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:id="@+id/calText"
             android:fontFamily="@font/gothic"
+            android:text="Reps:\n0"
+            android:textAlignment="center"
             android:textColor="@color/white"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/calText"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gothic"
             android:text="Calories:\n0"
-            android:textSize="20dp"/>
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -200,11 +196,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
-        android:fontFamily="@font/gothicbb"
         android:backgroundTint="@color/main_colour_on_primary"
-        android:textColor="@color/main_colour"
+        android:fontFamily="@font/gothicbb"
         android:text="Finish"
         android:textAllCaps="false"
+        android:textColor="@color/main_colour"
         android:textSize="30dp"
         app:cornerRadius="100dp"
         app:layout_constraintBottom_toBottomOf="parent"

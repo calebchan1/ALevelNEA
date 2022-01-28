@@ -13,20 +13,17 @@ public class Filter {
         this.maxThreshold = maxThreshold;
     }
 
-    public void filter(ArrayList<Float> data){
+    public void filter(ArrayList<Float> data) {
         //filter the data to remove bumpiness and outliers using thresholds given
         filtered_data = new Float[data.size()];
-        for (int i=0 ;i<data.size();i++){
-            if (data.get(i)==0.0){
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i) == 0.0) {
                 filtered_data[i] = 0f;
-            }
-            else if (data.get(i)>maxThreshold){
+            } else if (data.get(i) > maxThreshold) {
                 filtered_data[i] = maxThreshold;
-            }
-            else if (data.get(i)<minThreshold){
+            } else if (data.get(i) < minThreshold) {
                 filtered_data[i] = minThreshold;
-            }
-            else{
+            } else {
                 filtered_data[i] = data.get(i);
             }
         }

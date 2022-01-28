@@ -31,10 +31,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.Route;
-import com.example.exercisetracker.stepcounting.StepCounter;
-import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.DBhelper;
+import com.example.exercisetracker.other.Route;
+import com.example.exercisetracker.other.User;
+import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
 import java.sql.Date;
@@ -43,7 +43,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class WalkingActivity extends AppCompatActivity{
+public class WalkingActivity extends AppCompatActivity {
     //Sensors
     private SensorManager sensorManager;
     private SensorEventListener listener;
@@ -101,18 +101,18 @@ public class WalkingActivity extends AppCompatActivity{
         if (checkPermissions(this, PERMISSIONS) == Boolean.FALSE) {
             //dealt with overriding onRequestPermissionsResult method
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(PERMISSIONS,0);
+                requestPermissions(PERMISSIONS, 0);
             }
         } else {
             startWalking();
         }
     }
 
-    private void init(){
+    private void init() {
         //instantiating all private variables
-        long millis=System.currentTimeMillis();
+        long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
-        timeStarted = timestamp.toString().substring(11,16);
+        timeStarted = timestamp.toString().substring(11, 16);
         date = new Date(millis);
         isWalking = true;
         seconds = 0;
@@ -140,7 +140,7 @@ public class WalkingActivity extends AppCompatActivity{
         });
 
         //CUSTOM JAVA CLASSES
-        stepCounter = new StepCounter(this, 2,0.5f,-10f,10f,new DecimalFormat("#.##"));
+        stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
         ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
         route = new Route(currentRoute);
         //NOTIFICATION MANAGER
@@ -180,11 +180,11 @@ public class WalkingActivity extends AppCompatActivity{
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //requesting background permission for android q+
             //Android forces you to request this separately
-            isWalking =false;
-            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},1);
+            isWalking = false;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
         }
 
         //handling location changes
@@ -227,6 +227,7 @@ public class WalkingActivity extends AppCompatActivity{
                     }
                 }
             }
+
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
@@ -235,24 +236,26 @@ public class WalkingActivity extends AppCompatActivity{
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
 
     }
+
     //PERMISSIONS
     private boolean checkPermissions(Context context, String[] PERMISSIONS) {
         //CHECKING FOR EXISTING PERMISSIONS
-        if (context!=null && PERMISSIONS!=null){
-            for (String permission: PERMISSIONS){
-                if (ActivityCompat.checkSelfPermission(context,permission)!= PackageManager.PERMISSION_GRANTED){
+        if (context != null && PERMISSIONS != null) {
+            for (String permission : PERMISSIONS) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false;
                 }
             }
         }
         return true;
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch(requestCode){
+        switch (requestCode) {
             case 0:
-                if (grantResults.length>0) {
+                if (grantResults.length > 0) {
                     //checking if all permissions are granted on UI dialog
                     boolean granted = true;
                     for (int result : grantResults) {
@@ -270,11 +273,10 @@ public class WalkingActivity extends AppCompatActivity{
                 }
 
             case 1:
-                if (grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     isWalking = true;
                     return;
-                }
-                else{
+                } else {
                     Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
                     finishWalking();
                 }
@@ -282,25 +284,24 @@ public class WalkingActivity extends AppCompatActivity{
 
     }
 
-    private void finishWalking(){
+    private void finishWalking() {
         isWalking = false;
         sensorManager.unregisterListener(listener);
-        if (locationManager!=null && timeStarted!=null) {
+        if (locationManager != null && timeStarted != null) {
             //audio text to speech to congratulate user
-            tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
+            tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
 
             locationManager.removeUpdates(locationListener);
             //exiting the walking activity and saving data to database
             //will only save activities which last longer than 60s
-            if (seconds>60){
+            if (seconds > 60) {
                 DBhelper helper = new DBhelper(WalkingActivity.this);
-                if (helper.saveActivity("walking",date.toString(),timeStarted,seconds.toString(),calories.toString(),steps.toString(), String.valueOf(distance),null)) {
+                if (helper.saveActivity("walking", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                     Toast.makeText(WalkingActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(WalkingActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
                 }
-            }
-            else{
+            } else {
                 //saves space and resources on database
                 Toast.makeText(WalkingActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
             }
@@ -309,6 +310,7 @@ public class WalkingActivity extends AppCompatActivity{
         this.finish();
 
     }
+
     private void createTimer() {
         //creating handler to run simultaneously to track duration in seconds
         final Handler handler = new Handler();
@@ -356,13 +358,13 @@ public class WalkingActivity extends AppCompatActivity{
     }
 
     //handling live notification bar
-    public void sendOnChannel1(View v){
-        Notification notification = new NotificationCompat.Builder(this,CHANNEL_1_ID)
+    public void sendOnChannel1(View v) {
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.id.icon)
                 .setContentTitle("Walking Tracking")
                 .setContentText(String.valueOf(steps))
                 .setCategory(NotificationCompat.CATEGORY_WORKOUT)
                 .build();
-        notificationManagerCompat.notify(1,notification);
+        notificationManagerCompat.notify(1, notification);
     }
 }

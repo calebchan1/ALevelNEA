@@ -2,9 +2,6 @@ package com.example.exercisetracker.activities;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.method.KeyListener;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,14 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.fragments.HistoryFragment;
 import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.Friend;
 import com.example.exercisetracker.other.User;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class AddFriendsActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText searchEditText;
@@ -92,22 +87,21 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 //when user wants to search for other users
                 if (!searchEditText.getText().toString().equals("")) {
                     helper.clearResults();
-                    if (helper.getUsers(searchEditText.getText().toString())){
+                    if (helper.getUsers(searchEditText.getText().toString())) {
                         noFriends.setVisibility(View.INVISIBLE);
 
                         //list of users passed to recycler view
                         //resetting friendArr for new query
                         friendArr.clear();
                         courseAdapter.notifyDataSetChanged();
-                        for (String row : helper.getResult()){
+                        for (String row : helper.getResult()) {
                             Friend friendObj = handleQuery(row);
                             friendArr.add(friendObj);
                             courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
                             // setting layout manager and adapter to our recycler view.
                         }
 
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getApplicationContext(), "No Users Found", Toast.LENGTH_SHORT).show();
                     }
 
@@ -120,14 +114,14 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void loadFriendsList(){
+    private void loadFriendsList() {
         DBhelper helper = new DBhelper(this);
-        if (helper.getFriends()){
+        if (helper.getFriends()) {
             noFriends.setVisibility(View.INVISIBLE);
             User.clearFriendsList();
             friendArr.clear();
             courseAdapter.notifyDataSetChanged();
-            for (String query : helper.getResult()){
+            for (String query : helper.getResult()) {
                 Friend friendObj = handleQuery(query);
                 //adding to user's list of friends
                 User.addFriendsList(friendObj.getId());
@@ -137,8 +131,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 //their friends will appear
             }
             helper.clearResults();
-        }
-        else{
+        } else {
 
             //no friends found, disclaimer shown to user
             noFriends.setVisibility(View.VISIBLE);
@@ -146,13 +139,13 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private Friend handleQuery(String query){
+    private Friend handleQuery(String query) {
         String[] arr = query.split(" ");
         int id = Integer.parseInt(arr[0]);
         String firstname = arr[1];
         String surname = arr[2];
         String username = arr[3];
-        return new Friend(id,firstname,surname,username);
+        return new Friend(id, firstname, surname, username);
     }
 
 
@@ -180,17 +173,16 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             //setting the instance holder data from the friend object at that position in the array
             Friend friend = friendsArr.get(position);
 
-            if (User.getFriendsList().contains(friend.getId())){
+            if (User.getFriendsList().contains(friend.getId())) {
                 //if friend is in the user's friend list change button to remove friend
                 holder.addFriendBtn.setText("Remove Friend");
-            }
-            else{
+            } else {
                 holder.addFriendBtn.setText("Add Friend");
             }
 
 
-            holder.realNameTV.setText(friend.getFirstname() + " " +friend.getSurname());
-            holder.usernameIDTV.setText("username: "+ friend.getUsername());
+            holder.realNameTV.setText(friend.getFirstname() + " " + friend.getSurname());
+            holder.usernameIDTV.setText("username: " + friend.getUsername());
             holder.addFriendBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -203,15 +195,13 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                         } else {
                             Toast.makeText(context.getApplicationContext(), "Could not add friend", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    else if(holder.addFriendBtn.getText() == "Remove Friend"){
+                    } else if (holder.addFriendBtn.getText() == "Remove Friend") {
                         //when friend has been already added and wants to remove friendship
                         DBhelper helper = new DBhelper(context);
-                        if (helper.removeFriend(User.getUserID(),friend.getId())){
+                        if (helper.removeFriend(User.getUserID(), friend.getId())) {
                             Toast.makeText(context.getApplicationContext(), "Friend Removed", Toast.LENGTH_SHORT).show();
                             holder.addFriendBtn.setText("Add Friend");
-                        }
-                        else{
+                        } else {
                             Toast.makeText(context.getApplicationContext(), "Could not remove friend", Toast.LENGTH_SHORT).show();
                         }
                     }

@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,9 +36,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.DBhelper;
+import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.repDetection.RepCounter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -50,6 +52,7 @@ import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
+
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
@@ -172,7 +175,7 @@ public class PushUpActivity extends AppCompatActivity {
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
         //uncertainty is 1/10 of the screen height
-        repcounter = new RepCounter(this, poseIndicatorTV,debug,displaySize.getHeight()/15f,displaySize.getHeight()/5f);
+        repcounter = new RepCounter(this, poseIndicatorTV, debug, displaySize.getHeight() / 15f, displaySize.getHeight() / 5f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -210,7 +213,7 @@ public class PushUpActivity extends AppCompatActivity {
         poseDetector = PoseDetection.getClient(options);
     }
 
-    private void createTimer(){
+    private void createTimer() {
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
@@ -238,7 +241,7 @@ public class PushUpActivity extends AppCompatActivity {
         });
     }
 
-    private void handleQuotes(){
+    private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
         currquote = r.nextInt(quotes.length);
@@ -271,41 +274,40 @@ public class PushUpActivity extends AppCompatActivity {
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
 
-                    int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-                    @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
-                    if (image != null) {
-                        //receiving the input image from camera
-                        InputImage inputimage = InputImage.fromMediaImage(image, rotationDegrees);
-                        Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
-                            @Override
-                            public void onSuccess(@NonNull Pose pose) {
-                                if (isTracking){
+                int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+                @SuppressLint("UnsafeOptInUsageError") Image image = imageProxy.getImage();
+                if (image != null) {
+                    //receiving the input image from camera
+                    InputImage inputimage = InputImage.fromMediaImage(image, rotationDegrees);
+                    Task<Pose> result = poseDetector.process(inputimage).addOnSuccessListener(new OnSuccessListener<Pose>() {
+                        @Override
+                        public void onSuccess(@NonNull Pose pose) {
+                            if (isTracking) {
                                 //when the pose detector successfully can attach to image
                                 //Receiving and processing landmarks from Google's ML kit software
                                 List<PoseLandmark> allPoseLandmarks = pose.getAllPoseLandmarks();
                                 processLandmarks(allPoseLandmarks);
                                 //drawing on the landmarks onto the user's screen
                                 graphic.drawGraphic(allPoseLandmarks);
-                                }
-                                else{
-                                    graphic.clearGraphic();
-                                }
+                            } else {
+                                graphic.clearGraphic();
+                            }
 
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                //when the pose detector cannot attach to image
-                                System.out.println("Failed Pose Detection");
-                            }
-                        }).addOnCompleteListener(new OnCompleteListener<Pose>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Pose> task) {
-                                //making sure to close the instance of the image to allow the next image to be processed
-                                imageProxy.close();
-                            }
-                        });
-                    }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //when the pose detector cannot attach to image
+                            System.out.println("Failed Pose Detection");
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Pose>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Pose> task) {
+                            //making sure to close the instance of the image to allow the next image to be processed
+                            imageProxy.close();
+                        }
+                    });
+                }
             }
         });
 
@@ -337,9 +339,9 @@ public class PushUpActivity extends AppCompatActivity {
 
     private void processLandmarks(List<PoseLandmark> allLandmarks) {
         //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
-        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood()>0.8f
-                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood()>0.8f &&
-                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood()>0.8f) {
+        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood() > 0.8f
+                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood() > 0.8f &&
+                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood() > 0.8f) {
             repcounter.addEntry(allLandmarks);
         }
     }
@@ -459,7 +461,7 @@ public class PushUpActivity extends AppCompatActivity {
             view.setY(y);
         }
 
-        private void clearGraphic(){
+        private void clearGraphic() {
             for (View view : graphicViewsMap.values()) {
                 view.setVisibility(View.GONE);
             }
@@ -491,16 +493,16 @@ public class PushUpActivity extends AppCompatActivity {
                         updateLandmarkGraphic("right_elbow", landmark.getPosition().x, landmark.getPosition().y);
                         break;
                     case PoseLandmark.LEFT_HIP:
-                        updateLandmarkGraphic("left_hip",landmark.getPosition().x,landmark.getPosition().y);
+                        updateLandmarkGraphic("left_hip", landmark.getPosition().x, landmark.getPosition().y);
                         break;
                     case PoseLandmark.RIGHT_HIP:
-                        updateLandmarkGraphic("right_hip",landmark.getPosition().x,landmark.getPosition().y);
+                        updateLandmarkGraphic("right_hip", landmark.getPosition().x, landmark.getPosition().y);
                         break;
                     case PoseLandmark.LEFT_KNEE:
-                        updateLandmarkGraphic("left_knee",landmark.getPosition().x,landmark.getPosition().y);
+                        updateLandmarkGraphic("left_knee", landmark.getPosition().x, landmark.getPosition().y);
                         break;
                     case PoseLandmark.RIGHT_KNEE:
-                        updateLandmarkGraphic("right_knee",landmark.getPosition().x,landmark.getPosition().y);
+                        updateLandmarkGraphic("right_knee", landmark.getPosition().x, landmark.getPosition().y);
                         break;
                 }
 

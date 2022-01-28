@@ -2,12 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/parent"
     tools:context=".activities.MainActivity">
-
-
 
 
     <FrameLayout
@@ -15,13 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom_navigation">
+
         <ImageView
-            android:visibility="invisible"
             android:id="@+id/refresh"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:src="@drawable/refresh" />
+            android:src="@drawable/refresh"
+            android:visibility="invisible" />
 
     </FrameLayout>
 

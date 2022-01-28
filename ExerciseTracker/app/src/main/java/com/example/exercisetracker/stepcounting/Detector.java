@@ -1,17 +1,8 @@
 package com.example.exercisetracker.stepcounting;
 
-import android.os.Environment;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 /**
  * Detector class used to detect number of steps by considering how long
  * the user acceleration exceeds a certain amount
- *
  */
 
 public class Detector {
@@ -27,19 +18,18 @@ public class Detector {
     public Integer detect(Float[] filtered_data) {
         int i = 0;
         int stepCount = 0;
-        while (i<filtered_data.length-1){
+        while (i < filtered_data.length - 1) {
             Float data = filtered_data[i];
-            if (data>=Threshold){
+            if (data >= Threshold) {
                 int duration = 0;
-                while ((filtered_data[i]>Threshold)&&(i!=filtered_data.length-1)){
+                while ((filtered_data[i] > Threshold) && (i != filtered_data.length - 1)) {
                     i++;
-                    duration = duration+1;
+                    duration = duration + 1;
                 }
-                if (duration>stepduration){
+                if (duration > stepduration) {
                     stepCount++;
                 }
-            }
-            else {
+            } else {
                 i++;
             }
         }

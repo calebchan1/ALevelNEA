@@ -133,13 +133,11 @@ public class RegisterUserActivity extends AppCompatActivity {
                                 //user was not successfully added to database, error shown to user
                                 Toast.makeText(RegisterUserActivity.this, "Could not create account", Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        else{
+                        } else {
                             //User entered a space in the username or password
                             Toast.makeText(RegisterUserActivity.this, "Username and password must not contain any spaces", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    else{
+                    } else {
                         //User did not meet required number of chars for username and password
                         Toast.makeText(RegisterUserActivity.this, "Username and password must contain at least 8 characters", Toast.LENGTH_SHORT).show();
                     }

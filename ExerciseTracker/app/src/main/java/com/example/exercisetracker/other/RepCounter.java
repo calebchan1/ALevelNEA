@@ -11,18 +11,18 @@ public class RepCounter {
     private boolean isEntered;
     private List<PoseLandmark> currLandmarks;
 
-    public RepCounter(int enterThreshold, int exitThreshold){
+    public RepCounter(int enterThreshold, int exitThreshold) {
         this.enterThreshold = enterThreshold;
         this.exitThreshold = exitThreshold;
     }
 
-    public void handleLandmarks(String type, List<PoseLandmark> allLandmarks){
-        if (type.equals("pushup")){
+    public void handleLandmarks(String type, List<PoseLandmark> allLandmarks) {
+        if (type.equals("pushup")) {
 
         }
     }
 
-    public void countReps(){
+    public void countReps() {
 
     }
 }

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import com.example.exercisetracker.login.LogInScreen;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,19 +28,24 @@ public class User {
         //as set, no duplicate ids will exist
         User.friendsList.add(friend);
     }
+
     public static void removeFriendsList(Integer friend) {
         //adds to set of friends
         //as set, no duplicate ids will exist
         User.friendsList.remove(friend);
     }
 
-    public static void clearFriendsList(){
+    public static void clearFriendsList() {
         friendsList.clear();
     }
 
 
     public static String getUsername() {
         return username;
+    }
+
+    public static void setUsername(String username) {
+        User.username = username;
     }
 
     public static String getForename() {
@@ -58,10 +62,6 @@ public class User {
 
     public static void setSurname(String surname) {
         User.surname = surname;
-    }
-
-    public static void setUsername(String username) {
-        User.username = username;
     }
 
     public static String getPassword() {
@@ -81,7 +81,7 @@ public class User {
     }
 
     public static String getName() {
-        return getForename() + " " +getSurname();
+        return getForename() + " " + getSurname();
     }
 
     public static Integer getHeight() {
@@ -108,7 +108,7 @@ public class User {
         User.dateOfBirth = dateOfBirth;
     }
 
-    public static void logout(Context context){
+    public static void logout(Context context) {
         //clearing User class data
         setUsername(null);
         setUserID(null);
@@ -119,7 +119,7 @@ public class User {
         setForename(null);
         setSurname(null);
         //clearing shared preferences
-        SharedPreferences prefs = context.getSharedPreferences(LogInScreen.getShared_prefs(),Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(LogInScreen.getShared_prefs(), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.clear();
         editor.apply();

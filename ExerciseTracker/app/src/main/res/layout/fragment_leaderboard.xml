@@ -34,11 +34,11 @@
         android:layout_height="wrap_content"
         android:checkedButton="@id/allUsersBtn"
         android:orientation="horizontal"
-        app:layout_constraintVertical_bias="1"
         app:layout_constraintBottom_toTopOf="@id/leaderboard_scrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline2">
+        app:layout_constraintTop_toTopOf="@id/guideline2"
+        app:layout_constraintVertical_bias="1">
 
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/allUsersBtn"
@@ -56,6 +56,7 @@
             android:fontFamily="@font/gothicbb"
             android:text="Friends Only" />
     </RadioGroup>
+
     <RadioGroup
         android:id="@+id/period_radiogroup"
         android:layout_width="wrap_content"
@@ -74,6 +75,7 @@
             android:layout_marginEnd="10dp"
             android:fontFamily="@font/gothicbb"
             android:text="24 Hr" />
+
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/oneMonth"
             android:layout_width="wrap_content"
@@ -81,6 +83,7 @@
             android:layout_marginEnd="10dp"
             android:fontFamily="@font/gothicbb"
             android:text="30 Days" />
+
         <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/allTime"
             android:layout_width="wrap_content"
@@ -98,15 +101,14 @@
         app:layout_constraintTop_toBottomOf="@id/period_radiogroup">
 
         <TableLayout
-            android:layout_margin="20dp"
             android:id="@+id/table_main"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:isScrollContainer="true"
-            android:showDividers="middle"
+            android:layout_margin="20dp"
             android:divider="@color/main_colour_on_primary"
-            android:padding="10dp">
-        </TableLayout>
+            android:isScrollContainer="true"
+            android:padding="10dp"
+            android:showDividers="middle"></TableLayout>
 
 
     </ScrollView>
@@ -117,36 +119,36 @@
         android:layout_height="50dp"
         android:layout_margin="20dp"
         android:background="@drawable/round_button"
-        app:rippleColor="@color/black"
         android:foreground="@drawable/add_friend"
-        app:layout_constraintVertical_bias="0"
-        app:layout_constraintHorizontal_bias="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:rippleColor="@color/black" />
 
     <TextView
         android:id="@+id/noLeaderboard"
-        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="No Data Available\nGo to \'Exercise' to start an exercise!"
         android:textAlignment="center"
         android:textColor="@color/main_colour_on_primary"
         android:textSize="17sp"
-        android:text="No Data Available\nGo to \'Exercise' to start an exercise!"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline2"/>
+        app:layout_constraintTop_toTopOf="@id/guideline2" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

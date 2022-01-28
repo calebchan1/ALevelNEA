@@ -14,8 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.activities.MainActivity;
-import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.other.DBhelper;
+import com.example.exercisetracker.other.User;
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
