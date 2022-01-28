@@ -1,15 +1,9 @@
 package com.example.exercisetracker.activities;
 
-import static com.example.exercisetracker.other.BaseApp.CHANNEL_1_ID;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.Sensor;
@@ -23,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
@@ -33,15 +26,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.example.exercisetracker.R;
-import com.example.exercisetracker.other.BaseApp;
+import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.ExerciseService;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
-import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.stepcounting.StepCounter;
 import com.google.android.material.button.MaterialButton;
 
@@ -90,32 +80,7 @@ public class RunningActivity extends AppCompatActivity {
     private int currquote;
     private String[] quotes;
 
-
-    //notification and services
-    private NotificationManagerCompat notificationManagerCompat;
-    private Intent notifIntent;
-    ExerciseService mService;
-    boolean mBound = false;
-
     private DecimalFormat df;
-    private ExerciseService customService = null;
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            ExerciseService.LocalBinder binder = (ExerciseService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,14 +140,6 @@ public class RunningActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     private void startRunning() {
-        //NOTIFICATION MANAGER
-        Context context = getApplicationContext();
-        Intent intent = new Intent(RunningActivity.this,ExerciseService.class); // Build the intent for the service
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        }
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             //requesting background permission for android q+
             //Android forces you to request this separately
@@ -282,7 +239,7 @@ public class RunningActivity extends AppCompatActivity {
         }
     }
 
-    private void handleQuotes(){
+    private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
         currquote = r.nextInt(quotes.length);
@@ -337,14 +294,14 @@ public class RunningActivity extends AppCompatActivity {
         timerText.setText(time);
         //changing calorie text view
         calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-        calorieText.setText(String.format(Locale.getDefault(),"Calories:\n%d", calories));
+        calorieText.setText(String.format(Locale.getDefault(), "Calories:\n%d", calories));
         //changing step text view
-        stepText.setText(String.format(Locale.getDefault(),"Steps:\n%d", steps));
+        stepText.setText(String.format(Locale.getDefault(), "Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
 //        paceText.setText(Html.fromHtml("Pace:\n" + df.format(distance / seconds.floatValue()) + "ms<sup>-1</sup"));
 
-        paceText.setText(Html.fromHtml("Pace:\n" + df.format(pace)));
+        paceText.setText(Html.fromHtml("Pace:\n" + df.format(pace) + "ms<sup>-1</sup"));
     }
 
     private void handlePermissions() {
@@ -422,7 +379,7 @@ public class RunningActivity extends AppCompatActivity {
             //will only save activities which last longer than 60s
             if (seconds > 60) {
                 //audio text to speech to congratulate user
-                tts.speak(String.format(Locale.getDefault(),"Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps,distance),
+                tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps, distance),
                         TextToSpeech.QUEUE_FLUSH, null);
 
                 DBhelper helper = new DBhelper(RunningActivity.this);
@@ -437,9 +394,7 @@ public class RunningActivity extends AppCompatActivity {
             }
 
         }
-        //destroying notification
-        stopService(new Intent(RunningActivity.this, ExerciseService.class));
-        this.finish();
+        finish();
 
     }
 
