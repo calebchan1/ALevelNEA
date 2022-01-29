@@ -64,8 +64,6 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         view.findViewById(R.id.navigateToFriendsActivity).setOnClickListener(this);
         table = view.findViewById(R.id.table_main);
@@ -290,7 +288,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             TableRow row = new TableRow(mcontext);
             for (String string : arr) {
                 TextView tv = new TextView(mcontext);
-                handleViews(tv, string, true, 30);
+                handleViews(tv, string, true, 25);
                 row.addView(tv);
             }
             table.addView(row);
@@ -373,10 +371,9 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             mcontext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    userScores = result;
-                    if (userScores != null) {
+                    if (result!=null) {
                         //creating table
-                        createTable(userScores);
+                        createTable(result);
                         //hiding progress bar
                     } else {
                         //table was empty, disclaimer shown to user
