@@ -28,7 +28,7 @@
             android:layout_marginBottom="10dp"
             android:contentDescription="@string/app_name"
             android:padding="5dp"
-            android:src="@drawable/runningman" />
+            android:src="@drawable/running" />
 
         <!--Text View to display Exercise Name-->
         <TextView

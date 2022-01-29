@@ -85,7 +85,7 @@ public class HistoryFragment extends Fragment {
         //adding images to corresponding exercise
         switch (name) {
             case "running":
-                img = R.drawable.runningman;
+                img = R.drawable.running;
                 name = "Running";
                 break;
             case "treadmill":
@@ -93,11 +93,11 @@ public class HistoryFragment extends Fragment {
                 name = "Treadmill";
                 break;
             case "walking":
-                img = R.drawable.walkingimg;
+                img = R.drawable.walking;
                 name = "Walking";
                 break;
             case "pushup":
-                img = R.drawable.pushupimg;
+                img = R.drawable.pushup;
                 name = "Push Up";
                 break;
             case "squats":

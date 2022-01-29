@@ -99,7 +99,7 @@ public class ExerciseService extends Service implements SensorEventListener {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(false)
                 .setOnlyAlertOnce(true)
-                .setSmallIcon(R.drawable.runningman)
+                .setSmallIcon(R.drawable.running)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setContentIntent(pendingIntent)
