@@ -6,6 +6,7 @@
     <string name="met_treadmill">8.0</string>
     <string name="met_pushup">3.8</string>
     <string name="met_walking">3.5</string>
+    <string name="met_squats">3.5</string>
 
     <string-array name="quotes">
         <!-- Motivational Quotes -->

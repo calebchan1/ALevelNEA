@@ -39,7 +39,7 @@ public class Activity {
             this.calories = Integer.parseInt(temp[3]);
             this.steps = Integer.parseInt(temp[4]);
             this.distance = Integer.parseInt(temp[5]);
-        } else if (name.equals("Push Up")) {
+        } else if (name.equals("Push Up") || name.equals("Squats")) {
             //null values for steps and distance
             this.date = Date.valueOf(temp[0]);
             this.timeStarted = temp[1];

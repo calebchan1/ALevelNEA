@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.activities.PushUpActivity;
 import com.example.exercisetracker.activities.RunningActivity;
+import com.example.exercisetracker.activities.SquatsActivity;
 import com.example.exercisetracker.activities.TreadmillActivity;
 import com.example.exercisetracker.activities.WalkingActivity;
 
@@ -39,10 +40,12 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
         Button walkBtn = (Button) view.findViewById(R.id.walkBtn);
         Button treadmillBtn = (Button) view.findViewById(R.id.treadmillBtn);
         Button pushUpBtn = (Button) view.findViewById(R.id.pushUpBtn);
+        Button squatBtn = (Button) view.findViewById(R.id.squatBtn);
         treadmillBtn.setOnClickListener(this);
         pushUpBtn.setOnClickListener(this);
         runBtn.setOnClickListener(this);
         walkBtn.setOnClickListener(this);
+        squatBtn.setOnClickListener(this);
         return view;
     }
 
@@ -51,26 +54,30 @@ public class ExerciseFragment extends Fragment implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.runBtn:
-                //starting activity
+                //starting running activity
                 Intent intent1 = new Intent(getContext(), RunningActivity.class);
                 startActivity(intent1);
 
                 break;
             case R.id.walkBtn:
-                //starting activity
+                //starting walking activity
                 Intent intent2 = new Intent(getContext(), WalkingActivity.class);
                 startActivity(intent2);
                 break;
             case R.id.treadmillBtn:
-                //starting activity
+                //starting treadmill activity
                 Intent intent3 = new Intent(getContext(), TreadmillActivity.class);
                 startActivity(intent3);
                 break;
             case R.id.pushUpBtn:
-                //starting activity
+                //starting push up activity
                 Intent intent4 = new Intent(getContext(), PushUpActivity.class);
                 startActivity(intent4);
                 break;
+            case R.id.squatBtn:
+                //starting squat activity
+                Intent intent5 = new Intent(getContext(), SquatsActivity.class);
+                startActivity(intent5);
         }
     }
 

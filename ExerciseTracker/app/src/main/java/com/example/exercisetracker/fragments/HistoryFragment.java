@@ -100,6 +100,10 @@ public class HistoryFragment extends Fragment {
                 img = R.drawable.pushupimg;
                 name = "Push Up";
                 break;
+            case "squats":
+                img = R.drawable.squat;
+                name = "Squats";
+                break;
         }
         if (img != -1) {
             return new Activity(name, description, img, id);
@@ -203,7 +207,7 @@ public class HistoryFragment extends Fragment {
                 message =
                         String.format(Locale.getDefault(), "Duration: %s\nCalories: %d\nSteps: %d\nDistance: %dm\nAvg. Pace: %skm/hr",
                                 time, activity.getCalories(), activity.getSteps(), activity.getDistance(), df.format(pace));
-            } else if (activity.getName().equals("Push Up")) {
+            } else if (activity.getName().equals("Push Up") || activity.getName().equals("Squats")) {
                 message =
                         String.format(Locale.getDefault(), "Duration: %s\nCalories Burnt: %d\nReps: %d",
                                 time, activity.getCalories(), activity.getReps());

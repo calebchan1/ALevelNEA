@@ -2,7 +2,6 @@ package com.example.exercisetracker.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -19,7 +18,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,7 +60,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class PushUpActivity extends AppCompatActivity {
+public class SquatsActivity extends AppCompatActivity {
     //Text Views
     private TextView timerText, repText, calText, poseIndicatorTV;
     //buttons
@@ -92,9 +90,9 @@ public class PushUpActivity extends AppCompatActivity {
     private Graphic graphic;
     private Size displaySize;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         //visuals
         Objects.requireNonNull(getSupportActionBar()).hide();
         Window w = getWindow();
@@ -103,9 +101,7 @@ public class PushUpActivity extends AppCompatActivity {
         w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         Rect rectangle = new Rect();
         getWindow().getDecorView().getWindowVisibleDisplayFrame(rectangle);
-        int statusBarHeight = rectangle.top;
-        setContentView(R.layout.activity_pushup);
-
+        setContentView(R.layout.activity_squats);
         init();
 
         //handling button clicks
@@ -145,9 +141,9 @@ public class PushUpActivity extends AppCompatActivity {
         } else {
             startTracking();
         }
+        super.onCreate(savedInstanceState);
     }
-
-    private void init() {
+    private void init(){
         //instantiating all variables
         //getting display size for graphic
         Display display = getWindowManager().getDefaultDisplay();
@@ -167,12 +163,12 @@ public class PushUpActivity extends AppCompatActivity {
         calText = findViewById(R.id.calText);
         poseIndicatorTV = findViewById(R.id.PoseIndicator);
         //getting met from string values
-        MET = Float.parseFloat(getString(R.string.met_pushup));
+        MET = Float.parseFloat(getString(R.string.met_squats));
         tv = findViewById(R.id.tv);
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
         //uncertainty is 1/10 of the screen height
-        repcounter = new RepCounter(this, 0,poseIndicatorTV, debug, displaySize.getHeight() / 15f, displaySize.getHeight() / 5f);
+        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 15f, displaySize.getHeight() / 10f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -197,7 +193,7 @@ public class PushUpActivity extends AppCompatActivity {
         });
     }
 
-    private void startTracking() {
+    private void startTracking(){
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -233,7 +229,6 @@ public class PushUpActivity extends AppCompatActivity {
                     repText.setText("Reps:\n" + reps.toString());
                 }
                 handleQuotes();
-
             }
         });
     }
@@ -267,7 +262,7 @@ public class PushUpActivity extends AppCompatActivity {
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
         //setting the configuration for the image analysis
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(PushUpActivity.this), new ImageAnalysis.Analyzer() {
+        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(SquatsActivity.this), new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy imageProxy) {
 
@@ -387,25 +382,23 @@ public class PushUpActivity extends AppCompatActivity {
                     TextToSpeech.QUEUE_FLUSH, null);
 
             //saving activity results to database, as long as activity lasted for more than a minute
-            DBhelper helper = new DBhelper(PushUpActivity.this);
-            if (helper.saveActivity("pushup", date.toString(), timeStarted, seconds.toString(), calories.toString(), null, null, reps.toString())) {
-                Toast.makeText(PushUpActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
+            DBhelper helper = new DBhelper(SquatsActivity.this);
+            if (helper.saveActivity("squats", date.toString(), timeStarted, seconds.toString(), calories.toString(), null, null, reps.toString())) {
+                Toast.makeText(SquatsActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(PushUpActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SquatsActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();
             }
         } else {
             //saves space and resources on database
-            Toast.makeText(PushUpActivity.this, "Activity Not Saved (Too Short)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SquatsActivity.this, "Activity Not Saved (Too Short)", Toast.LENGTH_SHORT).show();
         }
         //destroying notification
         notificationManagerCompat.cancel(1);
         this.finish();
     }
 
-    //<---------Graphics---------->
+    //composition class (cannot draw graphic without the push up activity
     private class Graphic {
-        //composition class (cannot draw graphic without the push up activity
-
         //hash map, associating landmark name to graphic View
         private final Map<String, View> graphicViewsMap;
         private final Size displaySize;
