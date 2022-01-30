@@ -39,6 +39,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 public class TreadmillActivity extends AppCompatActivity {
@@ -72,12 +73,9 @@ public class TreadmillActivity extends AppCompatActivity {
 
     //audio
     private TextToSpeech tts;
-    private int currquote;
     private String[] quotes;
 
 
-    //Permissions
-    private String[] PERMISSIONS;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
 
@@ -86,7 +84,7 @@ public class TreadmillActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         }
@@ -202,7 +200,7 @@ public class TreadmillActivity extends AppCompatActivity {
     private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
-        currquote = r.nextInt(quotes.length);
+        int currquote = r.nextInt(quotes.length);
         if (seconds % 60 == 0) {
             //every 60 seconds a quote is spoken to help motivate the user
             if (currquote > quotes.length) {
@@ -229,7 +227,7 @@ public class TreadmillActivity extends AppCompatActivity {
                     //distance is calculated using the average stride based off their height*0.4 to a good approximation
                     //calculating distance and changing distance text view
                     seconds++;
-                    distance = height.floatValue() * ((float) Math.floor(steps / 2)) * 0.004f; //0.004 as user height stored as cm
+                    distance = height.floatValue() * ((float) Math.floor(steps / 2f)) * 0.004f; //0.004 as user height stored as cm
                     DecimalFormat df = new DecimalFormat("#.##");
                     updateViews(df);
                     //allowing preprocessing to happen at the instance of a 5 second interval
@@ -262,7 +260,8 @@ public class TreadmillActivity extends AppCompatActivity {
 
     private void handlePermissions() {
         //HANDLING PERMISSIONS
-        PERMISSIONS = new String[]{
+        //Permissions
+        String[] PERMISSIONS = new String[]{
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
         };
@@ -314,24 +313,23 @@ public class TreadmillActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 0:
-                if (grantResults.length > 0) {
-                    //checking if all permissions are granted on UI dialog
-                    boolean granted = true;
-                    for (int result : grantResults) {
-                        if (result == PackageManager.PERMISSION_DENIED) {
-                            granted = false;
-                        }
-                    }
-                    if (granted) {
-                        startRunning();
-                    } else {
-                        Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
-                        finishRunning();
+        if (requestCode == 0) {
+            if (grantResults.length > 0) {
+                //checking if all permissions are granted on UI dialog
+                boolean granted = true;
+                for (int result : grantResults) {
+                    if (result == PackageManager.PERMISSION_DENIED) {
+                        granted = false;
+                        break;
                     }
                 }
-
+                if (granted) {
+                    startRunning();
+                } else {
+                    Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                    finishRunning();
+                }
+            }
         }
     }
 

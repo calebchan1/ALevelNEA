@@ -3,6 +3,7 @@ package com.example.exercisetracker.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Point;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
@@ -43,6 +45,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
@@ -60,11 +63,13 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class SquatsActivity extends AppCompatActivity {
+public class SquatsActivity extends AppCompatActivity  {
     //Text Views
-    private TextView timerText, repText, calText, poseIndicatorTV;
+    private TextView timerText;
+    private TextView repText;
+    private TextView calText;
     //buttons
-    private Button startBtn, finishBtn;
+    private Button startBtn, finishBtn, helpBtn;
     //pushup custom variables
     private Boolean isTracking;
     private java.sql.Date date;
@@ -81,7 +86,6 @@ public class SquatsActivity extends AppCompatActivity {
 
     //audio
     private TextToSpeech tts;
-    private int currquote;
     private String[] quotes;
 
     //notification
@@ -126,6 +130,27 @@ public class SquatsActivity extends AppCompatActivity {
                 finishTracking();
             }
         });
+        helpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //when help button is clicked, show dialog to user explaining how to user
+                //how app can track squats and what user should do
+                String title = "How does this work?";
+                String message = "This app uses Google's machine learning kit to track your movements.\n" +
+                        "Place your device on a flat stable surface where your body is in full frame of the camera.\n" +
+                        "Avoid places where the camera is at a steep incline.\n" +
+                        "As you squat, the app will detect your reps and calories!";
+                new MaterialAlertDialogBuilder(SquatsActivity.this)
+                        .setTitle(title)
+                        .setMessage(message).setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).show();
+
+            }
+        });
         //permissions
         String[] PERMISSIONS = new String[]{
                 Manifest.permission.INTERNET,
@@ -158,10 +183,12 @@ public class SquatsActivity extends AppCompatActivity {
 
         startBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
+        helpBtn = findViewById(R.id.helpBtn);
         timerText = findViewById(R.id.timerText);
         repText = findViewById(R.id.repText);
         calText = findViewById(R.id.calText);
-        poseIndicatorTV = findViewById(R.id.PoseIndicator);
+        TextView poseIndicatorTV = findViewById(R.id.PoseIndicator);
+
         //getting met from string values
         MET = Float.parseFloat(getString(R.string.met_squats));
         tv = findViewById(R.id.tv);
@@ -236,7 +263,7 @@ public class SquatsActivity extends AppCompatActivity {
     private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
-        currquote = r.nextInt(quotes.length);
+        int currquote = r.nextInt(quotes.length);
         if (seconds % 60 == 0) {
             //every 60 seconds a quote is spoken to help motivate the user
             if (currquote > quotes.length) {
@@ -354,21 +381,18 @@ public class SquatsActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         isTracking = Boolean.FALSE;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 0:
-                //checking if all permissions are granted on UI dialog
-                boolean granted = true;
-                for (int result : grantResults) {
-                    if (result == PackageManager.PERMISSION_DENIED) {
-                        granted = false;
-                    }
+        if (requestCode == 0) {//checking if all permissions are granted on UI dialog
+            boolean granted = true;
+            for (int result : grantResults) {
+                if (result == PackageManager.PERMISSION_DENIED) {
+                    granted = false;
                 }
-                if (granted) {
-                    startTracking();
-                } else {
-                    finishTracking();
-                }
-                return;
+            }
+            if (granted) {
+                startTracking();
+            } else {
+                finishTracking();
+            }
         }
     }
 
@@ -444,10 +468,13 @@ public class SquatsActivity extends AppCompatActivity {
 
         private void updateLandmarkGraphic(String name, Float x, Float y) {
             View view = graphicViewsMap.get(name);
-            view.setVisibility(View.VISIBLE);
-            //inverting x coordinate, as camera is in mirroring position
-            view.setX(displaySize.getWidth() - x);
-            view.setY(y);
+            if (view != null) {
+                view.setVisibility(View.VISIBLE);
+                //inverting x coordinate, as camera is in mirroring position
+                view.setX(displaySize.getWidth() - x);
+                view.setY(y);
+            }
+
         }
 
         private void clearGraphic() {

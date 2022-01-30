@@ -40,7 +40,7 @@ public class HistoryFragment extends Fragment {
     private android.app.Activity mcontext;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         //saving the attached activity to preserve lifecycle of fragment
         //ensures that UI thread runs on an instance of an activity

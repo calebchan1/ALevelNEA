@@ -98,6 +98,7 @@
         app:layout_constraintVertical_bias="1" />
 
     <TextView
+        android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
@@ -133,8 +134,9 @@
         android:fontFamily="@font/gothicbb"
         android:padding="5dp"
         android:text="debug"
+        android:visibility="gone"
         android:textColor="@color/white"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/finishBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -160,7 +162,7 @@
             android:text="Reps:\n0"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/calText"
@@ -170,7 +172,7 @@
             android:text="Calories:\n0"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -181,7 +183,7 @@
         android:fontFamily="@font/gothicbb"
         android:text="Pause"
         android:textAllCaps="false"
-        android:textSize="30dp"
+        android:textSize="30sp"
         app:cornerRadius="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -200,7 +202,7 @@
         android:text="Finish"
         android:textAllCaps="false"
         android:textColor="@color/main_colour"
-        android:textSize="30dp"
+        android:textSize="30sp"
         app:cornerRadius="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -208,6 +210,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline3"
         app:layout_constraintVertical_bias="1.0" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/helpBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="7dp"
+        android:background = "@color/transparent"
+        android:text="?"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintBottom_toBottomOf="@+id/framelayout"
+        app:layout_constraintEnd_toStartOf="@id/finishBtn"
+        app:layout_constraintStart_toEndOf="@+id/startStopBtn"
+        app:layout_constraintTop_toBottomOf="@+id/PoseIndicator" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

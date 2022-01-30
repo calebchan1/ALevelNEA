@@ -8,7 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="grey">#BCBCBC</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="transparent">#66FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
     <color name="lightBlue">#617bff</color>
     <color name="mainBlue">#4563ff</color>
     <color name="green">#4CAF50</color>
@@ -17,4 +17,5 @@
     <color name="main_colour">#FFDCA8</color>
     <color name="main_colour_variant">#B3FFEED5</color>
     <color name="main_colour_on_primary">#6C4100</color>
+
 </resources>

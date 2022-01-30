@@ -24,24 +24,22 @@ import com.example.exercisetracker.other.User;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AddFriendsActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText searchEditText;
 
     //recycler view
     private AddFriendsActivity.FriendAdapter courseAdapter;
-    private LinearLayoutManager linearLayoutManager;
-    private RecyclerView recyclerView;
     private ArrayList<Friend> friendArr;
     private TextView noFriends;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //handling when back button is pressed
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -52,7 +50,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         //visuals
         setContentView(R.layout.activity_addfriends);
         // showing the back button in action bar
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
 
@@ -63,8 +61,8 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         noFriends = findViewById(R.id.noFriendsTV);
 
         //recycler views
-        recyclerView = findViewById(R.id.friendsRV);
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        RecyclerView recyclerView = findViewById(R.id.friendsRV);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         friendArr = new ArrayList<>();
         // we are initializing our adapter class and passing our arraylist to it.
         courseAdapter = new AddFriendsActivity.FriendAdapter(getApplicationContext(), friendArr);
@@ -80,37 +78,33 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.searchBtn:
-                //refreshing the static user class friend list from database
-                DBhelper helper = new DBhelper(this);
-                //when user wants to search for other users
-                if (!searchEditText.getText().toString().equals("")) {
-                    helper.clearResults();
-                    if (helper.getUsers(searchEditText.getText().toString())) {
-                        noFriends.setVisibility(View.INVISIBLE);
+        if (v.getId() == R.id.searchBtn) {//refreshing the static user class friend list from database
+            DBhelper helper = new DBhelper(this);
+            //when user wants to search for other users
+            if (!searchEditText.getText().toString().equals("")) {
+                helper.clearResults();
+                if (helper.getUsers(searchEditText.getText().toString())) {
+                    noFriends.setVisibility(View.INVISIBLE);
 
-                        //list of users passed to recycler view
-                        //resetting friendArr for new query
-                        friendArr.clear();
-                        courseAdapter.notifyDataSetChanged();
-                        for (String row : helper.getResult()) {
-                            Friend friendObj = handleQuery(row);
-                            friendArr.add(friendObj);
-                            courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
-                            // setting layout manager and adapter to our recycler view.
-                        }
-
-                    } else {
-                        Toast.makeText(getApplicationContext(), "No Users Found", Toast.LENGTH_SHORT).show();
+                    //list of users passed to recycler view
+                    //resetting friendArr for new query
+                    friendArr.clear();
+                    courseAdapter.notifyDataSetChanged();
+                    for (String row : helper.getResult()) {
+                        Friend friendObj = handleQuery(row);
+                        friendArr.add(friendObj);
+                        courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
+                        // setting layout manager and adapter to our recycler view.
                     }
 
                 } else {
-                    //user has searched empty query
-                    Toast.makeText(getApplicationContext(), "You have not entered anything", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "No Users Found", Toast.LENGTH_SHORT).show();
                 }
-                break;
 
+            } else {
+                //user has searched empty query
+                Toast.makeText(getApplicationContext(), "You have not entered anything", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -151,8 +145,8 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
 
     //adapter class to exchange information between card views created and friend details
     public static class FriendAdapter extends RecyclerView.Adapter<AddFriendsActivity.FriendAdapter.Viewholder> {
-        private Context context;
-        private ArrayList<Friend> friendsArr;
+        private final Context context;
+        private final ArrayList<Friend> friendsArr;
 
         public FriendAdapter(Context context, ArrayList<Friend> friendsArr) {
             this.context = context;

@@ -41,7 +41,9 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 public class RunningActivity extends AppCompatActivity {
@@ -75,7 +77,6 @@ public class RunningActivity extends AppCompatActivity {
 
     //audio
     private TextToSpeech tts;
-    private int currquote;
     private String[] quotes;
 
     private DecimalFormat df;
@@ -84,7 +85,7 @@ public class RunningActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //visuals
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);//  set status text dark
         }
@@ -176,7 +177,7 @@ public class RunningActivity extends AppCompatActivity {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
                     Double[] entry = {latitude, longitude};
-                    System.out.println(entry);
+                    System.out.println(Arrays.toString(entry));
                     route.addRoute(entry);
                 }
             }
@@ -240,7 +241,7 @@ public class RunningActivity extends AppCompatActivity {
     private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
-        currquote = r.nextInt(quotes.length);
+        int currquote = r.nextInt(quotes.length);
         if (seconds % 60 == 0) {
             //every 60 seconds a quote is spoken to help motivate the user
             if (currquote > quotes.length) {

@@ -17,8 +17,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
-    private BottomNavigationView bottomMenu;
-    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
 
-        bottomMenu = findViewById(R.id.bottom_navigation);
+        BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.setSelectedItemId(R.id.page_1);
         Fragment fragment = new ExerciseFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment).commit();

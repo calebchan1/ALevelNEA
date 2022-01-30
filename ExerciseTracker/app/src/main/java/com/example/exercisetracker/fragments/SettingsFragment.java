@@ -51,7 +51,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     private android.app.Activity mcontext;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         //saving the attached activity to preserve lifecycle of fragment
         //ensures that UI thread runs on an instance of an activity
@@ -114,6 +114,19 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             if (helper.updateUser()) {
                                 //if update on database was successful
                                 Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+
+                                //saving to SharedPreferences
+                                // results received in format ID, forename, surname, DOB, weight, height
+                                SharedPreferences prefs = mcontext.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("username", username);
+                                editor.putString("password", password);
+                                editor.putString("forename", forename);
+                                editor.putString("surname", surname);
+                                editor.putString("DOB", DOBField.getEditText().getText().toString());
+                                editor.putString("weight", weight.toString());
+                                editor.putString("height", height.toString());
+                                editor.apply();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

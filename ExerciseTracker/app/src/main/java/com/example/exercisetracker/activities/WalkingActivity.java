@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -42,6 +43,7 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 
 public class WalkingActivity extends AppCompatActivity {
     //Sensors
@@ -77,7 +79,6 @@ public class WalkingActivity extends AppCompatActivity {
 
     //audio
     private TextToSpeech tts;
-    private int currquote;
     private String[] quotes;
 
     //Permissions
@@ -126,6 +127,11 @@ public class WalkingActivity extends AppCompatActivity {
         calorieText = findViewById(R.id.calText);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         MET = Float.parseFloat(getString(R.string.met_walking));
+
+        //quotes from resources
+        Resources res = getResources();
+        quotes = res.getStringArray(R.array.quotes);
+
 
         //text to speech instantiation
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -333,11 +339,27 @@ public class WalkingActivity extends AppCompatActivity {
                     }
                     updateViews(df);
                     //updating notification every second
-
+                    handleQuotes();
                 }
 
             }
         });
+    }
+
+    private void handleQuotes() {
+        //starting with random quote for text to speech
+        Random r = new Random();
+        int currquote = r.nextInt(quotes.length);
+        if (seconds % 60 == 0) {
+            //every 60 seconds a quote is spoken to help motivate the user
+            if (currquote > quotes.length) {
+                //moving to front of quote array
+                currquote = 0;
+            }
+            //speaking quote, and moving to next quote
+            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+            currquote++;
+        }
     }
 
     private void updateViews(DecimalFormat df) {
@@ -349,9 +371,9 @@ public class WalkingActivity extends AppCompatActivity {
         timerText.setText(time);
         //changing calorie text view
         calories = Math.round(MET * User.getWeight() * (seconds.floatValue() / 3600));
-        calorieText.setText(String.format("Calories:\n%d", calories));
+        calorieText.setText(String.format(Locale.getDefault(), "Calories:\n%d", calories));
         //changing step text view
-        stepText.setText(String.format("Steps:\n%d", steps));
+        stepText.setText(String.format(Locale.getDefault(), "Steps:\n%d", steps));
         distText.setText(String.format("Distance:\n%sm", df.format(distance)));
         //changing pace text view
         paceText.setText(Html.fromHtml("Pace:\n" + df.format(pace) + "ms<sup>-1</sup"));

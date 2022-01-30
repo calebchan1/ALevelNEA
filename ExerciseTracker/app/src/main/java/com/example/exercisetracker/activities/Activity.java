@@ -54,10 +54,6 @@ public class Activity {
         return timeStarted;
     }
 
-    public void setTimeStarted(String timeStarted) {
-        this.timeStarted = timeStarted;
-    }
-
     public Date getDate() {
         return date;
     }
@@ -70,9 +66,6 @@ public class Activity {
         return duration;
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
 
     public int getCalories() {
         return calories;
@@ -102,10 +95,6 @@ public class Activity {
         return reps;
     }
 
-    public void setReps(int reps) {
-        this.reps = reps;
-    }
-
     public int getId() {
         return id;
     }
@@ -122,19 +111,7 @@ public class Activity {
         this.name = name;
     }
 
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
     public int getImg() {
         return img;
-    }
-
-    public void setImg(int img) {
-        this.img = img;
     }
 }

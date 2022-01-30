@@ -2,8 +2,8 @@ package com.example.exercisetracker.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Point;
@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +44,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
@@ -64,9 +64,11 @@ import java.util.concurrent.ExecutionException;
 
 public class PushUpActivity extends AppCompatActivity {
     //Text Views
-    private TextView timerText, repText, calText, poseIndicatorTV;
+    private TextView timerText;
+    private TextView repText;
+    private TextView calText;
     //buttons
-    private Button startBtn, finishBtn;
+    private Button startBtn, finishBtn, helpBtn;
     //pushup custom variables
     private Boolean isTracking;
     private java.sql.Date date;
@@ -83,7 +85,6 @@ public class PushUpActivity extends AppCompatActivity {
 
     //audio
     private TextToSpeech tts;
-    private int currquote;
     private String[] quotes;
 
     //notification
@@ -130,6 +131,26 @@ public class PushUpActivity extends AppCompatActivity {
                 finishTracking();
             }
         });
+        helpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //when help button is clicked, show dialog to user explaining how to user
+                //how app can track squats and what user should do
+                String title = "How does this work?";
+                String message = "This app uses Google's machine learning kit to track your movements.\n" +
+                        "Place your device on a flat stable surface where your body is in full frame of the camera.\n" +
+                        "As you push down and up, the app will detect your reps and calories!";
+                new MaterialAlertDialogBuilder(PushUpActivity.this)
+                        .setTitle(title)
+                        .setMessage(message).setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).show();
+
+            }
+        });
         //permissions
         String[] PERMISSIONS = new String[]{
                 Manifest.permission.INTERNET,
@@ -160,19 +181,20 @@ public class PushUpActivity extends AppCompatActivity {
         calories = 0;
         reps = 0;
 
+        helpBtn = findViewById(R.id.helpBtn);
         startBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
         timerText = findViewById(R.id.timerText);
         repText = findViewById(R.id.repText);
         calText = findViewById(R.id.calText);
-        poseIndicatorTV = findViewById(R.id.PoseIndicator);
+        TextView poseIndicatorTV = findViewById(R.id.PoseIndicator);
         //getting met from string values
         MET = Float.parseFloat(getString(R.string.met_pushup));
         tv = findViewById(R.id.tv);
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
         //uncertainty is 1/10 of the screen height
-        repcounter = new RepCounter(this, 0,poseIndicatorTV, debug,  displaySize.getHeight() / 5f);
+        repcounter = new RepCounter(this, 0, poseIndicatorTV, debug, displaySize.getHeight() / 5f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -241,7 +263,7 @@ public class PushUpActivity extends AppCompatActivity {
     private void handleQuotes() {
         //starting with random quote for text to speech
         Random r = new Random();
-        currquote = r.nextInt(quotes.length);
+        int currquote = r.nextInt(quotes.length);
         if (seconds % 60 == 0) {
             //every 60 seconds a quote is spoken to help motivate the user
             if (currquote > quotes.length) {
@@ -360,21 +382,18 @@ public class PushUpActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         isTracking = Boolean.FALSE;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 0:
-                //checking if all permissions are granted on UI dialog
-                boolean granted = true;
-                for (int result : grantResults) {
-                    if (result == PackageManager.PERMISSION_DENIED) {
-                        granted = false;
-                    }
+        if (requestCode == 0) {//checking if all permissions are granted on UI dialog
+            boolean granted = true;
+            for (int result : grantResults) {
+                if (result == PackageManager.PERMISSION_DENIED) {
+                    granted = false;
                 }
-                if (granted) {
-                    startTracking();
-                } else {
-                    finishTracking();
-                }
-                return;
+            }
+            if (granted) {
+                startTracking();
+            } else {
+                finishTracking();
+            }
         }
     }
 
