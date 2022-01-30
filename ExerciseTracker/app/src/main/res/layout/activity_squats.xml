@@ -135,7 +135,6 @@
         android:text="debug"
         android:textColor="@color/white"
         android:textSize="20dp"
-        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/finishBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

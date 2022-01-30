@@ -14,13 +14,13 @@ import java.util.ArrayList;
  */
 public class StepCounter {
     private final DecimalFormat df;
-    private Context context;
-    private Detector detector;
-    private Filter filter;
+    private final Context context;
+    private final Detector detector;
+    private final Filter filter;
     private Integer steps;
     //2d arrays to store a variable amount of samples, each sample consisting of the x y z values
-    private ArrayList<Float[]> grav;
-    private ArrayList<Float[]> accel;
+    private final ArrayList<Float[]> grav;
+    private final ArrayList<Float[]> accel;
     private Boolean hasProcessed;
 
 
@@ -94,9 +94,9 @@ public class StepCounter {
     }
 
     private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z) {
-        Float x = Float.parseFloat(df.format(raw_x));
-        Float y = Float.parseFloat(df.format(raw_y));
-        Float z = Float.parseFloat(df.format(raw_z));
+        float x = Float.parseFloat(df.format(raw_x));
+        float y = Float.parseFloat(df.format(raw_y));
+        float z = Float.parseFloat(df.format(raw_z));
         Float[] entry = new Float[3];
         entry[0] = x;
         entry[1] = y;

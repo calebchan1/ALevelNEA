@@ -168,7 +168,7 @@ public class SquatsActivity extends AppCompatActivity {
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
         //uncertainty is 1/10 of the screen height
-        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 15f, displaySize.getHeight() / 10f);
+        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 12f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();

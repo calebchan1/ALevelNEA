@@ -43,7 +43,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     private android.app.Activity mcontext;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         if (context instanceof android.app.Activity) {
@@ -252,11 +252,8 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
         LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
 
-        Iterator<Integer> valueIt = mapValues.iterator();
-        while (valueIt.hasNext()) {
-            Integer val = valueIt.next();
+        for (Integer val : mapValues) {
             Iterator<String> keyIt = mapKeys.iterator();
-
             while (keyIt.hasNext()) {
                 String key = keyIt.next();
                 Integer comp1 = passedMap.get(key);

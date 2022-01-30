@@ -2,6 +2,7 @@ package com.example.exercisetracker.repDetection;
 
 import android.content.Context;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
@@ -19,24 +20,23 @@ import java.util.Map;
  */
 
 public class RepCounter {
-    private final Float uncertainty;
     private final Float minDistance;
     private boolean enteredPose;
-    private TextView indicator, debugTV;
+    private final TextView indicator;
+    private final TextView debugTV;
     private int reps;
-    private Context context;
+    private final Context context;
     //calculations
     private int duration; //duration of n samples lapsed since entered pose
     private boolean countedRep;
     private boolean pushedDown;
     private boolean returnedToPosition;
     private Map<Integer, PointF3D> startPoint;
-    private int type; //type refers to type of exercise
+    private final int type; //type refers to type of exercise
     //0 for push up and 1 for squats
 
-    public RepCounter(Context context, Integer type, TextView indicator, TextView debug, Float uncertainty, Float minDistance) {
+    public RepCounter(Context context, Integer type, TextView indicator, TextView debug, Float minDistance) {
         this.context = context;
-        this.uncertainty = uncertainty;
         this.minDistance = minDistance;
         this.debugTV = debug;
         this.indicator = indicator;
@@ -74,7 +74,7 @@ public class RepCounter {
                                 && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.NOSE).getZ()
                                 && relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ();
                 if (enteredPose) {
-                    detectReps(relevantLandmarks);
+                    detectPushUpReps(relevantLandmarks);
                     //debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY()+"\n Start pos:"+startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: "+duration);
                 } else {
                     reset();
@@ -93,109 +93,90 @@ public class RepCounter {
                 //i.e. hips LARGER z value than knees and upper body by a minimum z distance away
                 enteredPose =
                         relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ()
-                        && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ();
+                                && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ();
                 if (enteredPose) {
-                    detectReps(relevantLandmarks);
-                    //debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY()+"\n Start pos:"+startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: "+duration);
+                    detectSquatReps(relevantLandmarks);
+                    debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY() + "\n Start pos:" + startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: " + duration);
                 } else {
                     reset();
                     duration = 0;
-                    //debugTV.setText("0\n0\n0");
+                    debugTV.setText("0\n0\n0");
                 }
                 updateIndicator();
             }
         }
     }
 
-    private void detectReps(Map<Integer, PointF3D> relevantLandmarks) {
-        if (type == 0) {
-            if (duration == 0) {
-                //first time entering pose
-                startPoint = relevantLandmarks;
-            }
-            //calculation of reps is done in a process:
-            //when user first initially enters pose, the position is recorded
-            //user has to then push down by at least x amount and return to original position for a rep to be counted
-            if (countedRep) {
-                //instance of the rep was already counted previously, thus all boolean variables must reset
-                reset();
+    private void detectPushUpReps(Map<Integer, PointF3D> relevantLandmarks) {
+        //detecting push up reps
+        if (duration == 0) {
+            //first time entering pose
+            startPoint = relevantLandmarks;
+        }
+        //calculation of reps is done in a process:
+        //when user first initially enters pose, the position is recorded
+        //user has to then push down by at least x amount and return to original position for a rep to be counted
+        if (countedRep) {
+            //instance of the rep was already counted previously, thus all boolean variables must reset
+            reset();
+        } else {
+            if (!pushedDown) {
+                //checking to see if user has pushed down by tracking movement of nose
+                pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() >= startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
             } else {
-                if (!pushedDown) {
-                    //checking to see if user has pushed down by tracking movement of nose
-                    pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() >= startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
-                } else {
-                    //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
-                    if (!returnedToPosition) {
-                        returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY();
-                    }
-                }
-                if (pushedDown) {
-                    //checking whether user has pushed down
-                    if (returnedToPosition) {
-                        //if user pushed down AND returned to position
-                        if (!countedRep) {
-                            //if that instance of rep was not counted yet
-                            //Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
-                            reps++;
-                            countedRep = true;
-                        } else {
-                            duration++;
-                        }
-                    } else {
-                        duration++;
-                    }
-                } else {
-                    duration++;
+                //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
+                if (!returnedToPosition) {
+                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY();
                 }
             }
-        } else if (type == 1) {
-            if (duration == 0) {
-                //first time entering pose
-                startPoint = relevantLandmarks;
-                //calculation of reps is done in a process:
-                //when user first initially enters pose, the position is recorded
-                //user has to then move in the z direction by a min amount and return to original position for a rep to be counted
-                if (countedRep){
-                    reset();
-                }
-                else{
-                    if (!pushedDown){
-                        //checking to see if user has squatted down by tracking movement of difference of z distance
-                        //between the knees and the hips
-                        pushedDown = relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ() +minDistance
-                                && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ()+minDistance;
-                    }
-                    else {
-                        //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
-                        if (!returnedToPosition) {
-                            returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY();
-                        }
-                    }
-                    if (pushedDown) {
-                        //checking whether user has pushed down
-                        if (returnedToPosition) {
-                            //if user pushed down AND returned to position
-                            if (!countedRep) {
-                                //if that instance of rep was not counted yet
-                                //Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
-                                reps++;
-                                countedRep = true;
-                            } else {
-                                duration++;
-                            }
-                        } else {
-                            duration++;
-                        }
-                    } else {
-                        duration++;
-                    }
-
-                }
+            if (pushedDown && returnedToPosition && !countedRep) {
+                //if that instance of rep was not counted yet
+                Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
+                reps++;
+                countedRep = true;
+            } else {
+                duration++;
             }
         }
-
-
     }
+
+    private void detectSquatReps(Map<Integer, PointF3D> relevantLandmarks) {
+        //detecting squat reps
+        //calculation of reps is done in a process:
+        //when user first initially enters pose, the position is recorded
+        //user has to then move in the z direction by a min amount and return to original position for a rep to be counted
+        if (duration == 0) {
+            //first time entering pose
+            startPoint = relevantLandmarks;
+        }
+        if (countedRep) {
+            reset();
+        } else {
+            if (!pushedDown) {
+                //checking to see if user has squatted down by tracking movement of difference of z distance
+                //between the knees and the hips
+                pushedDown = relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ() + minDistance
+                        && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ() + minDistance
+                        && relevantLandmarks.get(PoseLandmark.NOSE).getY() > startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
+            } else {
+                //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
+                if (!returnedToPosition) {
+                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
+                }
+            }
+            if (pushedDown & returnedToPosition & !countedRep) {
+                //if that instance of rep was not counted yet
+                Toast.makeText(this.context, "Rep Counted", Toast.LENGTH_SHORT).show();
+                reps++;
+                countedRep = true;
+            }
+            else{
+                duration ++;
+            }
+
+        }
+    }
+
 
     private void updateIndicator() {
         //method to update text view indicator on screen to show if user has entered a push up or not
@@ -225,7 +206,7 @@ public class RepCounter {
                 indicator.setText("Squats Entered");
             } else {
                 indicator.setTextColor(ContextCompat.getColor(context, R.color.red));
-                indicator.setText("SquatsNot Entered");
+                indicator.setText("Squats Not Entered");
             }
         }
     }
