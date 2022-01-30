@@ -168,7 +168,7 @@ public class SquatsActivity extends AppCompatActivity {
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
         //uncertainty is 1/10 of the screen height
-        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 12f);
+        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 10f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -331,9 +331,8 @@ public class SquatsActivity extends AppCompatActivity {
 
     private void processLandmarks(List<PoseLandmark> allLandmarks) {
         //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
-        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood() > 0.8f
-                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood() > 0.8f &&
-                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood() > 0.8f) {
+        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood() > 0.5f &&
+                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood() > 0.5f) {
             repcounter.addEntry(allLandmarks);
         }
     }

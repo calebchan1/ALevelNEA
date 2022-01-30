@@ -336,9 +336,9 @@ public class PushUpActivity extends AppCompatActivity {
 
     private void processLandmarks(List<PoseLandmark> allLandmarks) {
         //method to deal with analyzing the landmarks in a particular instance, provided by ML Kit
-        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood() > 0.8f
-                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood() > 0.8f &&
-                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood() > 0.8f) {
+        if (!allLandmarks.isEmpty() && allLandmarks.get(PoseLandmark.NOSE).getInFrameLikelihood() > 0.5f
+                && allLandmarks.get(PoseLandmark.LEFT_HIP).getInFrameLikelihood() > 0.5f &&
+                allLandmarks.get(PoseLandmark.LEFT_KNEE).getInFrameLikelihood() > 0.5f) {
             repcounter.addEntry(allLandmarks);
         }
     }

@@ -155,13 +155,13 @@ public class RepCounter {
             if (!pushedDown) {
                 //checking to see if user has squatted down by tracking movement of difference of z distance
                 //between the knees and the hips
-                pushedDown = relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ() + minDistance
-                        && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ() + minDistance
-                        && relevantLandmarks.get(PoseLandmark.NOSE).getY() > startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
+                pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() > startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
             } else {
-                //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
+                //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose/shoulder
                 if (!returnedToPosition) {
-                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
+                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() + minDistance/2f
+                     || relevantLandmarks.get(PoseLandmark.LEFT_SHOULDER).getY() <startPoint.get(PoseLandmark.LEFT_SHOULDER).getY() + minDistance/2f
+                    ;
                 }
             }
             if (pushedDown & returnedToPosition & !countedRep) {
@@ -220,6 +220,12 @@ public class RepCounter {
             switch (landmark.getLandmarkType()) {
                 case PoseLandmark.NOSE:
                     relevantLandmarks.put(PoseLandmark.NOSE, landmark.getPosition3D());
+                    break;
+                case PoseLandmark.LEFT_SHOULDER:
+                    relevantLandmarks.put(PoseLandmark.LEFT_SHOULDER,landmark.getPosition3D());
+                    break;
+                case PoseLandmark.RIGHT_SHOULDER:
+                    relevantLandmarks.put(PoseLandmark.RIGHT_SHOULDER,landmark.getPosition3D());
                     break;
                 case PoseLandmark.LEFT_HIP:
                     relevantLandmarks.put(PoseLandmark.LEFT_HIP, landmark.getPosition3D());
