@@ -140,7 +140,8 @@ public class RegisterUserActivity extends AppCompatActivity {
                         }
                     } else {
                         //User did not meet required number of chars for username and password
-                        Toast.makeText(RegisterUserActivity.this, "Username and password must contain at least 8 characters", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterUserActivity.this, "Username must be between 8-16 characters", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterUserActivity.this, "Password have at least 8 characters", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(RegisterUserActivity.this, "You have not entered all the required fields", Toast.LENGTH_SHORT).show();

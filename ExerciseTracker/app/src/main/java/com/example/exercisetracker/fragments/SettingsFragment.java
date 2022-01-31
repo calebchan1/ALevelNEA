@@ -139,7 +139,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             }
                             else{
                                 Toast.makeText(mcontext, "You have not met the requirements", Toast.LENGTH_SHORT).show();
-                                Toast.makeText(mcontext, "Username and password must be minimum 8 characters", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mcontext, "Username and password must be between 8-16 characters", Toast.LENGTH_SHORT).show();
                                 Toast.makeText(mcontext, "No fields can be left empty", Toast.LENGTH_SHORT).show();
                             }
                         } catch (Exception e) {
