@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,7 +63,7 @@ public class TreadmillActivity extends AppCompatActivity {
     //Specialised running variables
     private float MET;
     private double distance;
-    private Boolean isRunning;
+    private Boolean isRunning, isAudio;
     private Integer seconds;
     private Integer steps;
     private Integer calories;
@@ -103,6 +104,7 @@ public class TreadmillActivity extends AppCompatActivity {
         distance = 0f;
         height = User.getHeight();
         MET = Float.parseFloat(getString(R.string.met_treadmill));
+        isAudio = true;
 
         long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
@@ -141,6 +143,21 @@ public class TreadmillActivity extends AppCompatActivity {
         //handling when start and stop button clicked
         startStopBtn = findViewById(R.id.startStopBtn);
         finishBtn = findViewById(R.id.finishBtn);
+        ImageButton audioBtn = findViewById(R.id.audioBtn);
+        audioBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isAudio) {
+                    //user requesting audio is switched off
+                    audioBtn.setImageResource(R.drawable.noaudio);
+                    isAudio = false;
+                } else {
+                    //user requesting audio switched on
+                    audioBtn.setImageResource(R.drawable.audio);
+                    isAudio = true;
+                }
+            }
+        });
 
     }
 
@@ -198,18 +215,20 @@ public class TreadmillActivity extends AppCompatActivity {
     }
 
     private void handleQuotes() {
-        //starting with random quote for text to speech
-        Random r = new Random();
-        int currquote = r.nextInt(quotes.length);
-        if (seconds % 60 == 0) {
-            //every 60 seconds a quote is spoken to help motivate the user
-            if (currquote > quotes.length) {
-                //moving to front of quote array
-                currquote = 0;
+        if (isAudio) {
+            //starting with random quote for text to speech
+            Random r = new Random();
+            int currquote = r.nextInt(quotes.length);
+            if (seconds % 60 == 0) {
+                //every 60 seconds a quote is spoken to help motivate the user
+                if (currquote > quotes.length) {
+                    //moving to front of quote array
+                    currquote = 0;
+                }
+                //speaking quote, and moving to next quote
+                tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+                currquote++;
             }
-            //speaking quote, and moving to next quote
-            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
-            currquote++;
         }
     }
 
@@ -234,6 +253,7 @@ public class TreadmillActivity extends AppCompatActivity {
                     if ((seconds % 5) == 0) {
                         stepCounter.setHasProcessed(Boolean.FALSE);
                     }
+                    handleQuotes();
 
                 }
 
@@ -294,9 +314,10 @@ public class TreadmillActivity extends AppCompatActivity {
 
         //exiting the running activity and saving data to database
         if (seconds > 60) {
-            //audio text to speech to congratulate user
-            tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
-
+            if (isAudio) {
+                //audio text to speech to congratulate user
+                tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
+            }
             DBhelper helper = new DBhelper(TreadmillActivity.this);
             if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                 Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();

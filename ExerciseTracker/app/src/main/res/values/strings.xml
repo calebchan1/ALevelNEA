@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Exercise Tracker</string>
+    <string name="app_name">Tracker+</string>
     <string name="start_tracking">Start Tracking</string>
     <!-- MET VALUES -->
     <string name="met_running">7.0</string>
@@ -11,6 +11,7 @@
     <string-array name="quotes">
         <!-- Motivational Quotes -->
         <!--https://www.goodhousekeeping.com/health/fitness/g35310050/workout-quotes/?slide=7-->
+        <!--https://www.quoteambition.com/workout-quotes/-->
         <item>If you don’t find the time, if you don’t do the work, you don’t get the results.</item>
         <item >You’re only one workout away from a good mood.</item>
         <item >If something stands between you and your success, move it. Never be denied.</item>
@@ -21,6 +22,11 @@
         <item>Motivation is what gets you started. Habit is what keeps you going.</item>
         <item>The difference between the impossible and the possible lies in a person’s determination</item>
         <item>We can push ourselves further. We always have more to give.</item>
+        <item>Your body can stand almost anything. It’s your mind that you have to convince</item>
+        <item>Success isn’t always about greatness. It’s about consistency. Consistent hard work gains success. Greatness will come</item>
+        <item>Train insane or remain the same.</item>
+        <item>Success starts with self-discipline</item>
+        <item>The body achieves what the mind believes.</item>
     </string-array>
 
     <string name="hide">Hide</string>

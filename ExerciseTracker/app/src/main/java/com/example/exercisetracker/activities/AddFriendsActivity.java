@@ -182,7 +182,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 public void onClick(View v) {
                     if (holder.addFriendBtn.getText().equals("Add Friend")) {
                         //handling when user clicks on add friend on a specific user
-                        DBhelper helper = new DBhelper(context);
+                        DBhelper helper = new DBhelper(context.getApplicationContext());
                         if (helper.addFriend(User.getUserID(), friend.getId())) {
                             Toast.makeText(context.getApplicationContext(), "Friend Added", Toast.LENGTH_SHORT).show();
                             holder.addFriendBtn.setText("Remove Friend");

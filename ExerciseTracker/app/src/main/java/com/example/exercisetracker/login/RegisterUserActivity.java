@@ -39,7 +39,7 @@ public class RegisterUserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //visuals
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         getWindow().setNavigationBarColor(getResources().getColor(R.color.main_colour));
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
         setContentView(R.layout.activity_registeruser);
@@ -66,7 +66,7 @@ public class RegisterUserActivity extends AppCompatActivity {
         //material date picker
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         EditText dobText = DOBField.getEditText();
-        dobText.setInputType(InputType.TYPE_NULL);
+        Objects.requireNonNull(dobText).setInputType(InputType.TYPE_NULL);
 
         dobText.setKeyListener(null);
         //date of birth picker constraints, must be at least 10 yrs old to register account
@@ -118,12 +118,13 @@ public class RegisterUserActivity extends AppCompatActivity {
                 String weight = Objects.requireNonNull(weightField.getEditText()).getText().toString();
                 String height = Objects.requireNonNull(heightField.getEditText()).getText().toString();
                 //username and password must be bigger than 8 characters conditions
-                boolean minLength = username.length() >= 8 && password.length() >= 8;
+                //username must not exceed 16 characters
+                boolean requirements = username.length() >= 8 && password.length() >= 8 && username.length() <= 16;
                 boolean containsSpace = username.contains(" ") || password.contains(" ");
                 //if one field is empty, cannot create account
                 boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty() || weight.isEmpty() || height.isEmpty();
                 if (!isEmpty) {
-                    if (minLength) {
+                    if (requirements) {
                         if (!containsSpace) {
                             DBhelper helper = new DBhelper(RegisterUserActivity.this);
                             if (helper.registerUser(username, password, forename, surname, DOB, weight, height)) {

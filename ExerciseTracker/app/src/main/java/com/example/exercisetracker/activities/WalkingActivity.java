@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,7 +68,7 @@ public class WalkingActivity extends AppCompatActivity {
     //Specialised walking variables
     private float MET;
     private double distance;
-    private Boolean isWalking;
+    private Boolean isWalking, isAudio;
     private Integer seconds;
     private Integer steps;
     private Integer calories;
@@ -114,12 +115,17 @@ public class WalkingActivity extends AppCompatActivity {
         long millis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(millis);
         timeStarted = timestamp.toString().substring(11, 16);
+
         date = new Date(millis);
         isWalking = true;
+        isAudio = true;
         seconds = 0;
         steps = 0;
         pace = 0f;
         distance = 0f;
+        calories = 0;
+
+        //text views
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
@@ -132,6 +138,21 @@ public class WalkingActivity extends AppCompatActivity {
         Resources res = getResources();
         quotes = res.getStringArray(R.array.quotes);
 
+        ImageButton audioBtn = findViewById(R.id.audioBtn);
+        audioBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isAudio) {
+                    //user requesting audio is switched off
+                    audioBtn.setImageResource(R.drawable.noaudio);
+                    isAudio = false;
+                } else {
+                    //user requesting audio switched on
+                    audioBtn.setImageResource(R.drawable.audio);
+                    isAudio = true;
+                }
+            }
+        });
 
         //text to speech instantiation
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -294,13 +315,14 @@ public class WalkingActivity extends AppCompatActivity {
         isWalking = false;
         sensorManager.unregisterListener(listener);
         if (locationManager != null && timeStarted != null) {
-            //audio text to speech to congratulate user
-            tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
-
             locationManager.removeUpdates(locationListener);
             //exiting the walking activity and saving data to database
             //will only save activities which last longer than 60s
             if (seconds > 60) {
+                if (isAudio) {
+                    //audio text to speech to congratulate user
+                    tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
+                }
                 DBhelper helper = new DBhelper(WalkingActivity.this);
                 if (helper.saveActivity("walking", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                     Toast.makeText(WalkingActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
@@ -347,18 +369,20 @@ public class WalkingActivity extends AppCompatActivity {
     }
 
     private void handleQuotes() {
-        //starting with random quote for text to speech
-        Random r = new Random();
-        int currquote = r.nextInt(quotes.length);
-        if (seconds % 60 == 0) {
-            //every 60 seconds a quote is spoken to help motivate the user
-            if (currquote > quotes.length) {
-                //moving to front of quote array
-                currquote = 0;
+        if (isAudio) {
+            //starting with random quote for text to speech
+            Random r = new Random();
+            int currquote = r.nextInt(quotes.length);
+            if (seconds % 60 == 0) {
+                //every 60 seconds a quote is spoken to help motivate the user
+                if (currquote > quotes.length) {
+                    //moving to front of quote array
+                    currquote = 0;
+                }
+                //speaking quote, and moving to next quote
+                tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+                currquote++;
             }
-            //speaking quote, and moving to next quote
-            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
-            currquote++;
         }
     }
 

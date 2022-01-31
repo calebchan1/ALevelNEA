@@ -221,7 +221,6 @@ public class DBhelper {
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             //if connection throws exception, login failed and false is returned
-            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
             return false;
         } finally {
@@ -247,7 +246,6 @@ public class DBhelper {
             return true;
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             e.printStackTrace();
-            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             return false;
         } finally {
             closeConnection(conn);
@@ -383,7 +381,6 @@ public class DBhelper {
 
         } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
             //if connection throws exception, login failed and false is returned
-            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
             return false;
         } finally {

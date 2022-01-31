@@ -85,7 +85,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                     //when user selects friends radio button, private leaderboard is shown
                     //updating User class for friends list
 
-                    DBhelper helper = new DBhelper(getContext());
+                    DBhelper helper = new DBhelper(mcontext);
                     //retrieving friends from database
                     if (helper.getFriends()) {
                         User.clearFriendsList();
@@ -97,7 +97,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         }
                         helper.clearResults();
                     } else {
-                        Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mcontext, "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
                     }
 
                     createTable(getPrivateLeaderboard());
@@ -156,7 +156,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
 
         //getting all activities from database, and performing calculations
         //for top most active users
-        DBhelper helper = new DBhelper(getContext());
+        DBhelper helper = new DBhelper(mcontext);
         LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
         if (helper.getAllActivities(timeframe)) {
             for (String string : helper.getResult()) {
@@ -195,7 +195,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         if (!User.getFriendsList().isEmpty()) {
             //getting all activities from database, and performing calculations
             //for top most active users
-            DBhelper helper = new DBhelper(getContext());
+            DBhelper helper = new DBhelper(mcontext);
             if (helper.getFriends()) {
                 for (String friend : helper.getResult()) {
                     //as query returns multiple columns, must slice string
@@ -205,7 +205,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 }
                 helper.clearResults();
             } else {
-                Toast.makeText(getContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mcontext, "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
             }
             LinkedHashMap<String, Integer> userScoresHashMap = new LinkedHashMap<>();
             //getting activities of friends
@@ -343,12 +343,12 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         if (v.getId() == R.id.navigateToFriendsActivity) {
 
-            loadingDialog = new ProgressDialog(getContext());
+            loadingDialog = new ProgressDialog(mcontext);
             loadingDialog.setMessage("Loading..");
             loadingDialog.setTitle("Retrieving Your Friends List");
             loadingDialog.setIndeterminate(true);
             loadingDialog.show();
-            Intent intent1 = new Intent(getContext(), AddFriendsActivity.class);
+            Intent intent1 = new Intent(mcontext, AddFriendsActivity.class);
             startActivity(intent1);
         }
     }

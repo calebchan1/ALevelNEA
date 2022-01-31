@@ -19,6 +19,8 @@ import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +33,6 @@ import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.Route;
 import com.example.exercisetracker.other.User;
 import com.example.exercisetracker.stepcounting.StepCounter;
-import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -58,10 +59,7 @@ public class RunningActivity extends AppCompatActivity {
     private TextView calorieText;
     private TextView distText;
     private TextView paceText;
-    //Buttons
-    private MaterialButton finishBtn;
-    private MaterialButton startStopBtn;
-
+    private Button startStopBtn;
     //Specialised running variables
     private float MET;
     private double distance;
@@ -78,7 +76,7 @@ public class RunningActivity extends AppCompatActivity {
     //audio
     private TextToSpeech tts;
     private String[] quotes;
-
+    private Boolean isAudio;
     private DecimalFormat df;
 
     @Override
@@ -103,10 +101,15 @@ public class RunningActivity extends AppCompatActivity {
         Timestamp timestamp = new Timestamp(millis);
         timeStarted = timestamp.toString().substring(11, 16);
         date = new Date(millis);
+
+        //running variables
         isRunning = true;
         seconds = 0;
         steps = 0;
         distance = 0f;
+        calories = 0;
+        isAudio = true;
+        //text views
         timerText = findViewById(R.id.timerText);
         stepText = findViewById(R.id.stepText);
         distText = findViewById(R.id.distText);
@@ -114,37 +117,27 @@ public class RunningActivity extends AppCompatActivity {
         calorieText = findViewById(R.id.calText);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         MET = Float.parseFloat(getString(R.string.met_running));
+
+        //buttons
         startStopBtn = findViewById(R.id.startStopBtn);
-        finishBtn = findViewById(R.id.finishBtn);
-        df = new DecimalFormat("#.##");
+        //Buttons
+        Button finishBtn = findViewById(R.id.finishBtn);
+        ImageButton audioBtn = findViewById(R.id.audioBtn);
+        audioBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isAudio) {
+                    //user requesting audio is switched off
+                    audioBtn.setImageResource(R.drawable.noaudio);
+                    isAudio = false;
+                } else {
+                    //user requesting audio switched on
+                    audioBtn.setImageResource(R.drawable.audio);
+                    isAudio = true;
+                }
+            }
+        });
 
-        //quotes from resources
-        Resources res = getResources();
-        quotes = res.getStringArray(R.array.quotes);
-
-
-        //CUSTOM JAVA CLASSES
-        stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
-        ArrayList<Double[]> currentRoute = new ArrayList<>();
-        route = new Route(currentRoute);
-
-        //foreground services
-//        Intent intent = new Intent(this, ExerciseService.class);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(intent);
-//        }else{
-//            startService(intent);
-//        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void startRunning() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //requesting background permission for android q+
-            //Android forces you to request this separately
-            isRunning = false;
-            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
-        }
         //click listeners
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,6 +158,42 @@ public class RunningActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+        df = new DecimalFormat("#.##");
+
+        //quotes from resources
+        Resources res = getResources();
+        quotes = res.getStringArray(R.array.quotes);
+
+        //text to speech instantiation
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                // if No error is found then only it will run
+                if (i != TextToSpeech.ERROR) {
+                    // To Choose language of speech
+                    tts.setLanguage(Locale.UK);
+                }
+            }
+        });
+
+        //CUSTOM JAVA CLASSES
+        stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
+        ArrayList<Double[]> currentRoute = new ArrayList<>();
+        route = new Route(currentRoute);
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startRunning() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //requesting background permission for android q+
+            //Android forces you to request this separately
+            isRunning = false;
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
+        }
+
 
         //handling location changes
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -239,18 +268,20 @@ public class RunningActivity extends AppCompatActivity {
     }
 
     private void handleQuotes() {
-        //starting with random quote for text to speech
-        Random r = new Random();
-        int currquote = r.nextInt(quotes.length);
-        if (seconds % 60 == 0) {
-            //every 60 seconds a quote is spoken to help motivate the user
-            if (currquote > quotes.length) {
-                //moving to front of quote array
-                currquote = 0;
+        if (isAudio) {
+            //starting with random quote for text to speech
+            Random r = new Random();
+            int currquote = r.nextInt(quotes.length);
+            if (seconds % 60 == 0) {
+                //every 60 seconds a quote is spoken to help motivate the user
+                if (currquote > quotes.length) {
+                    //moving to front of quote array
+                    currquote = 0;
+                }
+                //speaking quote, and moving to next quote
+                tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+                currquote++;
             }
-            //speaking quote, and moving to next quote
-            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
-            currquote++;
         }
     }
 
@@ -276,7 +307,9 @@ public class RunningActivity extends AppCompatActivity {
                         stepCounter.setHasProcessed(Boolean.FALSE);
                     }
                     //updating audio
+
                     handleQuotes();
+
 
                 }
 
@@ -337,8 +370,10 @@ public class RunningActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         switch (requestCode) {
             case 0:
+                isRunning = false;
                 if (grantResults.length > 0) {
                     //checking if all permissions are granted on UI dialog
                     boolean granted = true;
@@ -348,15 +383,17 @@ public class RunningActivity extends AppCompatActivity {
                         }
                     }
                     if (granted) {
+                        isRunning = true;
                         startRunning();
                     } else {
                         Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
                         finishRunning();
                     }
-                    return;
+                    break;
                 }
 
             case 1:
+                isRunning = false;
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     isRunning = true;
                     return;
@@ -364,6 +401,7 @@ public class RunningActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
                     finishRunning();
                 }
+                break;
         }
 
     }
@@ -377,11 +415,12 @@ public class RunningActivity extends AppCompatActivity {
             //exiting the running activity and saving data to database
             //will only save activities which last longer than 60s
             if (seconds > 60) {
-                //audio text to speech to congratulate user
-                tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps, distance),
-                        TextToSpeech.QUEUE_FLUSH, null);
-
                 DBhelper helper = new DBhelper(RunningActivity.this);
+                if (isAudio) {
+                    //audio text to speech to congratulate user
+                    tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps, distance),
+                            TextToSpeech.QUEUE_FLUSH, null);
+                }
                 if (helper.saveActivity("running", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
                     Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {

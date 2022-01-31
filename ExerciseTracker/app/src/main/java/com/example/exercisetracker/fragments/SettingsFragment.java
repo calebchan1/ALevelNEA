@@ -37,6 +37,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener {
     private TextInputLayout usernameField;
@@ -97,40 +98,53 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                     public void onClick(DialogInterface dialog, int which) {
                         try {
                             // use of .replaceAll to sanatise inputs given by user, to remove any whitespaces
-                            String username = String.valueOf(usernameField.getEditText().getText()).replaceAll("\\s", "");
-                            User.setUsername(username);
-                            String password = String.valueOf(passwordField.getEditText().getText()).replaceAll("\\s", "");
-                            User.setPassword(password);
-                            Float weight = Float.parseFloat(String.valueOf(weightField.getEditText().getText()).replaceAll("\\s", ""));
-                            User.setWeight(weight);
-                            Integer height = Integer.valueOf(String.valueOf(heightField.getEditText().getText()).replaceAll("\\s", ""));
-                            User.setHeight(height);
-                            String forename = String.valueOf(forenameField.getEditText().getText()).replaceAll("\\s", "");
-                            User.setForename(forename);
-                            String surname = String.valueOf(surnameField.getEditText().getText()).replaceAll("\\s", "");
-                            User.setSurname(surname);
+                            String username = String.valueOf(Objects.requireNonNull(usernameField.getEditText()).getText()).replaceAll("\\s", "");
+                            String password = String.valueOf(Objects.requireNonNull(passwordField.getEditText()).getText()).replaceAll("\\s", "");
+                            Float weight = Float.parseFloat(String.valueOf(Objects.requireNonNull(weightField.getEditText()).getText()).replaceAll("\\s", ""));
+                            Integer height = Integer.valueOf(String.valueOf(Objects.requireNonNull(heightField.getEditText()).getText()).replaceAll("\\s", ""));
+                            String forename = String.valueOf(Objects.requireNonNull(forenameField.getEditText()).getText()).replaceAll("\\s", "");
+                            String surname = String.valueOf(Objects.requireNonNull(surnameField.getEditText()).getText()).replaceAll("\\s", "");
+                            String DOB = Objects.requireNonNull(DOBField.getEditText()).getText().toString();
 
-                            DBhelper helper = new DBhelper(getContext());
-                            if (helper.updateUser()) {
-                                //if update on database was successful
-                                Toast.makeText(getContext(), "Save successful", Toast.LENGTH_SHORT).show();
+                            //username and password must be at least 8 characters
+                            //max length of username is 16 characters
+                            boolean requirements = username.length() >= 8 && password.length() >= 8 && username.length()<=16;
+                            //if one field is empty, cannot update account
+                            boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty();
 
-                                //saving to SharedPreferences
-                                // results received in format ID, forename, surname, DOB, weight, height
-                                SharedPreferences prefs = mcontext.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = prefs.edit();
-                                editor.putString("username", username);
-                                editor.putString("password", password);
-                                editor.putString("forename", forename);
-                                editor.putString("surname", surname);
-                                editor.putString("DOB", DOBField.getEditText().getText().toString());
-                                editor.putString("weight", weight.toString());
-                                editor.putString("height", height.toString());
-                                editor.apply();
+                            if (requirements && !isEmpty) {
+                                DBhelper helper = new DBhelper(mcontext);
+                                if (helper.updateUser()) {
+                                    //if update on database was successful
+                                    Toast.makeText(mcontext, "Save successful", Toast.LENGTH_SHORT).show();
+
+                                    //saving to SharedPreferences if user had checked remember me
+                                    SharedPreferences prefs = mcontext.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+                                    Boolean checkbox = prefs.getBoolean("remember", false);
+                                    if (checkbox) {
+                                        // results received in format ID, forename, surname, DOB, weight, height
+                                        SharedPreferences.Editor editor = prefs.edit();
+                                        editor.putString("username", username);
+                                        editor.putString("password", password);
+                                        editor.putString("forename", forename);
+                                        editor.putString("surname", surname);
+                                        editor.putString("DOB", DOBField.getEditText().getText().toString());
+                                        editor.putString("weight", weight.toString());
+                                        editor.putString("height", height.toString());
+                                        editor.apply();
+                                        //saving to user class
+                                        User.saveUser(username,password,forename,surname,DOB,weight,height);
+                                    }
+                                }
+                            }
+                            else{
+                                Toast.makeText(mcontext, "You have not met the requirements", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mcontext, "Username and password must be minimum 8 characters", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mcontext, "No fields can be left empty", Toast.LENGTH_SHORT).show();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Toast.makeText(getContext(), "Save unsuccessful", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mcontext, "Save unsuccessful", Toast.LENGTH_SHORT).show();
                         }
                         dialog.cancel();
                     }
@@ -147,8 +161,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 builder.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        User.logout(getContext());
-                        Intent intent1 = new Intent(getContext(), LogInScreen.class);
+                        User.logout(mcontext);
+                        Intent intent1 = new Intent(mcontext, LogInScreen.class);
                         startActivity(intent1);
                         dialog.cancel();
                         getActivity().finish();
@@ -164,15 +178,15 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 builder2.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        DBhelper helper = new DBhelper(getContext());
+                        DBhelper helper = new DBhelper(mcontext);
                         if (helper.deleteAccount(User.getUserID())) {
-                            Toast.makeText(getContext(), "Account Deleted", Toast.LENGTH_SHORT).show();
-                            User.logout(getContext());
-                            Intent intent1 = new Intent(getContext(), LogInScreen.class);
+                            Toast.makeText(mcontext, "Account Deleted", Toast.LENGTH_SHORT).show();
+                            User.logout(mcontext);
+                            Intent intent1 = new Intent(mcontext, LogInScreen.class);
                             startActivity(intent1);
                             getActivity().finish();
                         } else {
-                            Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mcontext, "Error", Toast.LENGTH_SHORT).show();
                         }
                         dialog.cancel();
                     }
@@ -184,7 +198,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     }
 
     private MaterialAlertDialogBuilder createDialogBuilder(String title, String message) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mcontext);
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -225,12 +239,12 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 @Override
                 public void run() {
                     //loading user data presets
-                    usernameField.getEditText().setText(queryResults.get(0));
-                    passwordField.getEditText().setText(queryResults.get(1));
-                    weightField.getEditText().setText(queryResults.get(2));
-                    heightField.getEditText().setText(queryResults.get(3));
-                    forenameField.getEditText().setText(queryResults.get(4));
-                    surnameField.getEditText().setText(queryResults.get(5));
+                    Objects.requireNonNull(usernameField.getEditText()).setText(queryResults.get(0));
+                    Objects.requireNonNull(passwordField.getEditText()).setText(queryResults.get(1));
+                    Objects.requireNonNull(weightField.getEditText()).setText(queryResults.get(2));
+                    Objects.requireNonNull(heightField.getEditText()).setText(queryResults.get(3));
+                    Objects.requireNonNull(forenameField.getEditText()).setText(queryResults.get(4));
+                    Objects.requireNonNull(surnameField.getEditText()).setText(queryResults.get(5));
                     String strdob = queryResults.get(6);
                     //hiding progress bar
                     progressBar.setVisibility(View.GONE);

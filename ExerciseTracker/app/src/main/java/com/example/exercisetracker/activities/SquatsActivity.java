@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,7 +72,7 @@ public class SquatsActivity extends AppCompatActivity  {
     //buttons
     private Button startBtn, finishBtn, helpBtn;
     //pushup custom variables
-    private Boolean isTracking;
+    private Boolean isTracking, isAudio;
     private java.sql.Date date;
     private Integer seconds;
     private String timeStarted;
@@ -151,6 +152,22 @@ public class SquatsActivity extends AppCompatActivity  {
 
             }
         });
+        //when audio button is clicked
+        ImageButton audioBtn = findViewById(R.id.audioBtn);
+        audioBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isAudio) {
+                    //user requesting audio is switched off
+                    audioBtn.setImageResource(R.drawable.noaudio);
+                    isAudio = false;
+                } else {
+                    //user requesting audio switched on
+                    audioBtn.setImageResource(R.drawable.audio);
+                    isAudio = true;
+                }
+            }
+        });
         //permissions
         String[] PERMISSIONS = new String[]{
                 Manifest.permission.INTERNET,
@@ -176,7 +193,8 @@ public class SquatsActivity extends AppCompatActivity  {
         display.getSize(temp);
         displaySize = new Size(temp.x, temp.y);
 
-        isTracking = Boolean.TRUE;
+        isAudio = true;
+        isTracking = true;
         seconds = 0;
         calories = 0;
         reps = 0;
@@ -195,7 +213,7 @@ public class SquatsActivity extends AppCompatActivity  {
         TextView debug = findViewById(R.id.debugTV);
         //min distance is by a fifth of the screen height
         //uncertainty is 1/10 of the screen height
-        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 10f);
+        repcounter = new RepCounter(this,1, poseIndicatorTV, debug, displaySize.getHeight() / 9f);
 
         //getting current date and time
         long millis = System.currentTimeMillis();
@@ -254,25 +272,28 @@ public class SquatsActivity extends AppCompatActivity  {
                     timerText.setText(time);
                     calText.setText("Calories:\n" + calories.toString());
                     repText.setText("Reps:\n" + reps.toString());
+                    handleQuotes();
                 }
-                handleQuotes();
+
             }
         });
     }
 
     private void handleQuotes() {
-        //starting with random quote for text to speech
-        Random r = new Random();
-        int currquote = r.nextInt(quotes.length);
-        if (seconds % 60 == 0) {
-            //every 60 seconds a quote is spoken to help motivate the user
-            if (currquote > quotes.length) {
-                //moving to front of quote array
-                currquote = 0;
+        if (isAudio) {
+            //starting with random quote for text to speech
+            Random r = new Random();
+            int currquote = r.nextInt(quotes.length);
+            if (seconds % 60 == 0) {
+                //every 60 seconds a quote is spoken to help motivate the user
+                if (currquote > quotes.length) {
+                    //moving to front of quote array
+                    currquote = 0;
+                }
+                //speaking quote, and moving to next quote
+                tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
+                currquote++;
             }
-            //speaking quote, and moving to next quote
-            tts.speak(quotes[currquote], TextToSpeech.QUEUE_FLUSH, null);
-            currquote++;
         }
     }
 
@@ -389,9 +410,11 @@ public class SquatsActivity extends AppCompatActivity  {
                 }
             }
             if (granted) {
+                isTracking = true;
                 startTracking();
             } else {
-                finishTracking();
+                Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
+                this.finish();
             }
         }
     }
@@ -400,10 +423,11 @@ public class SquatsActivity extends AppCompatActivity  {
         //handles the safe closing of the activity, and presenting any information to the user
         isTracking = false;
         if (seconds > 60) {
-            //audio text to speech to congratulate user
-            tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps),
-                    TextToSpeech.QUEUE_FLUSH, null);
-
+            if (isAudio){
+                //audio text to speech to congratulate user
+                tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps),
+                        TextToSpeech.QUEUE_FLUSH, null);
+            }
             //saving activity results to database, as long as activity lasted for more than a minute
             DBhelper helper = new DBhelper(SquatsActivity.this);
             if (helper.saveActivity("squats", date.toString(), timeStarted, seconds.toString(), calories.toString(), null, null, reps.toString())) {
@@ -415,8 +439,6 @@ public class SquatsActivity extends AppCompatActivity  {
             //saves space and resources on database
             Toast.makeText(SquatsActivity.this, "Activity Not Saved (Too Short)", Toast.LENGTH_SHORT).show();
         }
-        //destroying notification
-        notificationManagerCompat.cancel(1);
         this.finish();
     }
 

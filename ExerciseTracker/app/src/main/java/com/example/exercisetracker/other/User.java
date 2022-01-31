@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.example.exercisetracker.login.LogInScreen;
 
+import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +34,17 @@ public class User {
         //adds to set of friends
         //as set, no duplicate ids will exist
         User.friendsList.remove(friend);
+    }
+
+    public static void saveUser(String username, String password,String forename, String surname,String DOB, Float weight, Integer height ){
+        //saving sanitised details to user class
+        setUsername(username);
+        setPassword(password);
+        setWeight(weight);
+        setHeight(height);
+        setForename(forename);
+        setSurname(surname);
+        setDateOfBirth(Date.valueOf(DOB));
     }
 
     public static void clearFriendsList() {

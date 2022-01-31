@@ -13,6 +13,7 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * RepCounter class used to detect number of reps from results of mlk tracking
@@ -69,10 +70,10 @@ public class RepCounter {
                 //Using Z value from ML KIT, determining if body is laying down horizontally
                 //i.e. Lower body has a LARGER z value than upper body
                 enteredPose =
-                        relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.NOSE).getZ()
-                                && relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ()
-                                && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.NOSE).getZ()
-                                && relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ();
+                        Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.LEFT_HIP)).getZ() > Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.NOSE)).getZ()
+                                && Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.LEFT_KNEE)).getZ() > Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.LEFT_HIP)).getZ()
+                                && Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.RIGHT_HIP)).getZ() > Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.NOSE)).getZ()
+                                && Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.RIGHT_KNEE)).getZ() > Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.RIGHT_HIP)).getZ();
                 if (enteredPose) {
                     detectPushUpReps(relevantLandmarks);
                     //debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY()+"\n Start pos:"+startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: "+duration);
@@ -92,8 +93,8 @@ public class RepCounter {
                 //Using Z value from ML KIT, determining if body in a squat position
                 //i.e. hips LARGER z value than knees and upper body by a minimum z distance away
                 enteredPose =
-                        relevantLandmarks.get(PoseLandmark.LEFT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.LEFT_KNEE).getZ()
-                                && relevantLandmarks.get(PoseLandmark.RIGHT_HIP).getZ() > relevantLandmarks.get(PoseLandmark.RIGHT_KNEE).getZ();
+                        Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.LEFT_HIP)).getZ() > Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.LEFT_KNEE)).getZ()
+                                && Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.RIGHT_HIP)).getZ() > Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.RIGHT_KNEE)).getZ();
                 if (enteredPose) {
                     detectSquatReps(relevantLandmarks);
                     debugTV.setText(relevantLandmarks.get(PoseLandmark.NOSE).getY() + "\n Start pos:" + startPoint.get(PoseLandmark.NOSE).getY() + "\nDuration: " + duration);
@@ -122,11 +123,11 @@ public class RepCounter {
         } else {
             if (!pushedDown) {
                 //checking to see if user has pushed down by tracking movement of nose
-                pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() >= startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
+                pushedDown = Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.NOSE)).getY() >= Objects.requireNonNull(startPoint.get(PoseLandmark.NOSE)).getY() + minDistance;
             } else {
                 //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose
                 if (!returnedToPosition) {
-                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY();
+                    returnedToPosition = Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.NOSE)).getY() < Objects.requireNonNull(startPoint.get(PoseLandmark.NOSE)).getY();
                 }
             }
             if (pushedDown && returnedToPosition && !countedRep) {
@@ -155,12 +156,12 @@ public class RepCounter {
             if (!pushedDown) {
                 //checking to see if user has squatted down by tracking movement of difference of z distance
                 //between the knees and the hips
-                pushedDown = relevantLandmarks.get(PoseLandmark.NOSE).getY() > startPoint.get(PoseLandmark.NOSE).getY() + minDistance;
+                pushedDown = Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.NOSE)).getY() > Objects.requireNonNull(startPoint.get(PoseLandmark.NOSE)).getY() + minDistance;
             } else {
                 //user has pushed down, thus checking to see if they have returned to position by tracking movement of nose/shoulder
                 if (!returnedToPosition) {
-                    returnedToPosition = relevantLandmarks.get(PoseLandmark.NOSE).getY() < startPoint.get(PoseLandmark.NOSE).getY() + minDistance/2f
-                     || relevantLandmarks.get(PoseLandmark.LEFT_SHOULDER).getY() <startPoint.get(PoseLandmark.LEFT_SHOULDER).getY() + minDistance/2f
+                    returnedToPosition = Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.NOSE)).getY() < Objects.requireNonNull(startPoint.get(PoseLandmark.NOSE)).getY() + minDistance/2f
+                     || Objects.requireNonNull(relevantLandmarks.get(PoseLandmark.LEFT_SHOULDER)).getY() < Objects.requireNonNull(startPoint.get(PoseLandmark.LEFT_SHOULDER)).getY() + minDistance/2f
                     ;
                 }
             }

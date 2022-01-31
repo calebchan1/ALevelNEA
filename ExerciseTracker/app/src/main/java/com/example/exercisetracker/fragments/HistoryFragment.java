@@ -56,8 +56,8 @@ public class HistoryFragment extends Fragment {
         noHistory = view.findViewById(R.id.noExercises);
         historyRV = view.findViewById(R.id.HistoryRV);
         activityArr = new ArrayList<>();
-        courseAdapter = new ActivityAdapter(getContext(), activityArr);
-        linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        courseAdapter = new ActivityAdapter(mcontext, activityArr);
+        linearLayoutManager = new LinearLayoutManager(mcontext, LinearLayoutManager.VERTICAL, false);
         progressBar = view.findViewById(R.id.progressBar);
 
 
@@ -286,10 +286,10 @@ public class HistoryFragment extends Fragment {
                             activityArr.add(handleQuery(query));
                         }
                         // we are initializing our adapter class and passing our arraylist to it.
-                        courseAdapter = new ActivityAdapter(getContext(), activityArr);
+                        courseAdapter = new ActivityAdapter(mcontext, activityArr);
                         //setting a layout manager for our recycler view.
                         // creating vertical list
-                        linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                        linearLayoutManager = new LinearLayoutManager(mcontext, LinearLayoutManager.VERTICAL, false);
                         // setting layout manager and adapter to our recycler view.
                         historyRV.setLayoutManager(linearLayoutManager);
                         historyRV.setAdapter(courseAdapter);
