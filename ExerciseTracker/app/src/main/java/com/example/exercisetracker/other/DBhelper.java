@@ -91,20 +91,17 @@ public class DBhelper {
         }
     }
 
-    public boolean updateUser() {
+    public boolean updateUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
         try {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
             //executing SQL statement
-            Date dob = User.getDateOfBirth();
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            String strdob = df.format(dob);
             int resultset = statement.executeUpdate(
                     "UPDATE User " +
                             String.format("SET username = '%s',password = '%s',firstname = '%s',surname = '%s',dateOfBirth = '%s',weight = '%s',height = '%s' ",
-                                    User.getUsername(), User.getPassword(), User.getForename(), User.getSurname(),
-                                    strdob, User.getWeight().toString(), User.getHeight().toString()
+                                    username, password, forename, surname,
+                                    DOB, weight, height
                             ) +
                             String.format("WHERE User.UserID = '%s'", User.getUserID().toString())
             );

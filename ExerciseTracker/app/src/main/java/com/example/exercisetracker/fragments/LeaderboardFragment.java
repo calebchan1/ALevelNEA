@@ -307,9 +307,9 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 //if the corresponding name corresponds to the current user's username
                 //change colour to green to highlight their place on the leaderboard
                 if (name.equals(User.getUsername())) {
-                    posTV.setTextColor(getResources().getColor(R.color.green));
-                    scoreTV.setTextColor(getResources().getColor(R.color.green));
-                    nameTV.setTextColor(getResources().getColor(R.color.green));
+                    posTV.setTextColor(mcontext.getResources().getColor(R.color.green));
+                    scoreTV.setTextColor(mcontext.getResources().getColor(R.color.green));
+                    nameTV.setTextColor(mcontext.getResources().getColor(R.color.green));
                 }
                 row.addView(posTV);
                 row.addView(nameTV);

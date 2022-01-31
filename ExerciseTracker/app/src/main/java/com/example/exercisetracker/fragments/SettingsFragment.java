@@ -114,7 +114,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
                             if (requirements && !isEmpty) {
                                 DBhelper helper = new DBhelper(mcontext);
-                                if (helper.updateUser()) {
+                                if (helper.updateUser(username,password,forename,surname,DOB,weight.toString(),height.toString())) {
                                     //if update on database was successful
                                     Toast.makeText(mcontext, "Save successful", Toast.LENGTH_SHORT).show();
 
