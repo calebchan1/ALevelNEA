@@ -100,11 +100,12 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         Toast.makeText(mcontext, "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
                     }
 
-                    createTable(getPrivateLeaderboard());
+                    new GetLeaderboardTask().execute(isPublic);
                 } else if (checkedId == R.id.allUsersBtn) {
                     isPublic = true;
                     //when user selects all users radio button, public leaderboard is shown
-                    createTable(getPublicLeaderboard());
+//                    createTable(getPublicLeaderboard());
+                    new GetLeaderboardTask().execute(isPublic);
                 }
             }
         });
@@ -117,37 +118,22 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 switch (checkedId) {
                     case R.id.oneDay:
                         timeframe = 1;
-                        if (isPublic) {
-                            createTable(getPublicLeaderboard());
-                        } else {
-                            createTable(getPrivateLeaderboard());
-                        }
+                        new GetLeaderboardTask().execute(isPublic);
                         //period of the last 24 hrs
                         break;
                     case R.id.oneMonth:
                         timeframe = 30;
-                        if (isPublic) {
-                            createTable(getPublicLeaderboard());
-                        } else {
-                            createTable(getPrivateLeaderboard());
-                        }
+                        new GetLeaderboardTask().execute(isPublic);
                         //period of the last 30 days
                         break;
                     case R.id.allTime:
                         timeframe = 0;
-
-                        if (isPublic) {
-                            createTable(getPublicLeaderboard());
-                        } else {
-                            createTable(getPrivateLeaderboard());
-                        }
+                        new GetLeaderboardTask().execute(isPublic);
                         //period of all time
                         break;
-
                 }
             }
         });
-
         return view;
     }
 
@@ -270,12 +256,6 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     }
 
     private void createTable(Map<String, Integer> hashMap) {
-        if (userScores != null) {
-            //resetting previous table/user scores if previously created
-            userScores.clear();
-            table.removeAllViews();
-        }
-        userScores = hashMap;
         if (hashMap != null) {
             noLeaderboard.setVisibility(View.INVISIBLE);
             //method to create TableLayout view graphic, to display leaderboard
@@ -342,7 +322,8 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.navigateToFriendsActivity) {
-
+            //when user clicks add friends button
+            //show loading dialogue to user whilst loading up addfriendsactivity
             loadingDialog = new ProgressDialog(mcontext);
             loadingDialog.setMessage("Loading..");
             loadingDialog.setTitle("Retrieving Your Friends List");
@@ -356,6 +337,20 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     //using async task to retrieve data from database
     private class GetLeaderboardTask extends AsyncTask<Boolean, Integer, Map<String, Integer>> {
         protected Map<String, Integer> doInBackground(Boolean... isPublic) {
+            mcontext.runOnUiThread(new Runnable() {
+                //clearing table and disclaimer for loading animation
+                @Override
+                public void run() {
+                    noLeaderboard.setVisibility(View.INVISIBLE);
+                    table.removeAllViews();
+                    if (mcontext.findViewById(R.id.progressBar) != null) {
+                        mcontext.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+
+                    }
+                }
+            });
+            //bool is if public, if true get public leaderboard
+            //if false then get private leaderboard
             Boolean bool = isPublic[0];
             if (bool) {
                 return getPublicLeaderboard();
@@ -369,10 +364,16 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                 @Override
                 public void run() {
                     if (result!=null) {
-                        //creating table
-                        createTable(result);
-                        //hiding progress bar
-                    } else {
+                        if (!result.isEmpty()) {
+                            //creating table
+                            createTable(result);
+                            //hiding progress bar
+                        } else {
+                            //table was empty, disclaimer shown to user
+                            noLeaderboard.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    else{
                         //table was empty, disclaimer shown to user
                         noLeaderboard.setVisibility(View.VISIBLE);
                     }

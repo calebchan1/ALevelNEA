@@ -111,22 +111,28 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private void loadFriendsList() {
         DBhelper helper = new DBhelper(this);
         if (helper.getFriends()) {
-            noFriends.setVisibility(View.INVISIBLE);
-            User.clearFriendsList();
-            friendArr.clear();
-            courseAdapter.notifyDataSetChanged();
-            for (String query : helper.getResult()) {
-                Friend friendObj = handleQuery(query);
-                //adding to user's list of friends
-                User.addFriendsList(friendObj.getId());
-                friendArr.add(friendObj);
-                courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
-                //adding to recycler view (by default when user loads this section
-                //their friends will appear
+            if (!helper.getResult().isEmpty()) {
+                noFriends.setVisibility(View.INVISIBLE);
+                User.clearFriendsList();
+                friendArr.clear();
+                courseAdapter.notifyDataSetChanged();
+                for (String query : helper.getResult()) {
+                    Friend friendObj = handleQuery(query);
+                    //adding to user's list of friends
+                    User.addFriendsList(friendObj.getId());
+                    friendArr.add(friendObj);
+                    courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
+                    //adding to recycler view (by default when user loads this section
+                    //their friends will appear
+                }
+                helper.clearResults();
             }
-            helper.clearResults();
+            else{
+                //no friends found, disclaimer shown to user
+                noFriends.setVisibility(View.VISIBLE);
+                Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
+            }
         } else {
-
             //no friends found, disclaimer shown to user
             noFriends.setVisibility(View.VISIBLE);
             Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();

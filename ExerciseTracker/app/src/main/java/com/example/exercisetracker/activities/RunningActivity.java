@@ -421,7 +421,7 @@ public class RunningActivity extends AppCompatActivity {
                     tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and ran %d steps, a total distance of %f. See you next time!", calories, steps, distance),
                             TextToSpeech.QUEUE_FLUSH, null);
                 }
-                if (helper.saveActivity("running", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
+                if (helper.saveActivity("running", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(Math.round(distance)), null)) {
                     Toast.makeText(RunningActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(RunningActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

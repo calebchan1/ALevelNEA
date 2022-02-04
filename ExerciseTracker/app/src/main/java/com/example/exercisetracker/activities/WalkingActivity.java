@@ -324,7 +324,7 @@ public class WalkingActivity extends AppCompatActivity {
                     tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
                 }
                 DBhelper helper = new DBhelper(WalkingActivity.this);
-                if (helper.saveActivity("walking", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
+                if (helper.saveActivity("walking", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(Math.round(distance)), null)) {
                     Toast.makeText(WalkingActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(WalkingActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

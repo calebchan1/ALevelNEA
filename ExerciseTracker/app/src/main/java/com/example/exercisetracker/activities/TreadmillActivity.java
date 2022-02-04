@@ -319,7 +319,7 @@ public class TreadmillActivity extends AppCompatActivity {
                 tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);
             }
             DBhelper helper = new DBhelper(TreadmillActivity.this);
-            if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(distance), null)) {
+            if (helper.saveActivity("treadmill", date.toString(), timeStarted, seconds.toString(), calories.toString(), steps.toString(), String.valueOf(Math.round(distance)), null)) {
                 Toast.makeText(TreadmillActivity.this, "Save successful", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(TreadmillActivity.this, "Save unsuccessful", Toast.LENGTH_SHORT).show();

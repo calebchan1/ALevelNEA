@@ -34,7 +34,7 @@ public class Activity {
         if (name.equals("Running") || name.equals("Treadmill") || name.equals("Walking")) {
             //null values for number of reps
             this.date = Date.valueOf(temp[0]);
-            this.timeStarted = temp[1];
+            this.timeStarted = temp[1].substring(0,5);//slicing string to just fit hr:min
             this.duration = Integer.parseInt(temp[2]);
             this.calories = Integer.parseInt(temp[3]);
             this.steps = Integer.parseInt(temp[4]);
@@ -42,7 +42,7 @@ public class Activity {
         } else if (name.equals("Push Up") || name.equals("Squats")) {
             //null values for steps and distance
             this.date = Date.valueOf(temp[0]);
-            this.timeStarted = temp[1];
+            this.timeStarted = temp[1].substring(0,5);//slicing string to just fit hr:min
             this.duration = Integer.parseInt(temp[2]);
             this.calories = Integer.parseInt(temp[3]);
             this.reps = Integer.parseInt(temp[6]);

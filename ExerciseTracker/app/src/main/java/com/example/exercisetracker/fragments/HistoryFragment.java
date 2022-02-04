@@ -158,11 +158,11 @@ public class HistoryFragment extends Fragment {
                                 ActivityArr.remove(activity);
                                 notifyItemRemoved(holder.getAdapterPosition());
                                 notifyItemRangeChanged(holder.getAdapterPosition(), getItemCount());
-
                             } else {
                                 Toast.makeText(context.getApplicationContext(), "Delete Failed", Toast.LENGTH_SHORT).show();
                             }
                             dialog.cancel();
+
                         }
                     });
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -249,6 +249,8 @@ public class HistoryFragment extends Fragment {
 
     }
 
+
+
     //using async task to retrieve data from database
     private class GetHistory extends AsyncTask<Boolean, Integer, ArrayList<String>> {
         protected ArrayList<String> doInBackground(Boolean... isPublic) {
@@ -257,6 +259,16 @@ public class HistoryFragment extends Fragment {
                 if (isCancelled()) return null;
                 //if activities was read successfully from database
                 ArrayList<String> queryResults = helper.getResult();
+                if (queryResults.isEmpty()){
+                    //activity was not read successfully, recycler view not created
+                    //show disclaimer text view on screen
+                    mcontext.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            noHistory.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
                 return queryResults;
             } else {
                 //activity was not read successfully, recycler view not created
