@@ -38,7 +38,8 @@ public class Activity {
             this.duration = Integer.parseInt(temp[2]);
             this.calories = Integer.parseInt(temp[3]);
             this.steps = Integer.parseInt(temp[4]);
-            this.distance = Integer.parseInt(temp[5]);
+            //removing decimal place from distance to convert to integer
+            this.distance = Integer.parseInt(temp[5].split("\\.")[0]);
         } else if (name.equals("Push Up") || name.equals("Squats")) {
             //null values for steps and distance
             this.date = Date.valueOf(temp[0]);

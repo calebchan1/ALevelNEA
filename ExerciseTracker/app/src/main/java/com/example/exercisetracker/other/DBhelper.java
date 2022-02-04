@@ -77,9 +77,12 @@ public class DBhelper {
                             "FROM Users " +
                             String.format("WHERE username = '%s' AND password = '%s'", username, password)
             );
-
             try {
                 addResult(resultset, 6);
+                if (this.getResult().isEmpty()){
+                    Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
                 return true;
             }

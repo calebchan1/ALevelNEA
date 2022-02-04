@@ -18,6 +18,8 @@ import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.User;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Objects;
+
 /**
  * handling log in screen
  * Extends from AppCompatActivity class
@@ -65,8 +67,8 @@ public class LogInScreen extends AppCompatActivity {
         loginbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameField.getEditText().getText().toString();
-                String password = passwordField.getEditText().getText().toString();
+                String username = Objects.requireNonNull(usernameField.getEditText()).getText().toString();
+                String password = Objects.requireNonNull(passwordField.getEditText()).getText().toString();
                 //user validation here
                 DBhelper helper = new DBhelper(LogInScreen.this);
                 if (helper.login(username, password)) {
