@@ -83,23 +83,23 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
             if (!searchEditText.getText().toString().equals("")) {
                 helper.clearResults();
                 if (helper.getUsers(searchEditText.getText().toString())) {
-                    noFriends.setVisibility(View.INVISIBLE);
-
-                    //list of users passed to recycler view
-                    //resetting friendArr for new query
-                    friendArr.clear();
-                    courseAdapter.notifyDataSetChanged();
-                    for (String row : helper.getResult()) {
-                        Friend friendObj = handleQuery(row);
-                        friendArr.add(friendObj);
-                        courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
-                        // setting layout manager and adapter to our recycler view.
+                    if (!helper.getResult().isEmpty()) {
+                        noFriends.setVisibility(View.INVISIBLE);
+                        //list of users passed to recycler view
+                        //resetting friendArr for new query
+                        friendArr.clear();
+                        courseAdapter.notifyDataSetChanged();
+                        for (String row : helper.getResult()) {
+                            Friend friendObj = handleQuery(row);
+                            friendArr.add(friendObj);
+                            courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
+                            // setting layout manager and adapter to our recycler view.
+                        }
+                    } else {
+                        //no users found from result
+                        Toast.makeText(getApplicationContext(), "No Users Found", Toast.LENGTH_SHORT).show();
                     }
-
-                } else {
-                    Toast.makeText(getApplicationContext(), "No Users Found", Toast.LENGTH_SHORT).show();
                 }
-
             } else {
                 //user has searched empty query
                 Toast.makeText(getApplicationContext(), "You have not entered anything", Toast.LENGTH_SHORT).show();
