@@ -72,7 +72,6 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
 
         //by default, the user's friends list shows on the screen
         //they can decide to remove any of their friends
-
         loadFriendsList();
     }
 

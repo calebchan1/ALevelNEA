@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +59,10 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         if (loadingDialog != null) {
             loadingDialog.dismiss();
         }
-
+        if (getActivity() != null) {
+            //loading leaderboard when fragment resumed
+            new GetLeaderboardTask().execute(isPublic);
+        }
     }
 
     @Nullable
@@ -68,13 +72,10 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
         view.findViewById(R.id.navigateToFriendsActivity).setOnClickListener(this);
         table = view.findViewById(R.id.table_main);
         noLeaderboard = view.findViewById(R.id.noLeaderboard);
-
         //by default, leaderboard set to public leaderboard at 24Hr
         isPublic = true;
         timeframe = 1;
-        if (getActivity() != null) {
-            new GetLeaderboardTask().execute(isPublic);
-        }
+
 
         RadioGroup publicPrivateRG = view.findViewById(R.id.leaderboard_publicPrivateRG);
         publicPrivateRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -377,7 +378,9 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                         //table was empty, disclaimer shown to user
                         noLeaderboard.setVisibility(View.VISIBLE);
                     }
-                    mcontext.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    if (mcontext.findViewById(R.id.progressBar)!=null) {
+                        mcontext.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    }
                 }
             });
         }

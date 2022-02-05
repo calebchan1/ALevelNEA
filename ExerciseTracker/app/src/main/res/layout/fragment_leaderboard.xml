@@ -113,7 +113,7 @@
 
     </ScrollView>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/navigateToFriendsActivity"
         android:layout_width="50dp"
         android:layout_height="50dp"
