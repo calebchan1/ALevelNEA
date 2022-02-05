@@ -1,6 +1,8 @@
 package com.example.exercisetracker.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -33,6 +35,9 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
     private AddFriendsActivity.FriendAdapter courseAdapter;
     private ArrayList<Friend> friendArr;
     private TextView noFriends;
+
+    //loading dialog
+    private ProgressDialog loadingDialog;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -69,10 +74,14 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         recyclerView.setAdapter(courseAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-
+        loadingDialog = new ProgressDialog(this);
+        loadingDialog.setMessage("Loading..");
+        loadingDialog.setTitle("Retrieving Your Friends List");
+        loadingDialog.setIndeterminate(true);
+        loadingDialog.show();
         //by default, the user's friends list shows on the screen
         //they can decide to remove any of their friends
-        loadFriendsList();
+        new LoadFriendsListTask().execute(true);
     }
 
     @Override
@@ -107,37 +116,6 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void loadFriendsList() {
-        DBhelper helper = new DBhelper(this);
-        if (helper.getFriends()) {
-            if (!helper.getResult().isEmpty()) {
-                noFriends.setVisibility(View.INVISIBLE);
-                User.clearFriendsList();
-                friendArr.clear();
-                courseAdapter.notifyDataSetChanged();
-                for (String query : helper.getResult()) {
-                    Friend friendObj = handleQuery(query);
-                    //adding to user's list of friends
-                    User.addFriendsList(friendObj.getId());
-                    friendArr.add(friendObj);
-                    courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
-                    //adding to recycler view (by default when user loads this section
-                    //their friends will appear
-                }
-                helper.clearResults();
-            }
-            else{
-                //no friends found, disclaimer shown to user
-                noFriends.setVisibility(View.VISIBLE);
-                Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            //no friends found, disclaimer shown to user
-            noFriends.setVisibility(View.VISIBLE);
-            Toast.makeText(getApplicationContext(), "Could not retrieve your friends", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private Friend handleQuery(String query) {
         String[] arr = query.split(" ");
         int id = Integer.parseInt(arr[0]);
@@ -146,7 +124,6 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         String username = arr[3];
         return new Friend(id, firstname, surname, username);
     }
-
 
     //adapter class to exchange information between card views created and friend details
     public static class FriendAdapter extends RecyclerView.Adapter<AddFriendsActivity.FriendAdapter.Viewholder> {
@@ -225,6 +202,43 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
                 realNameTV = itemView.findViewById(R.id.userRealName);
                 usernameIDTV = itemView.findViewById(R.id.usernameID);
                 addFriendBtn = itemView.findViewById(R.id.addFriendBtn);
+            }
+        }
+    }
+
+    private class LoadFriendsListTask extends AsyncTask<Boolean, Integer, ArrayList<String>> {
+        //task to load friends list
+        protected ArrayList<String> doInBackground(Boolean... isPublic) {
+            //retrieve data from database
+            DBhelper helper = new DBhelper(getApplicationContext());
+            if (helper.getFriends()) {
+                return helper.getResult();
+            }
+            return null;
+        }
+
+        protected void onPostExecute(ArrayList<String> result) {
+            loadingDialog.dismiss();
+            if (result == null) {
+                //no friends found due to connection issue
+                noFriends.setVisibility(View.VISIBLE);
+            } else if (!result.isEmpty()) {
+                noFriends.setVisibility(View.INVISIBLE);
+                User.clearFriendsList();
+                friendArr.clear();
+                courseAdapter.notifyDataSetChanged();
+                for (String query : result) {
+                    Friend friendObj = handleQuery(query);
+                    //adding to user's list of friends
+                    User.addFriendsList(friendObj.getId());
+                    friendArr.add(friendObj);
+                    courseAdapter.notifyItemInserted(courseAdapter.getItemCount());
+                    //adding to recycler view (by default when user loads this section
+                    //their friends will appear
+                }
+            } else {
+                //no friends found, disclaimer shown to user
+                noFriends.setVisibility(View.VISIBLE);
             }
         }
     }

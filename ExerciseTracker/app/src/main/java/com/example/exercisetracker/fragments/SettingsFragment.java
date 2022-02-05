@@ -108,13 +108,13 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
                             //username and password must be at least 8 characters
                             //max length of username is 16 characters
-                            boolean requirements = username.length() >= 8 && password.length() >= 8 && username.length()<=16;
+                            boolean requirements = username.length() >= 8 && password.length() >= 8 && username.length() <= 16;
                             //if one field is empty, cannot update account
                             boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty();
 
                             if (requirements && !isEmpty) {
                                 DBhelper helper = new DBhelper(mcontext);
-                                if (helper.updateUser(username,password,forename,surname,DOB,weight.toString(),height.toString())) {
+                                if (helper.updateUser(username, password, forename, surname, DOB, weight.toString(), height.toString())) {
                                     //if update on database was successful
                                     Toast.makeText(mcontext, "Save successful", Toast.LENGTH_SHORT).show();
 
@@ -133,11 +133,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                                         editor.putString("height", height.toString());
                                         editor.apply();
                                         //saving to user class
-                                        User.saveUser(username,password,forename,surname,DOB,weight,height);
+                                        User.saveUser(username, password, forename, surname, DOB, weight, height);
                                     }
                                 }
-                            }
-                            else{
+                            } else {
                                 Toast.makeText(mcontext, "You have not met the requirements", Toast.LENGTH_SHORT).show();
                                 Toast.makeText(mcontext, "Username and password must be between 8-16 characters", Toast.LENGTH_SHORT).show();
                                 Toast.makeText(mcontext, "No fields can be left empty", Toast.LENGTH_SHORT).show();

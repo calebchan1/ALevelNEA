@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,9 +55,6 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        }
         if (getActivity() != null) {
             //loading leaderboard when fragment resumed
             new GetLeaderboardTask().execute(isPublic);
@@ -323,13 +319,6 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.navigateToFriendsActivity) {
-            //when user clicks add friends button
-            //show loading dialogue to user whilst loading up addfriendsactivity
-            loadingDialog = new ProgressDialog(mcontext);
-            loadingDialog.setMessage("Loading..");
-            loadingDialog.setTitle("Retrieving Your Friends List");
-            loadingDialog.setIndeterminate(true);
-            loadingDialog.show();
             Intent intent1 = new Intent(mcontext, AddFriendsActivity.class);
             startActivity(intent1);
         }
@@ -364,7 +353,7 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
             mcontext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (result!=null) {
+                    if (result != null) {
                         if (!result.isEmpty()) {
                             //creating table
                             createTable(result);
@@ -373,12 +362,11 @@ public class LeaderboardFragment extends Fragment implements View.OnClickListene
                             //table was empty, disclaimer shown to user
                             noLeaderboard.setVisibility(View.VISIBLE);
                         }
-                    }
-                    else{
+                    } else {
                         //table was empty, disclaimer shown to user
                         noLeaderboard.setVisibility(View.VISIBLE);
                     }
-                    if (mcontext.findViewById(R.id.progressBar)!=null) {
+                    if (mcontext.findViewById(R.id.progressBar) != null) {
                         mcontext.findViewById(R.id.progressBar).setVisibility(View.GONE);
                     }
                 }

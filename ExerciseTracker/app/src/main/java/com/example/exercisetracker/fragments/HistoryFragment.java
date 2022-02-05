@@ -249,8 +249,6 @@ public class HistoryFragment extends Fragment {
 
     }
 
-
-
     //using async task to retrieve data from database
     private class GetHistory extends AsyncTask<Boolean, Integer, ArrayList<String>> {
         protected ArrayList<String> doInBackground(Boolean... isPublic) {
@@ -259,7 +257,7 @@ public class HistoryFragment extends Fragment {
                 if (isCancelled()) return null;
                 //if activities was read successfully from database
                 ArrayList<String> queryResults = helper.getResult();
-                if (queryResults.isEmpty()){
+                if (queryResults.isEmpty()) {
                     //activity was not read successfully, recycler view not created
                     //show disclaimer text view on screen
                     mcontext.runOnUiThread(new Runnable() {
@@ -312,7 +310,5 @@ public class HistoryFragment extends Fragment {
             progressBar.setVisibility(View.GONE);
         }
     }
-
-
 }
 
