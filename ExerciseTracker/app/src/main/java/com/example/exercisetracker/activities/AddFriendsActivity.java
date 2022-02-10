@@ -78,6 +78,7 @@ public class AddFriendsActivity extends AppCompatActivity implements View.OnClic
         loadingDialog.setMessage("Loading..");
         loadingDialog.setTitle("Retrieving Your Friends List");
         loadingDialog.setIndeterminate(true);
+        loadingDialog.setCancelable(false);
         loadingDialog.show();
         //by default, the user's friends list shows on the screen
         //they can decide to remove any of their friends

@@ -147,19 +147,27 @@ public class LogInScreen extends AppCompatActivity {
         // handles saving user details to User class from shared preferences
         SharedPreferences prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
         Boolean checkbox = prefs.getBoolean(remember_me, false);
+
         if (checkbox.equals(true)) {
-            prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
-            String[] results = {
-                    prefs.getString("id", ""),
-                    prefs.getString("forename", ""),
-                    prefs.getString("surname", ""),
-                    prefs.getString("DOB", ""),
-                    prefs.getString("weight", ""),
-                    prefs.getString("height", "")
-            };
-            saveToUserClass(results, prefs.getString("username", ""), prefs.getString("password", ""));
-            return true;
+            try {
+                prefs = getSharedPreferences(shared_prefs, MODE_PRIVATE);
+                String[] results = {
+                        prefs.getString("id", ""),
+                        prefs.getString("forename", ""),
+                        prefs.getString("surname", ""),
+                        prefs.getString("DOB", ""),
+                        prefs.getString("weight", ""),
+                        prefs.getString("height", "")
+                };
+                saveToUserClass(results, prefs.getString("username", ""), prefs.getString("password", ""));
+                return true;
+            }
+            catch(Exception e){
+                return false;
+            }
+
         }
         return false;
     }
+
 }
