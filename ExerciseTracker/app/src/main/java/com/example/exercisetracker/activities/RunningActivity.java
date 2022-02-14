@@ -414,7 +414,7 @@ public class RunningActivity extends AppCompatActivity {
             locationManager.removeUpdates(locationListener);
             //exiting the running activity and saving data to database
             //will only save activities which last longer than 60s
-            if (seconds > 60) {
+            if (seconds >= 60 && steps>=10) {
                 DBhelper helper = new DBhelper(RunningActivity.this);
                 if (isAudio) {
                     //audio text to speech to congratulate user

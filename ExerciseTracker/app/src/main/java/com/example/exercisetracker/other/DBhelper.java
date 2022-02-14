@@ -40,100 +40,115 @@ public class DBhelper {
      */
     public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
-        try {
-            conn = createNewConnection();
-            Statement statement = conn.createStatement();
-            //executing SQL statement
-            int resultset = statement.executeUpdate(
-                    "INSERT INTO Users(username,password,firstname,surname,dateOfBirth,weight,height) " +
-                            String.format("VALUES ('%s','%s','%s','%s','2004-12-02','%s','%s')",
-                                    username, password, forename, surname, weight, height)
-            );
-            if (resultset == 0) {
-                Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-            Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
+        if (checkSqlInjection(username,password,forename,surname,DOB,weight,height)) {
+            try {
+                conn = createNewConnection();
+                Statement statement = conn.createStatement();
+                //executing SQL statement
+                int resultset = statement.executeUpdate(
+                        "INSERT INTO Users(username,password,firstname,surname,dateOfBirth,weight,height) " +
+                                String.format("VALUES ('%s','%s','%s','%s','2004-12-02','%s','%s')",
+                                        username, password, forename, surname, weight, height)
+                );
+                if (resultset == 0) {
+                    Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
 
-            return true;
-        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+                return true;
+            } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+                return false;
+            } finally {
+                closeConnection(conn);
+            }
+        }
+        else{
             return false;
-        } finally {
-            closeConnection(conn);
         }
     }
 
     public Boolean login(String username, String password) {
         //handles login validation process
         Connection conn = null;
-        try {
-            conn = createNewConnection();
-            Statement statement = conn.createStatement();
-            //executing SQL statement
-            ResultSet resultset = statement.executeQuery(
-                    "SELECT UserID, firstname, surname, dateOfBirth, weight, height " +
-                            "FROM Users " +
-                            String.format("WHERE username = '%s' AND password = '%s'", username, password)
-            );
+        if (checkSqlInjection(username,password)) {
             try {
-                addResult(resultset, 6);
-                if (this.getResult().isEmpty()){
-                    Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                conn = createNewConnection();
+                Statement statement = conn.createStatement();
+                //executing SQL statement
+                ResultSet resultset = statement.executeQuery(
+                        "SELECT UserID, firstname, surname, dateOfBirth, weight, height " +
+                                "FROM Users " +
+                                String.format("WHERE username = '%s' AND password = '%s'", username, password)
+                );
+                try {
+                    addResult(resultset, 6);
+                    if (this.getResult().isEmpty()) {
+                        Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                    Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
+                    return true;
+                } catch (Exception e) {
+                    Toast.makeText(this.context, "Username or Password incorrect", Toast.LENGTH_SHORT).show();
                     return false;
                 }
-                Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-            catch (Exception e){
-                Toast.makeText(this.context, "Username or Password incorrect", Toast.LENGTH_SHORT).show();
+
+
+            } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                //if connection throws exception, login failed and false is returned
+                Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
                 return false;
+            } finally {
+                closeConnection(conn);
             }
-
-
-        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-            //if connection throws exception, login failed and false is returned
-            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+        }
+        else{
             return false;
-        } finally {
-            closeConnection(conn);
         }
     }
 
     public boolean updateUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
-        try {
-            conn = createNewConnection();
-            Statement statement = conn.createStatement();
-            //executing SQL statement
-            int resultset = statement.executeUpdate(
-                    "UPDATE Users " +
-                            String.format("SET username = '%s',password = '%s',firstname = '%s',surname = '%s',dateOfBirth = '%s',weight = '%s',height = '%s' ",
-                                    username, password, forename, surname,
-                                    DOB, weight, height
-                            ) +
-                            String.format("WHERE Users.UserID = '%s'", User.getUserID().toString())
-            );
-            if (resultset == 0) {
-                //could not save activity
+        if (checkSqlInjection(username,password,forename,surname,DOB,weight,height)) {
+            try {
+                conn = createNewConnection();
+                Statement statement = conn.createStatement();
+                //executing SQL statement
+                int resultset = statement.executeUpdate(
+                        "UPDATE Users " +
+                                String.format("SET username = '%s',password = '%s',firstname = '%s',surname = '%s',dateOfBirth = '%s',weight = '%s',height = '%s' ",
+                                        username, password, forename, surname,
+                                        DOB, weight, height
+                                ) +
+                                String.format("WHERE Users.UserID = '%s'", User.getUserID().toString())
+                );
+                if (resultset == 0) {
+                    //could not save activity
+                    return false;
+                }
+                //activity was saved successfully
+                return true;
+            } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
                 return false;
+            } finally {
+                closeConnection(conn);
             }
-            //activity was saved successfully
-            return true;
-        } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
+        }
+        else{
             return false;
-        } finally {
-            closeConnection(conn);
         }
     }
 
 
     public boolean deleteAccount(int userID) {
         Connection conn = null;
+
         try {
             conn = createNewConnection();
             Statement statement = conn.createStatement();
@@ -160,6 +175,8 @@ public class DBhelper {
      * FOLLOWING METHODS DEAL WITH HANDLING ACTIVITIES
      */
     public boolean saveActivity(String exercise, String currDate, String timestarted, String duration, String calories, String steps, String distance, String reps) {
+        //AS SAVING ACTIVITY does not receive direct user input
+        //not requried to check for SQL injection
         Connection conn = null;
         try {
             conn = createNewConnection();
@@ -203,6 +220,7 @@ public class DBhelper {
     }
 
     public boolean readActivities() {
+
         Connection conn = null;
         //get all activities associated with the user's ID
         try {
@@ -556,6 +574,20 @@ public class DBhelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private Boolean checkSqlInjection(String...args){
+        //check for any sql commands from any parameters given in args
+        for (String string : args){
+            if (string.contains("SELECT") || string.contains("DROP") || string.contains("DELETE") || string.contains("INSERT") || string.contains("UPDATE") ||
+            string.contains("select") || string.contains("drop") || string.contains("delete") || string.contains("insert") || string.contains("update")){
+                Toast.makeText(context, "You must not enter any SQL commands!", Toast.LENGTH_SHORT).show();
+                //sql command detected, returns false
+                return false;
+            }
+        }
+        //no commands return true
+        return true;
     }
 
     public void clearResults() {

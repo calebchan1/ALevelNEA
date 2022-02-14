@@ -422,7 +422,7 @@ public class SquatsActivity extends AppCompatActivity  {
     private void finishTracking() {
         //handles the safe closing of the activity, and presenting any information to the user
         isTracking = false;
-        if (seconds > 60) {
+        if (seconds > 60 && reps>=5) {
             if (isAudio){
                 //audio text to speech to congratulate user
                 tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and did %d reps. See you next time!", calories, reps),

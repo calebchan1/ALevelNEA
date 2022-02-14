@@ -313,7 +313,7 @@ public class TreadmillActivity extends AppCompatActivity {
         sensorManager.unregisterListener(listener);
 
         //exiting the running activity and saving data to database
-        if (seconds > 60) {
+        if (seconds >= 60 && steps>=10) {
             if (isAudio) {
                 //audio text to speech to congratulate user
                 tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories. See you next time!", calories), TextToSpeech.QUEUE_FLUSH, null);

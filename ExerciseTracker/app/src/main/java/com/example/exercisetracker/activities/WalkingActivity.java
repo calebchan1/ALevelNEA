@@ -318,7 +318,7 @@ public class WalkingActivity extends AppCompatActivity {
             locationManager.removeUpdates(locationListener);
             //exiting the walking activity and saving data to database
             //will only save activities which last longer than 60s
-            if (seconds > 60) {
+            if (seconds >= 60 && steps>=10) {
                 if (isAudio) {
                     //audio text to speech to congratulate user
                     tts.speak(String.format(Locale.getDefault(), "Congratulations, you burnt %d calories and walked %d steps. See you next time!", calories, steps), TextToSpeech.QUEUE_FLUSH, null);
