@@ -45,12 +45,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="20dp"
+
                 app:cardElevation="8dp"
                 app:cardMaxElevation="10dp"
                 app:cardPreventCornerOverlap="true"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@color/main_colour"
-                app:strokeWidth="3dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -81,13 +82,12 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/runBtn"
+                            app:cornerRadius="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:fontFamily="@font/gothicbb"
-                            android:gravity="center_horizontal"
                             android:text="@string/start_tracking"
-                            android:textAlignment="center"
                             android:textAllCaps="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -103,7 +103,7 @@
                 app:cardMaxElevation="10dp"
                 app:cardPreventCornerOverlap="true"
                 app:strokeColor="@color/main_colour"
-                app:strokeWidth="3dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -134,13 +134,12 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/walkBtn"
+                            app:cornerRadius="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:fontFamily="@font/gothicbb"
-                            android:gravity="center_horizontal"
                             android:text="@string/start_tracking"
-                            android:textAlignment="center"
                             android:textAllCaps="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -155,7 +154,7 @@
                 app:cardMaxElevation="10dp"
                 app:cardPreventCornerOverlap="true"
                 app:strokeColor="@color/main_colour"
-                app:strokeWidth="3dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -186,13 +185,12 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/treadmillBtn"
+                            app:cornerRadius="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
                             android:fontFamily="@font/gothicbb"
-                            android:gravity="center_horizontal"
                             android:text="@string/start_tracking"
-                            android:textAlignment="center"
                             android:textAllCaps="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -207,7 +205,7 @@
                 app:cardMaxElevation="10dp"
                 app:cardPreventCornerOverlap="true"
                 app:strokeColor="@color/main_colour"
-                app:strokeWidth="3dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -238,14 +236,12 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/pushUpBtn"
+                            app:cornerRadius="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
-                            android:fontFamily="@font/gothicbb"
-                            android:gravity="center_horizontal"
                             android:text="@string/start_tracking"
-                            android:textAlignment="center"
-                            android:textAllCaps="false" />
+                            android:textAllCaps="false"  />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -259,7 +255,7 @@
                 app:cardMaxElevation="10dp"
                 app:cardPreventCornerOverlap="true"
                 app:strokeColor="@color/main_colour"
-                app:strokeWidth="3dp">
+                app:strokeWidth="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -290,14 +286,12 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/squatBtn"
+                            app:cornerRadius="15dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="20dp"
-                            android:fontFamily="@font/gothicbb"
-                            android:gravity="center_horizontal"
                             android:text="@string/start_tracking"
-                            android:textAlignment="center"
-                            android:textAllCaps="false" />
+                            android:textAllCaps="false"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

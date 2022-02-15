@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="2dp"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="8dp"
+    app:cardCornerRadius="15dp"
     app:cardElevation="8dp"
     app:cardMaxElevation="10dp"
     app:cardPreventCornerOverlap="true"
@@ -59,6 +59,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/ExerciseDeleteBtn"
+            app:cornerRadius="15dp"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_alignBottom="@id/ExeciseImg"
@@ -69,6 +70,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/ExerciseDetailsBtn"
+            app:cornerRadius="15dp"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_alignBottom="@id/ExeciseImg"

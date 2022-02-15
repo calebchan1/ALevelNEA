@@ -300,12 +300,8 @@ public class PushUpActivity extends AppCompatActivity {
     private void handleCamera() {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         //getting display size (dependent on device)
-
-
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
-                        //instantiating ImageAnalysis, with user's phone display dimensions
-//                        .setTargetResolution()
                         .setTargetResolution(displaySize)
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
@@ -354,7 +350,7 @@ public class PushUpActivity extends AppCompatActivity {
         //attaching the image analysis object to the camera
         cameraProviderFuture.addListener(() -> {
             try {
-                //configuring camera to preview.
+                //configuring camera to preview to display on the user's screen
                 ProcessCameraProvider provider = cameraProviderFuture.get();
                 preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(tv.getSurfaceProvider());
@@ -372,7 +368,7 @@ public class PushUpActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }, ContextCompat.getMainExecutor(this));
-
+        //creating graphic object to deal with drawing on landmarks onto the preview
         graphic = new Graphic(displaySize);
 
     }

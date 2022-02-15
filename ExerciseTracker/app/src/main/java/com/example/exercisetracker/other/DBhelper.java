@@ -4,13 +4,15 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.widget.Toast;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -36,7 +38,7 @@ public class DBhelper {
     }
 
     /**
-     * FOLLOWING METHODS DEAL WITH THE ACTUAL USER OF TEH APP
+     * FOLLOWING METHODS DEAL WITH THE ACTUAL USER OF THE APP
      */
     public boolean registerUser(String username, String password, String forename, String surname, String DOB, String weight, String height) {
         Connection conn = null;
@@ -44,11 +46,14 @@ public class DBhelper {
             try {
                 conn = createNewConnection();
                 Statement statement = conn.createStatement();
+                //creating a new salt and generating hash
+                String salt = createSalt();
+                String hashedPw = getSecurePassword(password,salt);
                 //executing SQL statement
                 int resultset = statement.executeUpdate(
-                        "INSERT INTO Users(username,password,firstname,surname,dateOfBirth,weight,height) " +
-                                String.format("VALUES ('%s','%s','%s','%s','2004-12-02','%s','%s')",
-                                        username, password, forename, surname, weight, height)
+                        "INSERT INTO Users(username,password,firstname,surname,dateOfBirth,weight,height,salt) " +
+                                String.format("VALUES ('%s','%s','%s','%s','%s','%s','%s','%s')",
+                                        username, hashedPw, forename, surname, DOB, weight, height,salt)
                 );
                 if (resultset == 0) {
                     Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
@@ -57,7 +62,7 @@ public class DBhelper {
                 Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
 
                 return true;
-            } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException | NoSuchAlgorithmException|NoSuchProviderException e) {
                 e.printStackTrace();
                 Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
                 return false;
@@ -77,24 +82,34 @@ public class DBhelper {
             try {
                 conn = createNewConnection();
                 Statement statement = conn.createStatement();
-                //executing SQL statement
-                ResultSet resultset = statement.executeQuery(
-                        "SELECT UserID, firstname, surname, dateOfBirth, weight, height " +
-                                "FROM Users " +
-                                String.format("WHERE username = '%s' AND password = '%s'", username, password)
-                );
-                try {
-                    addResult(resultset, 6);
-                    if (this.getResult().isEmpty()) {
-                        Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                //getting salt from database
+                String salt = getSalt(username);
+                if (salt !=null) {
+                    ResultSet resultset = null;
+                    //executing SQL statement
+                    //getting hashed password
+                    String hashedPw = getSecurePassword(password,salt);
+                    resultset = statement.executeQuery(
+                            "SELECT UserID, firstname, surname, dateOfBirth, weight, height " +
+                                    "FROM Users " +
+                                    String.format("WHERE username = '%s' AND password = '%s'", username, hashedPw)
+                    );
+
+                    try {
+                        addResult(resultset, 6);
+                        if (this.getResult().isEmpty()) {
+                            Toast.makeText(this.context, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
+                        Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
+                        return true;
+                    } catch (Exception e) {
+                        Toast.makeText(this.context, "Username or Password incorrect", Toast.LENGTH_SHORT).show();
                         return false;
                     }
-                    Toast.makeText(this.context, "Login Successful", Toast.LENGTH_SHORT).show();
-                    return true;
-                } catch (Exception e) {
-                    Toast.makeText(this.context, "Username or Password incorrect", Toast.LENGTH_SHORT).show();
-                    return false;
                 }
+                Toast.makeText(this.context,"Could not retrieve salt",Toast.LENGTH_SHORT).show();
+                return false;
 
 
             } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -116,12 +131,15 @@ public class DBhelper {
         if (checkSqlInjection(username,password,forename,surname,DOB,weight,height)) {
             try {
                 conn = createNewConnection();
+                //getting stored salt
+                String salt = getSalt(username);
+                String hashedPw = getSecurePassword(password,salt);
                 Statement statement = conn.createStatement();
                 //executing SQL statement
                 int resultset = statement.executeUpdate(
                         "UPDATE Users " +
                                 String.format("SET username = '%s',password = '%s',firstname = '%s',surname = '%s',dateOfBirth = '%s',weight = '%s',height = '%s' ",
-                                        username, password, forename, surname,
+                                        username, hashedPw, forename, surname,
                                         DOB, weight, height
                                 ) +
                                 String.format("WHERE Users.UserID = '%s'", User.getUserID().toString())
@@ -592,5 +610,73 @@ public class DBhelper {
 
     public void clearResults() {
         this.result.clear();
+    }
+
+
+    /**
+     * Following methods dealing with hashing a secure password
+     * https://howtodoinjava.com/java/java-security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
+     */
+
+    private static String getSecurePassword(String passwordToHash, String salt) {
+        String generatedPassword = null;
+        try {
+            // Create MessageDigest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            // Add password bytes to digest
+            md.update(salt.getBytes());
+            // Get the hash's bytes
+            byte[] bytes = md.digest(passwordToHash.getBytes());
+            // This bytes[] has bytes in decimal format;
+            // Convert it to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16)
+                        .substring(1));
+            }
+            // Get complete hashed password in hex format
+            generatedPassword = sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return generatedPassword;
+    }
+
+
+    private static String createSalt() throws NoSuchAlgorithmException, NoSuchProviderException{
+        //Creating a salt for a new user
+        // SecureRandom generator
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "AndroidOpenSSL");
+        // Create array for salt
+        byte[] salt = new byte[16];
+        // Get a random salt
+        sr.nextBytes(salt);
+        // return salt
+        return salt.toString();
+    }
+
+    private String getSalt(String username){
+        //retrieving salt from db of existing user
+        Connection conn = null;
+        try {
+            conn = createNewConnection();
+            Statement statement = conn.createStatement();
+            ResultSet resultset = null;
+            resultset = statement.executeQuery(
+                    "SELECT salt FROM Users " +
+                            String.format("WHERE username = '%s'", username)
+            );
+            resultset.next();
+            String salt = resultset.getString(1);
+            if (salt.isEmpty()){
+                return null;
+            }
+            return salt;
+        }
+        catch (Exception e) {
+           return null;
+        } finally {
+            closeConnection(conn);
+        }
     }
 }
