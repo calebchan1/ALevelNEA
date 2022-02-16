@@ -108,7 +108,7 @@ public class DBhelper {
                         return false;
                     }
                 }
-                Toast.makeText(this.context,"Could not retrieve salt",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.context,"User does not exist",Toast.LENGTH_SHORT).show();
                 return false;
 
 
