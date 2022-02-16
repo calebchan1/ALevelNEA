@@ -139,7 +139,7 @@ public class PushUpActivity extends AppCompatActivity {
                 //how app can track squats and what user should do
                 String title = "How does this work?";
                 String message = "This app uses Google's machine learning kit to track your movements.\n" +
-                        "Place your device on a flat stable surface where your body is in full frame of the camera.\n" +
+                        "Place your device on a flat stable surface (such as the floor) where your full body is in front view of the camera.\n" +
                         "As you push down and up, the app will detect your reps and calories!";
                 new MaterialAlertDialogBuilder(PushUpActivity.this)
                         .setTitle(title)

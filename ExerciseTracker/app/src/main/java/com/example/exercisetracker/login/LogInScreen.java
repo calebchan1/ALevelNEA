@@ -1,23 +1,31 @@
 package com.example.exercisetracker.login;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.exercisetracker.R;
 import com.example.exercisetracker.activities.MainActivity;
+import com.example.exercisetracker.fragments.HistoryFragment;
 import com.example.exercisetracker.other.DBhelper;
 import com.example.exercisetracker.other.User;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -32,6 +40,8 @@ public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
     private CheckBox remember;
+    private ProgressBar progressBar;
+    private Context mcontext;
 
     public static String getRemember_me() {
         return remember_me;
@@ -40,6 +50,7 @@ public class LogInScreen extends AppCompatActivity {
     public static String getShared_prefs() {
         return shared_prefs;
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +68,7 @@ public class LogInScreen extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
         setContentView(R.layout.activity_loginscreen);
 
+        progressBar = findViewById(R.id.progressBar);
         usernameField = findViewById(R.id.usernameField);
         passwordField = findViewById(R.id.passwordField);
         Button createbtn = findViewById(R.id.createaccount);
@@ -81,6 +93,8 @@ public class LogInScreen extends AppCompatActivity {
                     startActivity(intent1);
                     finish();
                 }
+
+
 
             }
         });
@@ -161,8 +175,7 @@ public class LogInScreen extends AppCompatActivity {
                 };
                 saveToUserClass(results, prefs.getString("username", ""), prefs.getString("password", ""));
                 return true;
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 return false;
             }
 
@@ -170,4 +183,52 @@ public class LogInScreen extends AppCompatActivity {
         return false;
     }
 
+//    //Async task handling logging in
+//    //using async task to retrieve data from database
+//    private class LogInTask extends AsyncTask<String, Integer, Boolean> {
+//        protected Boolean doInBackground(String... args) {
+//            String username = args[0];
+//            String password = args[1];
+//            //CHECKING IF NOTHING HAS BEEN ENTERED
+//            if (username.isEmpty() | password.isEmpty()){
+//                return false;
+//            }
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    progressBar.setVisibility(View.VISIBLE);
+//                }
+//            });
+//
+//            DBhelper helper = new DBhelper(LogInScreen.this);
+//            if (helper.login(username, password)) {
+//                String[] results = helper.getResult().get(0).split(" ");
+//                saveToUserClass(results, username, password);
+//                if (remember.isChecked()) {
+//                    saveToSharedPreferences(results, username, password);
+//                }
+//                return true;
+//            }
+//            return false;
+//        }
+//
+//
+//        protected void onPostExecute(Boolean queryResults) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    progressBar.setVisibility(View.GONE);
+//                }
+//            });
+//            if (queryResults) {
+//                Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+//                startActivity(intent1);
+//                finish();
+//            }
+//            else{
+//                Toast.makeText(LogInScreen.this, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//
+//    }
 }
