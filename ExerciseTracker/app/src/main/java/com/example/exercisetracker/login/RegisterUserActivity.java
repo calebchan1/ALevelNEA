@@ -123,6 +123,11 @@ public class RegisterUserActivity extends AppCompatActivity {
                 boolean containsSpace = username.contains(" ") || password.contains(" ");
                 //if one field is empty, cannot create account
                 boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty() || weight.isEmpty() || height.isEmpty();
+                //removing spaces from forename, surname, weight and height
+                forename = forename.replace(" ", "");
+                surname = surname.replace(" ","");
+                weight = weight.replace(" ","");
+                height  = height.replace(" ","");
                 if (!isEmpty) {
                     if (requirements) {
                         if (!containsSpace) {
