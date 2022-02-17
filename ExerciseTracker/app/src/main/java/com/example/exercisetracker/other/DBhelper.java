@@ -453,7 +453,8 @@ public class DBhelper {
                     "SELECT UserID, firstname, surname, username " +
                             "FROM Users WHERE (firstname LIKE " +
                             "'%" + name + "%' " +
-                            "OR surname LIKE " + "'%" + name + "%') " +
+                            "OR surname LIKE " + "'%" + name + "%' " +
+                            "OR username LIKE " + "'%" + name + "%') " +
                             String.format(Locale.getDefault(), "AND UserID <> '%d' ", User.getUserID())
 
             );
