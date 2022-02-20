@@ -209,8 +209,8 @@ public class HistoryFragment extends Fragment {
                                 time, activity.getCalories(), activity.getSteps(), activity.getDistance(), df.format(pace));
             } else if (activity.getName().equals("Push Up") || activity.getName().equals("Squats")) {
                 message =
-                        String.format(Locale.getDefault(), "Duration: %s\nCalories Burnt: %d\nReps: %d",
-                                time, activity.getCalories(), activity.getReps());
+                        String.format(Locale.getDefault(), "Duration: %s\nCalories Burnt: %d\nReps: %d\nAvg. Pace: %sreps/min",
+                                time, activity.getCalories(), activity.getReps(),df.format(((float) activity.getReps())*60f/(float)activity.getDuration()));
             }
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this.context);

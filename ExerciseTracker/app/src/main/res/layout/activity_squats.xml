@@ -173,6 +173,15 @@
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="20sp" />
+        <TextView
+            android:id="@+id/paceText"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gothic"
+            android:text="Pace:\n0"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton

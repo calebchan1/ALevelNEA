@@ -56,6 +56,7 @@ import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -66,9 +67,7 @@ import java.util.concurrent.ExecutionException;
 
 public class SquatsActivity extends AppCompatActivity  {
     //Text Views
-    private TextView timerText;
-    private TextView repText;
-    private TextView calText;
+    private TextView timerText,calText,repText,paceText;
     //buttons
     private Button startBtn, finishBtn, helpBtn;
     //pushup custom variables
@@ -205,6 +204,7 @@ public class SquatsActivity extends AppCompatActivity  {
         timerText = findViewById(R.id.timerText);
         repText = findViewById(R.id.repText);
         calText = findViewById(R.id.calText);
+        paceText = findViewById(R.id.paceText);
         TextView poseIndicatorTV = findViewById(R.id.PoseIndicator);
 
         //getting met from string values
@@ -272,6 +272,10 @@ public class SquatsActivity extends AppCompatActivity  {
                     timerText.setText(time);
                     calText.setText("Calories:\n" + calories.toString());
                     repText.setText("Reps:\n" + reps.toString());
+
+                    //calculating average pace of reps
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    paceText.setText("Pace:\n" + df.format((float)reps/(float)seconds));
                     handleQuotes();
                 }
 
