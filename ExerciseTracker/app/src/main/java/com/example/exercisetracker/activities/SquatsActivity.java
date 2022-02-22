@@ -275,7 +275,7 @@ public class SquatsActivity extends AppCompatActivity  {
 
                     //calculating average pace of reps
                     DecimalFormat df = new DecimalFormat("#.##");
-                    paceText.setText("Pace:\n" + df.format((float)reps/(float)seconds));
+                    paceText.setText("Pace:\n" + df.format((float)reps*60f/(float)seconds) + "\nreps/min");
                     handleQuotes();
                 }
 

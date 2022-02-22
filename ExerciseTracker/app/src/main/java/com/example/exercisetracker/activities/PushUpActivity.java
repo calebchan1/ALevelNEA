@@ -273,7 +273,7 @@ public class PushUpActivity extends AppCompatActivity {
                     repText.setText("Reps:\n" + reps.toString());
                     //calculating average pace of reps
                     DecimalFormat df = new DecimalFormat("#.##");
-                    paceText.setText("Pace:\n" + df.format((float)reps/(float)seconds));
+                    paceText.setText("Pace:\n" + df.format((float)reps*60f/(float)seconds)+ "\nreps/min");
                     handleQuotes();
                 }
 
