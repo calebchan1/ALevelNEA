@@ -40,8 +40,6 @@ public class LogInScreen extends AppCompatActivity {
     private TextInputLayout usernameField;
     private TextInputLayout passwordField;
     private CheckBox remember;
-    private ProgressBar progressBar;
-    private Context mcontext;
 
     public static String getRemember_me() {
         return remember_me;
@@ -68,7 +66,8 @@ public class LogInScreen extends AppCompatActivity {
         getWindow().setStatusBarColor(getResources().getColor(R.color.main_colour));
         setContentView(R.layout.activity_loginscreen);
 
-        progressBar = findViewById(R.id.progressBar);
+        //referencing all variables
+        ProgressBar progressBar = findViewById(R.id.progressBar);
         usernameField = findViewById(R.id.usernameField);
         passwordField = findViewById(R.id.passwordField);
         Button createbtn = findViewById(R.id.createaccount);
@@ -89,18 +88,17 @@ public class LogInScreen extends AppCompatActivity {
                     if (remember.isChecked()) {
                         saveToSharedPreferences(results, username, password);
                     }
+                    //user details were valid, navigating into app
                     Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent1);
                     finish();
                 }
-
-
-
             }
         });
         createbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //if user wants to create an account, navigate to RegisterUserActivity
                 Intent intent1 = new Intent(getApplicationContext(), RegisterUserActivity.class);
                 startActivity(intent1);
             }

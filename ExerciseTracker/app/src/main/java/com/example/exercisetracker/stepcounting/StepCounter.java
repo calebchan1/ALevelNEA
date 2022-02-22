@@ -25,6 +25,7 @@ public class StepCounter {
 
 
     public StepCounter(Context context, Integer stepDuration, Float DetectThresh, Float MinFilterThresh, Float MaxFilterThresh, DecimalFormat df) {
+        //constructor
         this.filter = new Filter(MinFilterThresh, MaxFilterThresh);
         this.detector = new Detector(DetectThresh, stepDuration);
         this.context = context;
@@ -94,6 +95,7 @@ public class StepCounter {
     }
 
     private Float[] convertToEntry(Float raw_x, Float raw_y, Float raw_z) {
+        //converting entries into single float array
         float x = Float.parseFloat(df.format(raw_x));
         float y = Float.parseFloat(df.format(raw_y));
         float z = Float.parseFloat(df.format(raw_z));

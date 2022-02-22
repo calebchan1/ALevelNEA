@@ -210,6 +210,7 @@ public class TreadmillActivity extends AppCompatActivity {
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
             }
         };
+        //registering sensor listeners
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(listener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -326,7 +327,7 @@ public class TreadmillActivity extends AppCompatActivity {
             }
         } else {
             //saves space and resources on database
-            Toast.makeText(TreadmillActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
+            Toast.makeText(TreadmillActivity.this, "Activity too short (less than 1 min), save unsuccessful", Toast.LENGTH_SHORT).show();
         }
         this.finish();
     }

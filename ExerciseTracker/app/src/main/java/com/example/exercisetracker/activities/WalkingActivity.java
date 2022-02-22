@@ -282,6 +282,7 @@ public class WalkingActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 0:
+                //case 0 applies to all android devices
                 if (grantResults.length > 0) {
                     //checking if all permissions are granted on UI dialog
                     boolean granted = true;
@@ -300,6 +301,7 @@ public class WalkingActivity extends AppCompatActivity {
                 }
 
             case 1:
+                //case 1 applies to when android is Q+ (as background location has to be seperately asked)
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     isWalking = true;
                     return;

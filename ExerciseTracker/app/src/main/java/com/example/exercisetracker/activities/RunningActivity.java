@@ -148,11 +148,16 @@ public class RunningActivity extends AppCompatActivity {
         startStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //when start/stop button is clicked
                 if (isRunning) {
+                    //if was not paused, pause the tracker
+                    //set startstop button to "resume"
                     startStopBtn.setText("Resume");
                     isRunning = false;
 
                 } else {
+                    //if was paused, restart the tracker
+                    //set start/stop button to "Pause"
                     startStopBtn.setText("Pause");
                     isRunning = true;
                 }
@@ -207,6 +212,7 @@ public class RunningActivity extends AppCompatActivity {
                     double longitude = location.getLongitude();
                     Double[] entry = {latitude, longitude};
                     System.out.println(Arrays.toString(entry));
+                    //adding entry to route
                     route.addRoute(entry);
                 }
             }
@@ -373,6 +379,7 @@ public class RunningActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case 0:
+                //case 0 applies to all android devices
                 isRunning = false;
                 if (grantResults.length > 0) {
                     //checking if all permissions are granted on UI dialog
@@ -393,6 +400,7 @@ public class RunningActivity extends AppCompatActivity {
                 }
 
             case 1:
+                //case 1 applies to when android is Q+ (as background location has to be seperately asked)
                 isRunning = false;
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     isRunning = true;
