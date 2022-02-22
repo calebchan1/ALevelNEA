@@ -124,7 +124,7 @@ public class TreadmillActivity extends AppCompatActivity {
 
 
         //CUSTOM JAVA CLASSES
-        stepCounter = new StepCounter(this, 2, 0.5f, -10f, 10f, new DecimalFormat("#.##"));
+        stepCounter = new StepCounter(this, 2, 0.3f, -10f, 10f, new DecimalFormat("#.##"));
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
