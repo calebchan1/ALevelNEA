@@ -124,7 +124,7 @@ public class TreadmillActivity extends AppCompatActivity {
 
 
         //CUSTOM JAVA CLASSES
-        stepCounter = new StepCounter(this, 2, 0.3f, -10f, 10f, new DecimalFormat("#.##"));
+        stepCounter = new StepCounter(this, 2, 0.1f, -10f, 10f, new DecimalFormat("#.##"));
         //NOTIFICATION MANAGER
         notificationManagerCompat = NotificationManagerCompat.from(this);
 
@@ -327,7 +327,7 @@ public class TreadmillActivity extends AppCompatActivity {
             }
         } else {
             //saves space and resources on database
-            Toast.makeText(TreadmillActivity.this, "Activity too short (less than 1 min), save unsuccessful", Toast.LENGTH_SHORT).show();
+            Toast.makeText(TreadmillActivity.this, "Activity too short, save unsuccessful", Toast.LENGTH_SHORT).show();
         }
         this.finish();
     }

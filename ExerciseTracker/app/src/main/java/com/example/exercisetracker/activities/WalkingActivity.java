@@ -167,7 +167,7 @@ public class WalkingActivity extends AppCompatActivity {
         });
 
         //CUSTOM JAVA CLASSES
-        stepCounter = new StepCounter(this, 2, 0.3f, -10f, 10f, new DecimalFormat("#.##"));
+        stepCounter = new StepCounter(this, 2, 0.1f, -10f, 10f, new DecimalFormat("#.##"));
         ArrayList<Double[]> currentRoute = new ArrayList<Double[]>();
         route = new Route(currentRoute);
         //NOTIFICATION MANAGER
