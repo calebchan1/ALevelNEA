@@ -349,7 +349,9 @@ public class TreadmillActivity extends AppCompatActivity {
                     startRunning();
                 } else {
                     Toast.makeText(this, "Permissions Denied\nPlease allow permissions in settings", Toast.LENGTH_SHORT).show();
-                    finishRunning();
+                    isRunning = false;
+                    sensorManager.unregisterListener(listener);
+                    this.finish();
                 }
             }
         }
