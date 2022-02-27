@@ -120,14 +120,10 @@ public class RegisterUserActivity extends AppCompatActivity {
                 //username and password must be bigger than 8 characters conditions
                 //username must not exceed 16 characters
                 boolean requirements = username.length() >= 8 && password.length() >= 8 && username.length() <= 16;
-                boolean containsSpace = username.contains(" ") || password.contains(" ");
+                boolean containsSpace = username.contains(" ") || password.contains(" ") || forename.contains(" ") || surname.contains(" ") || weight.contains(" ") || height.contains(" ");
                 //if one field is empty, cannot create account
                 boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty() || weight.isEmpty() || height.isEmpty();
-                //removing spaces from forename, surname, weight and height
-                forename = forename.replace(" ", "");
-                surname = surname.replace(" ","");
-                weight = weight.replace(" ","");
-                height  = height.replace(" ","");
+
                 if (!isEmpty) {
                     if (requirements) {
                         if (!containsSpace) {
@@ -141,7 +137,7 @@ public class RegisterUserActivity extends AppCompatActivity {
                             }
                         } else {
                             //User entered a space in the username or password
-                            Toast.makeText(RegisterUserActivity.this, "Username and password must not contain any spaces", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterUserActivity.this, "All fields must not contain any spaces", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         //User did not meet required number of chars for username and password

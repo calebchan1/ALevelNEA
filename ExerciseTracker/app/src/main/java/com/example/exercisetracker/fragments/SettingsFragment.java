@@ -98,12 +98,12 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                     public void onClick(DialogInterface dialog, int which) {
                         try {
                             // use of .replaceAll to sanatise inputs given by user, to remove any whitespaces
-                            String username = String.valueOf(Objects.requireNonNull(usernameField.getEditText()).getText()).replaceAll("\\s", "");
-                            String password = String.valueOf(Objects.requireNonNull(passwordField.getEditText()).getText()).replaceAll("\\s", "");
-                            Float weight = Float.parseFloat(String.valueOf(Objects.requireNonNull(weightField.getEditText()).getText()).replaceAll("\\s", ""));
-                            Integer height = Integer.valueOf(String.valueOf(Objects.requireNonNull(heightField.getEditText()).getText()).replaceAll("\\s", ""));
-                            String forename = String.valueOf(Objects.requireNonNull(forenameField.getEditText()).getText()).replaceAll("\\s", "");
-                            String surname = String.valueOf(Objects.requireNonNull(surnameField.getEditText()).getText()).replaceAll("\\s", "");
+                            String username = String.valueOf(Objects.requireNonNull(usernameField.getEditText()).getText());
+                            String password = String.valueOf(Objects.requireNonNull(passwordField.getEditText()).getText());
+                            Float weight = Float.parseFloat(String.valueOf(Objects.requireNonNull(weightField.getEditText()).getText()));
+                            Integer height = Integer.valueOf(String.valueOf(Objects.requireNonNull(heightField.getEditText()).getText()));
+                            String forename = String.valueOf(Objects.requireNonNull(forenameField.getEditText()).getText());
+                            String surname = String.valueOf(Objects.requireNonNull(surnameField.getEditText()).getText());
                             String DOB = Objects.requireNonNull(DOBField.getEditText()).getText().toString();
 
                             //username and password must be at least 8 characters
@@ -111,35 +111,43 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                             boolean requirements = username.length() >= 8 && password.length() >= 8 && username.length() <= 16;
                             //if one field is empty, cannot update account
                             boolean isEmpty = username.isEmpty() || password.isEmpty() || forename.isEmpty() || surname.isEmpty() || DOB.isEmpty();
+                            boolean containsSpace = username.contains(" ") || password.contains(" ") || forename.contains(" ") || surname.contains(" ");
+                            if (requirements) {
+                                if (!isEmpty) {
+                                    if (!containsSpace) {
+                                        DBhelper helper = new DBhelper(mcontext);
+                                        if (helper.updateUser(username, password, forename, surname, DOB, weight.toString(), height.toString())) {
+                                            //if update on database was successful
+                                            Toast.makeText(mcontext, "Save successful", Toast.LENGTH_SHORT).show();
 
-                            if (requirements && !isEmpty) {
-                                DBhelper helper = new DBhelper(mcontext);
-                                if (helper.updateUser(username, password, forename, surname, DOB, weight.toString(), height.toString())) {
-                                    //if update on database was successful
-                                    Toast.makeText(mcontext, "Save successful", Toast.LENGTH_SHORT).show();
-
-                                    //saving to SharedPreferences if user had checked remember me
-                                    SharedPreferences prefs = mcontext.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
-                                    Boolean checkbox = prefs.getBoolean("remember", false);
-                                    if (checkbox) {
-                                        // results received in format ID, forename, surname, DOB, weight, height
-                                        SharedPreferences.Editor editor = prefs.edit();
-                                        editor.putString("username", username);
-                                        editor.putString("password", password);
-                                        editor.putString("forename", forename);
-                                        editor.putString("surname", surname);
-                                        editor.putString("DOB", DOBField.getEditText().getText().toString());
-                                        editor.putString("weight", weight.toString());
-                                        editor.putString("height", height.toString());
-                                        editor.apply();
-                                        //saving to user class
-                                        User.saveUser(username, password, forename, surname, DOB, weight, height);
+                                            //saving to SharedPreferences if user had checked remember me
+                                            SharedPreferences prefs = mcontext.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE);
+                                            Boolean checkbox = prefs.getBoolean("remember", false);
+                                            if (checkbox) {
+                                                // results received in format ID, forename, surname, DOB, weight, height
+                                                SharedPreferences.Editor editor = prefs.edit();
+                                                editor.putString("username", username);
+                                                editor.putString("password", password);
+                                                editor.putString("forename", forename);
+                                                editor.putString("surname", surname);
+                                                editor.putString("DOB", DOBField.getEditText().getText().toString());
+                                                editor.putString("weight", weight.toString());
+                                                editor.putString("height", height.toString());
+                                                editor.apply();
+                                                //saving to user class
+                                                User.saveUser(username, password, forename, surname, DOB, weight, height);
+                                            }
+                                        }
+                                    } else {
+                                        Toast.makeText(mcontext, "No fields can contain spaces", Toast.LENGTH_SHORT).show();
                                     }
+                                }
+                                else{
+                                    Toast.makeText(mcontext, "No fields can be left empty", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 Toast.makeText(mcontext, "You have not met the requirements", Toast.LENGTH_SHORT).show();
                                 Toast.makeText(mcontext, "Username and password must be between 8-16 characters", Toast.LENGTH_SHORT).show();
-                                Toast.makeText(mcontext, "No fields can be left empty", Toast.LENGTH_SHORT).show();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

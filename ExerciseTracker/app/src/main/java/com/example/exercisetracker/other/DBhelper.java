@@ -57,17 +57,17 @@ public class DBhelper {
                 );
                 if (resultset == 0) {
                     Toast.makeText(this.context, "Could not create an account", Toast.LENGTH_SHORT).show();
+                    closeConnection(conn);
                     return false;
                 }
                 Toast.makeText(this.context, "Account created", Toast.LENGTH_SHORT).show();
-
+                closeConnection(conn);
                 return true;
             } catch (SQLException | IllegalAccessException | InstantiationException | ClassNotFoundException | NoSuchAlgorithmException|NoSuchProviderException e) {
                 e.printStackTrace();
                 Toast.makeText(this.context, "Could not connect to database", Toast.LENGTH_SHORT).show();
-                return false;
-            } finally {
                 closeConnection(conn);
+                return false;
             }
         }
         else{
@@ -132,7 +132,7 @@ public class DBhelper {
             try {
                 conn = createNewConnection();
                 //getting stored salt
-                String salt = getSalt(username);
+                String salt = getSalt(User.getUsername());
                 String hashedPw = getSecurePassword(password,salt);
                 Statement statement = conn.createStatement();
                 //executing SQL statement
