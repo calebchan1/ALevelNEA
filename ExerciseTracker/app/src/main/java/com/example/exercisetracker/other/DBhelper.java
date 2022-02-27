@@ -251,7 +251,7 @@ public class DBhelper {
                             "FROM Exercise, Activity " +
                             String.format("WHERE Activity.UserID = (SELECT Users.UserID FROM Users WHERE Users.username = '%s') ", User.getUsername()) +
                             "AND Exercise.ExerciseID = Activity.ExerciseID " +
-                            "ORDER BY Activity.Date DESC;"
+                            "ORDER BY Activity.Date DESC, Activity.timeStarted DESC;"
             );
 
             try {
