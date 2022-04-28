@@ -27,7 +27,7 @@ public class DBhelper {
     private static final String dbuser = "calebchanwy";
     private static final String dbpassword = "gyFr8LHqQA";
     private static final String url = String.format(Locale.getDefault(),
-            "jdbc:jtds:sqlserver://trackerplus2.database.windows.net:1433;databasename=trackerplus;user=%s@trackerplus2;password=%s;"
+            "jdbc:jtds:sqlserver://trackerplus2.database.windows.net:1433;databasename=trackerplus;user=%s@trackerplus2;password=%s;ssl=required;"
             ,dbuser,dbpassword);
     private Context context;
     private int flag;
