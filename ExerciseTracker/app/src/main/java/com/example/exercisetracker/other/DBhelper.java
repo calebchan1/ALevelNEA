@@ -19,13 +19,9 @@ import java.util.Locale;
 import java.util.Set;
 
 public class DBhelper {
-    //freesqldatabase.com
-//    private static final String url = "jdbc:mysql://sql4.freesqldatabase.com:3306/sql4456768";
-//    private static final String dbuser = "sql4456768";
-//    private static final String dbpassword = "gyFr8LHqQA";
-    //azure database
-    private static final String dbuser = "calebchanwy";
-    private static final String dbpassword = "gyFr8LHqQA";
+
+    private static final String dbuser = "********";
+    private static final String dbpassword = "*********";
     private static final String url = String.format(Locale.getDefault(),
             "jdbc:jtds:sqlserver://trackerplus2.database.windows.net:1433;databasename=trackerplus;user=%s@trackerplus2;password=%s;ssl=required;"
             ,dbuser,dbpassword);
